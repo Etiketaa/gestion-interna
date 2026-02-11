@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bit House - Sistema de Gestión de Reparaciones</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+    <!-- Botón de menú móvil -->
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle menu">
+        ☰
+    </button>
+
+    <!-- Botón de cambio de tema -->
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+        🌙
+    </button>
+
+    <!-- Overlay para cerrar menú en móvil -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <div class="logo-icon">🏠</div>
+                <div class="logo-text">
+                    <h1>Bit House</h1>
+                    <p>Gestión de Reparaciones</p>
+                </div>
+            </div>
+
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active" data-page="dashboard">
+                            <span class="nav-icon">📊</span>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-page="clientes">
+                            <span class="nav-icon">👥</span>
+                            <span>Clientes</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-page="equipos">
+                            <span class="nav-icon">📱</span>
+                            <span>Equipos</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-page="presupuestos">
+                            <span class="nav-icon">💰</span>
+                            <span>Presupuestos</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-page="retiros-entregas">
+                            <span class="nav-icon">🚚</span>
+                            <span>Retiros/Entregas</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Page -->
+            <div id="page-dashboard" class="page active">
+                <div class="page-header">
+                    <h2 class="page-title">Dashboard</h2>
+                    <p class="page-subtitle">Resumen general del taller</p>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid" id="stats-container">
+                    <!-- Se cargan dinámicamente -->
+                </div>
+
+                <!-- Equipos por Estado -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Equipos en Proceso</h3>
+                        <button class="btn btn-primary btn-sm" onclick="showPage('equipos')">
+                            Ver Todos
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="table" id="dashboard-equipos-table">
+                                <thead>
+                                    <tr>
+                                        <th>Cliente</th>
+                                        <th>Equipo</th>
+                                        <th>Sistema</th>
+                                        <th>Estado</th>
+                                        <th>Ingreso</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashboard-equipos-body">
+                                    <!-- Se cargan dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clientes Page -->
+            <div id="page-clientes" class="page">
+                <div class="page-header">
+                    <h2 class="page-title">Gestión de Clientes</h2>
+                    <p class="page-subtitle">Administrar base de datos de clientes</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <input type="text" id="search-clientes" class="form-input"
+                                placeholder="Buscar por nombre o teléfono..." style="width: 300px;">
+                        </div>
+                        <button class="btn btn-primary" onclick="openClienteModal()">
+                            ➕ Nuevo Cliente
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Teléfono</th>
+                                        <th>Dirección</th>
+                                        <th>Email</th>
+                                        <th>Equipos</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="clientes-table-body">
+                                    <!-- Se cargan dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Equipos Page -->
+            <div id="page-equipos" class="page">
+                <div class="page-header">
+                    <h2 class="page-title">Gestión de Equipos</h2>
+                    <p class="page-subtitle">Seguimiento de reparaciones</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="flex gap-1">
+                            <select id="filter-estado" class="form-select" style="width: 200px;">
+                                <option value="">Todos los estados</option>
+                                <option value="ingresado">Ingresado</option>
+                                <option value="diagnostico">Diagnóstico</option>
+                                <option value="presupuestado">Presupuestado</option>
+                                <option value="en_reparacion">En Reparación</option>
+                                <option value="listo">Listo</option>
+                                <option value="en_camino">En Camino</option>
+                                <option value="entregado">Entregado</option>
+                            </select>
+                            <select id="filter-sistema" class="form-select" style="width: 150px;">
+                                <option value="">Todos</option>
+                                <option value="Android">Android</option>
+                                <option value="iOS">iOS</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="openEquipoModal()">
+                            ➕ Ingresar Equipo
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Nº Orden</th>
+                                        <th>Cliente</th>
+                                        <th>Equipo</th>
+                                        <th>Sistema</th>
+                                        <th>Falla</th>
+                                        <th>Estado</th>
+                                        <th>Ingreso</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="equipos-table-body">
+                                    <!-- Se cargan dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Presupuestos Page -->
+            <div id="page-presupuestos" class="page">
+                <div class="page-header">
+                    <h2 class="page-title">Presupuestos</h2>
+                    <p class="page-subtitle">Gestión de presupuestos pendientes</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Presupuestos Pendientes</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Cliente</th>
+                                        <th>Equipo</th>
+                                        <th>Sistema</th>
+                                        <th>Repuestos</th>
+                                        <th>Mano de Obra</th>
+                                        <th>Total</th>
+                                        <th>Fecha</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="presupuestos-table-body">
+                                    <!-- Se cargan dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Retiros/Entregas Page -->
+            <div id="page-retiros-entregas" class="page">
+                <div class="page-header">
+                    <h2 class="page-title">Retiros y Entregas</h2>
+                    <p class="page-subtitle">Servicio a domicilio sin cargo</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Pendientes</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <th>Cliente</th>
+                                        <th>Equipo</th>
+                                        <th>Dirección</th>
+                                        <th>Fecha Programada</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="retiros-entregas-table-body">
+                                    <!-- Se cargan dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Cliente -->
+    <div id="modal-cliente" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-cliente-title">Nuevo Cliente</h3>
+                <button class="modal-close" onclick="closeModal('modal-cliente')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-cliente">
+                    <input type="hidden" id="cliente-id">
+
+                    <div class="form-group">
+                        <label class="form-label required">Nombre</label>
+                        <input type="text" id="cliente-nombre" class="form-input" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label required">Teléfono</label>
+                            <input type="tel" id="cliente-telefono" class="form-input" placeholder="11-1234-5678"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" id="cliente-email" class="form-input">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Dirección</label>
+                        <input type="text" id="cliente-direccion" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Notas</label>
+                        <textarea id="cliente-notas" class="form-textarea"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('modal-cliente')">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveCliente()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Equipo -->
+    <div id="modal-equipo" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Ingresar Equipo</h3>
+                <button class="modal-close" onclick="closeModal('modal-equipo')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-equipo">
+                    <div class="form-group">
+                        <label class="form-label required">Cliente</label>
+                        <select id="equipo-cliente" class="form-select" required>
+                            <option value="">Seleccionar cliente...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label required">Marca</label>
+                            <input type="text" id="equipo-marca" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label required">Modelo</label>
+                            <input type="text" id="equipo-modelo" class="form-input" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label required">Sistema Operativo</label>
+                            <select id="equipo-sistema" class="form-select" required onchange="toggleIOSFields()">
+                                <option value="">Seleccionar...</option>
+                                <option value="Android">Android</option>
+                                <option value="iOS">iOS</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">IMEI</label>
+                            <input type="text" id="equipo-imei" class="form-input">
+                        </div>
+                    </div>
+
+                    <!-- Campos específicos iOS -->
+                    <div id="ios-fields" class="hidden">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Estado iCloud</label>
+                                <select id="equipo-icloud" class="form-select">
+                                    <option value="">Desconocido</option>
+                                    <option value="desbloqueado">Desbloqueado</option>
+                                    <option value="bloqueado">Bloqueado</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Biometría</label>
+                                <select id="equipo-biometria" class="form-select">
+                                    <option value="">Ninguno</option>
+                                    <option value="Touch ID">Touch ID</option>
+                                    <option value="Face ID">Face ID</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">Falla Reportada</label>
+                        <textarea id="equipo-falla" class="form-textarea" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Estado Físico</label>
+                        <textarea id="equipo-estado-fisico" class="form-textarea"
+                            placeholder="Ej: Golpes en esquinas, pantalla rayada..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Accesorios</label>
+                        <input type="text" id="equipo-accesorios" class="form-input"
+                            placeholder="Ej: cargador, funda, auriculares">
+                        <small style="color: var(--text-secondary); font-size: var(--font-size-xs);">Separar con
+                            comas</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('modal-equipo')">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveEquipo()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detalle Equipo -->
+    <div id="modal-detalle-equipo" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Detalle del Equipo</h3>
+                <button class="modal-close" onclick="closeModal('modal-detalle-equipo')">&times;</button>
+            </div>
+            <div class="modal-body" id="detalle-equipo-content">
+                <!-- Se carga dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="/js/theme.js"></script>
+    <script src="/js/utils.js"></script>
+    <script src="/js/clientes.js"></script>
+    <script src="/js/equipos.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+
+</html>
