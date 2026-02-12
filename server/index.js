@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
+const db = require('./config/database');
 
 // Importar rutas
 const clientesRoutes = require('./routes/clientes');
@@ -90,18 +91,34 @@ app.use((err, req, res, next) => {
 // INICIAR SERVIDOR
 // ============================================
 
-app.listen(PORT, () => {
-    console.log('\n╔════════════════════════════════════════╗');
-    console.log('║   🏠 BIT HOUSE - Sistema de Gestión   ║');
-    console.log('╚════════════════════════════════════════╝\n');
-    console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-    console.log(`📱 API disponible en http://localhost:${PORT}/api`);
-    console.log(`🌐 Frontend disponible en http://localhost:${PORT}\n`);
-});
+async function startServer() {
+    try {
+        // Inicializar schema de PostgreSQL si es necesario
+        if (db.USE_POSTGRES) {
+            await db.initSchema();
+        }
+
+        app.listen(PORT, () => {
+            console.log('\n╔════════════════════════════════════════╗');
+            console.log('║   🏠 BIT HOUSE - Sistema de Gestión   ║');
+            console.log('╚════════════════════════════════════════╝\n');
+            console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+            console.log(`📱 API disponible en http://localhost:${PORT}/api`);
+            console.log(`🌐 Frontend disponible en http://localhost:${PORT}`);
+            console.log(`💾 Base de datos: ${db.USE_POSTGRES ? 'PostgreSQL' : 'SQLite'}\n`);
+        });
+    } catch (error) {
+        console.error('❌ Error al iniciar servidor:', error);
+        process.exit(1);
+    }
+}
+
+startServer();
 
 // Manejo de cierre graceful
-process.on('SIGINT', () => {
+process.on('SIGINT', async () => {
     console.log('\n\n👋 Cerrando servidor...');
+    await db.close();
     process.exit(0);
 });
 
