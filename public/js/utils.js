@@ -2,7 +2,10 @@
 // UTILIDADES GENERALES
 // ============================================
 
-const API_URL = 'http://localhost:3001/api';
+// Detectar automáticamente si estamos en producción o desarrollo
+const API_URL = window.location.hostname === 'localhost'
+    ? 'http://localhost:3001/api'
+    : `${window.location.origin}/api`;
 
 /**
  * Realizar petición a la API
