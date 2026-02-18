@@ -179,8 +179,10 @@ const initSchema = async () => {
         CREATE TABLE IF NOT EXISTS diagnosticos (
             id SERIAL PRIMARY KEY,
             equipo_id INTEGER NOT NULL REFERENCES equipos(id),
-            diagnostico TEXT NOT NULL,
-            solucion_propuesta TEXT,
+            tecnico VARCHAR(255) NOT NULL,
+            diagnostico_detallado TEXT NOT NULL,
+            reparable INTEGER DEFAULT 1,
+            observaciones TEXT,
             fecha_diagnostico TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
 
@@ -260,6 +262,26 @@ const initSchema = async () => {
     }
 
     console.log('✅ Schema de PostgreSQL inicializado');
+
+    // Migración: asegurar que la tabla diagnosticos tenga las columnas correctas
+    const migrations = [
+        `ALTER TABLE diagnosticos ADD COLUMN IF NOT EXISTS tecnico VARCHAR(255)`,
+        `ALTER TABLE diagnosticos ADD COLUMN IF NOT EXISTS diagnostico_detallado TEXT`,
+        `ALTER TABLE diagnosticos ADD COLUMN IF NOT EXISTS reparable INTEGER DEFAULT 1`,
+        `ALTER TABLE diagnosticos ADD COLUMN IF NOT EXISTS observaciones TEXT`,
+    ];
+
+    for (const migration of migrations) {
+        try {
+            await pool.query(migration);
+        } catch (err) {
+            if (!err.message.includes('already exists')) {
+                console.error('Error en migración:', err.message);
+            }
+        }
+    }
+
+    console.log('✅ Migraciones de PostgreSQL aplicadas');
 };
 
 module.exports = {
