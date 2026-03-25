@@ -8,7 +8,17 @@ let currentPage = 'dashboard';
  * Inicializar aplicación
  */
 document.addEventListener('DOMContentLoaded', async () => {
+    // Verificar autenticación antes de cargar el panel
+    if (!checkAuth()) return;
+
     console.log('🏠 Bit House - Sistema de Gestión Iniciado');
+
+    // Mostrar info del usuario autenticado
+    const user = JSON.parse(localStorage.getItem('auth_user') || '{}');
+    const userInfoEl = document.getElementById('user-info');
+    if (userInfoEl && user.username) {
+        userInfoEl.textContent = `👤 ${user.username}`;
+    }
 
     // Configurar navegación
     setupNavigation();

@@ -5,24 +5,80 @@
 // Detectar automáticamente si estamos en producción o desarrollo
 const API_URL = window.location.hostname === 'localhost'
     ? 'http://localhost:3001/api'
-    : `${window.location.origin}/api`;
+    : (window.API_BASE_URL || `${window.location.origin}/api`);
 
 /**
- * Realizar petición a la API
+ * Obtener token de autenticación
+ */
+function getAuthToken() {
+    return localStorage.getItem('auth_token');
+}
+
+/**
+ * Verificar si el usuario está autenticado
+ */
+function checkAuth() {
+    const token = getAuthToken();
+    const expires = localStorage.getItem('auth_expires');
+
+    if (!token || (expires && Date.now() > parseInt(expires))) {
+        // Token no existe o expiró
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('auth_user');
+        localStorage.removeItem('auth_expires');
+
+        // Redirigir a login solo si no estamos en login.html o tracking.html
+        const currentPage = window.location.pathname.split('/').pop();
+        if (currentPage !== 'login.html' && currentPage !== 'tracking.html' && currentPage !== 'mis-reparaciones.html') {
+            window.location.href = 'login.html';
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * Cerrar sesión
+ */
+function logout() {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_user');
+    localStorage.removeItem('auth_expires');
+    window.location.href = 'login.html';
+}
+
+/**
+ * Realizar petición a la API con autenticación
  */
 async function apiRequest(endpoint, options = {}) {
     try {
+        const token = getAuthToken();
+        const headers = {
+            'Content-Type': 'application/json',
+            ...options.headers
+        };
+
+        // Agregar token JWT si existe
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
         const response = await fetch(`${API_URL}${endpoint}`, {
-            headers: {
-                'Content-Type': 'application/json',
-                ...options.headers
-            },
-            ...options
+            ...options,
+            headers
         });
 
         const data = await response.json();
 
         if (!response.ok) {
+            // Si el token expiró o es inválido, redirigir al login
+            if (response.status === 401) {
+                localStorage.removeItem('auth_token');
+                localStorage.removeItem('auth_user');
+                localStorage.removeItem('auth_expires');
+                window.location.href = 'login.html';
+                return;
+            }
             throw new Error(data.error || 'Error en la petición');
         }
 
@@ -32,6 +88,7 @@ async function apiRequest(endpoint, options = {}) {
         throw error;
     }
 }
+
 
 /**
  * Mostrar notificación toast

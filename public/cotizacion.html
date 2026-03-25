@@ -1,0 +1,3213 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bit House — Cotizaciones y Presupuestos</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    /* Override app body padding for this page */
+    body {
+      padding-top: 0 !important;
+    }
+
+    .cot-topbar {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: linear-gradient(90deg, #1e40af 0%, #1e3a8a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      height: 56px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, .35);
+    }
+
+    .cot-topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .cot-back-btn {
+      background: rgba(255, 255, 255, .12);
+      border: 1px solid rgba(255, 255, 255, .2);
+      color: #fff;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: .82rem;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background .2s;
+    }
+
+    .cot-back-btn:hover {
+      background: rgba(255, 255, 255, .22);
+    }
+
+    .cot-topbar-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cot-topbar-title span {
+      color: #6ee7b7;
+    }
+
+    .cot-topbar-actions {
+      display: flex;
+      gap: 8px;
+    }
+  </style>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --surface2: #1a1a24;
+      --border: #2a2a3a;
+      --accent: #00e5a0;
+      --accent2: #7c6fff;
+      --warn: #ff6b35;
+      --text: #e8e8f0;
+      --muted: #6b6b85;
+      --white: #ffffff;
+      --card-bg: #13131e;
+      --input-bg: #0d0d16;
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: linear-gradient(rgba(0, 229, 160, .03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 229, 160, .03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10, 10, 15, .9);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: var(--white);
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-size: 1rem;
+    }
+
+    .logo span {
+      color: var(--accent);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      font-family: 'DM Sans', sans-serif;
+      font-size: .85rem;
+      font-weight: 500;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      padding: 8px 16px;
+      transition: all .2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .btn-ghost:hover {
+      color: var(--text);
+      border-color: var(--muted);
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #000;
+      font-weight: 600;
+    }
+
+    .btn-accent:hover {
+      background: #00ffb3;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(0, 229, 160, .3);
+    }
+
+    .btn-accent2 {
+      background: var(--accent2);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .btn-accent2:hover {
+      background: #9d8fff;
+      transform: translateY(-1px);
+    }
+
+    .btn-warn {
+      background: var(--warn);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .btn-sm {
+      padding: 5px 10px;
+      font-size: .78rem;
+    }
+
+    .tab-nav {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      padding: 20px 32px 0;
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      gap: 0;
+    }
+
+    .tab-btn {
+      font-family: 'DM Sans', sans-serif;
+      font-size: .85rem;
+      font-weight: 500;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      padding: 10px 20px;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all .2s;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .tab-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: background .2s;
+    }
+
+    .tab-btn.active .tab-dot {
+      background: var(--accent);
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 24px 60px;
+    }
+
+    .tab-panel {
+      display: none;
+      animation: fadeIn .3s ease;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .section-header {
+      margin-bottom: 28px;
+    }
+
+    .section-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: .7rem;
+      color: var(--accent);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1.1;
+    }
+
+    .section-sub {
+      color: var(--muted);
+      font-size: .9rem;
+      margin-top: 6px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--white);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      font-size: .9rem;
+      background: rgba(0, 229, 160, .1);
+      border: 1px solid rgba(0, 229, 160, .2);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-grid.cols-3 {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .form-grid.cols-1 {
+      grid-template-columns: 1fr;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group.span-2 {
+      grid-column: span 2;
+    }
+
+    .form-group.span-3 {
+      grid-column: span 3;
+    }
+
+    label {
+      font-size: .8rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-family: 'DM Mono', monospace;
+    }
+
+    input,
+    select,
+    textarea {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9rem;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      width: 100%;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0, 229, 160, .1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    select option {
+      background: var(--surface2);
+    }
+
+    .chip-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip-label {
+      cursor: pointer;
+    }
+
+    .chip-label input {
+      display: none;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      font-size: .82rem;
+      color: var(--muted);
+      background: var(--input-bg);
+      transition: all .2s;
+    }
+
+    .chip-label input:checked+.chip {
+      background: rgba(0, 229, 160, .1);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .check-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .check-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    .check-label input[type=checkbox] {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      margin-top: 1px;
+      accent-color: var(--accent);
+    }
+
+    .check-text {
+      font-size: .88rem;
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    .check-sub {
+      font-size: .78rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .phone-outline {
+      width: 120px;
+      height: 220px;
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      position: relative;
+      background: var(--input-bg);
+      margin: 0 auto;
+      cursor: crosshair;
+      flex-shrink: 0;
+    }
+
+    .phone-outline::before {
+      content: '';
+      width: 40px;
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .phone-outline::after {
+      content: '';
+      width: 30px;
+      height: 30px;
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .damage-dot {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--warn);
+      border: 2px solid #fff;
+      transform: translate(-50%, -50%);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(255, 107, 53, .5);
+      }
+
+      50% {
+        box-shadow: 0 0 0 5px rgba(255, 107, 53, 0);
+      }
+    }
+
+    .damage-map-wrapper {
+      display: flex;
+      gap: 32px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .damage-legend {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .damage-legend-title {
+      font-size: .8rem;
+      color: var(--muted);
+      margin-bottom: 10px;
+      font-family: 'DM Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .damage-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: rgba(255, 107, 53, .08);
+      border: 1px solid rgba(255, 107, 53, .2);
+      color: var(--text);
+      font-size: .82rem;
+      margin-bottom: 6px;
+    }
+
+    .services-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .86rem;
+    }
+
+    .services-table th {
+      text-align: left;
+      padding: 10px 10px;
+      border-bottom: 1px solid var(--border);
+      font-family: 'DM Mono', monospace;
+      font-size: .7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-weight: 400;
+    }
+
+    .services-table td {
+      padding: 9px 10px;
+      border-bottom: 1px solid rgba(42, 42, 58, .4);
+      vertical-align: middle;
+    }
+
+    .services-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .services-table tr:hover td {
+      background: rgba(0, 229, 160, .025);
+    }
+
+    .remove-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 4px;
+      border-radius: 4px;
+      transition: color .2s;
+    }
+
+    .remove-btn:hover {
+      color: var(--warn);
+    }
+
+    .totals-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px 20px;
+      margin-top: 16px;
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      font-size: .88rem;
+      color: var(--muted);
+    }
+
+    .total-row.grand {
+      border-top: 1px solid var(--border);
+      margin-top: 8px;
+      padding-top: 12px;
+      color: var(--white);
+      font-weight: 700;
+      font-size: 1.1rem;
+      font-family: 'Syne', sans-serif;
+    }
+
+    .total-accent {
+      color: var(--accent);
+      font-family: 'DM Mono', monospace;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: .75rem;
+      font-weight: 500;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .badge-pending {
+      background: rgba(255, 193, 7, .1);
+      color: #ffc107;
+      border: 1px solid rgba(255, 193, 7, .2);
+    }
+
+    .terms-block {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 20px 24px;
+      font-size: .87rem;
+      line-height: 1.7;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .terms-block h4 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .terms-block p {
+      margin-bottom: 8px;
+    }
+
+    .sig-canvas {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      display: block;
+      cursor: crosshair;
+      width: 100%;
+      height: 100px;
+    }
+
+    .sep {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 24px 0;
+    }
+
+    .alert {
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      font-size: .85rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .alert-info {
+      background: rgba(124, 111, 255, .1);
+      border: 1px solid rgba(124, 111, 255, .2);
+      color: #c0b8ff;
+    }
+
+    .alert-warn {
+      background: rgba(255, 107, 53, .1);
+      border: 1px solid rgba(255, 107, 53, .2);
+      color: #ffb8a0;
+    }
+
+    .toggle {
+      position: relative;
+      width: 40px;
+      height: 22px;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      background: var(--border);
+      border-radius: 999px;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .slider::before {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      left: 3px;
+      bottom: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: .2s;
+    }
+
+    .toggle input:checked+.slider {
+      background: var(--accent);
+    }
+
+    .toggle input:checked+.slider::before {
+      transform: translateX(18px);
+    }
+
+    .quote-row {
+      display: grid;
+      grid-template-columns: 90px 1fr 1fr 100px 110px 90px;
+      gap: 12px;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(42, 42, 58, .5);
+      font-size: .85rem;
+      transition: background .15s;
+    }
+
+    .quote-row:hover {
+      background: rgba(0, 229, 160, .03);
+    }
+
+    .quote-row:last-child {
+      border-bottom: none;
+    }
+
+    .quote-row.header {
+      font-family: 'DM Mono', monospace;
+      font-size: .72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .quote-id {
+      font-family: 'DM Mono', monospace;
+      color: var(--accent);
+    }
+
+    /* ── INVENTORY ── */
+    .inv-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .85rem;
+    }
+
+    .inv-table th {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      font-family: 'DM Mono', monospace;
+      font-size: .7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-weight: 400;
+      white-space: nowrap;
+    }
+
+    .inv-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(42, 42, 58, .4);
+      vertical-align: middle;
+    }
+
+    .inv-table tr:hover td {
+      background: rgba(0, 229, 160, .02);
+    }
+
+    .inv-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .category-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: .7rem;
+      font-family: 'DM Mono', monospace;
+      background: rgba(124, 111, 255, .12);
+      color: var(--accent2);
+      border: 1px solid rgba(124, 111, 255, .2);
+    }
+
+    .margin-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-family: 'DM Mono', monospace;
+      font-size: .75rem;
+      font-weight: 600;
+    }
+
+    .mh {
+      background: rgba(0, 229, 160, .12);
+      color: var(--accent);
+      border: 1px solid rgba(0, 229, 160, .25);
+    }
+
+    .mm {
+      background: rgba(255, 193, 7, .1);
+      color: #ffc107;
+      border: 1px solid rgba(255, 193, 7, .25);
+    }
+
+    .ml {
+      background: rgba(255, 107, 53, .1);
+      color: var(--warn);
+      border: 1px solid rgba(255, 107, 53, .25);
+    }
+
+    .profit-bar-wrap {
+      width: 70px;
+      height: 5px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .profit-bar {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--accent);
+    }
+
+    .stock-ok {
+      color: var(--accent);
+      font-family: 'DM Mono', monospace;
+      font-size: .78rem;
+    }
+
+    .stock-low {
+      color: #ffc107;
+      font-family: 'DM Mono', monospace;
+      font-size: .78rem;
+    }
+
+    .stock-out {
+      color: var(--warn);
+      font-family: 'DM Mono', monospace;
+      font-size: .78rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+    }
+
+    .stat-label {
+      font-family: 'DM Mono', monospace;
+      font-size: .7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+    }
+
+    .stat-sub {
+      font-size: .76rem;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    /* AUTOCOMPLETE */
+    .autocomplete-wrap {
+      position: relative;
+    }
+
+    .ac-list {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--card-bg);
+      border: 1px solid var(--accent);
+      border-top: none;
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+      z-index: 50;
+      max-height: 240px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    .ac-list.open {
+      display: block;
+    }
+
+    .ac-item {
+      padding: 10px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .86rem;
+      transition: background .12s;
+    }
+
+    .ac-item:hover,
+    .ac-item.sel {
+      background: rgba(0, 229, 160, .08);
+    }
+
+    .ac-cat {
+      font-size: .7rem;
+      color: var(--accent2);
+      background: rgba(124, 111, 255, .1);
+      padding: 1px 6px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+
+    .ac-name {
+      flex: 1;
+      color: var(--text);
+    }
+
+    .ac-cost {
+      font-family: 'DM Mono', monospace;
+      font-size: .76rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .ac-price {
+      font-family: 'DM Mono', monospace;
+      font-size: .84rem;
+      color: var(--accent);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* MARGIN CONFIG */
+    .mg-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .mg-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+    }
+
+    .mg-label {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .mg-name {
+      font-weight: 600;
+      font-size: .86rem;
+      color: var(--text);
+    }
+
+    .mg-desc {
+      font-size: .73rem;
+      color: var(--muted);
+    }
+
+    .mg-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mg-input-wrap input {
+      width: 68px;
+      text-align: center;
+      font-family: 'DM Mono', monospace;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .75);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: fadeIn .2s ease;
+    }
+
+    .modal-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--white);
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+
+    .modal-close:hover {
+      color: var(--warn);
+    }
+
+    /* ── PROVEEDORES ── */
+    .prov-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 14px;
+      transition: border-color .2s;
+    }
+
+    .prov-card:hover {
+      border-color: var(--accent2);
+    }
+
+    .prov-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .prov-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .prov-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: .72rem;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .prov-tag-a {
+      background: rgba(0, 229, 160, .1);
+      color: var(--accent);
+      border: 1px solid rgba(0, 229, 160, .2);
+    }
+
+    .prov-tag-b {
+      background: rgba(255, 193, 7, .1);
+      color: #ffc107;
+      border: 1px solid rgba(255, 193, 7, .2);
+    }
+
+    .prov-tag-c {
+      background: rgba(124, 111, 255, .1);
+      color: var(--accent2);
+      border: 1px solid rgba(124, 111, 255, .2);
+    }
+
+    .prov-meta {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: .82rem;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .prov-meta span {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .prov-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .84rem;
+    }
+
+    .prov-table th {
+      text-align: left;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+      font-family: 'DM Mono', monospace;
+      font-size: .68rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-weight: 400;
+    }
+
+    .prov-table td {
+      padding: 9px 10px;
+      border-bottom: 1px solid rgba(42, 42, 58, .3);
+      vertical-align: middle;
+    }
+
+    .prov-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .prov-table tr:hover td {
+      background: rgba(0, 229, 160, .02);
+    }
+
+    .best-price {
+      background: rgba(0, 229, 160, .08);
+      border-left: 3px solid var(--accent);
+    }
+
+    .best-price td:first-child {
+      border-left: none;
+    }
+
+    .winner-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: .68rem;
+      font-family: 'DM Mono', monospace;
+      background: rgba(0, 229, 160, .15);
+      color: var(--accent);
+      border: 1px solid rgba(0, 229, 160, .3);
+    }
+
+    /* Comparador de repuesto */
+    .cmp-section {
+      margin-bottom: 32px;
+    }
+
+    .cmp-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--white);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cmp-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .cmp-row {
+      display: grid;
+      grid-template-columns: 2fr repeat(var(--cols, 3), 1fr) 80px;
+      gap: 0;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .cmp-cell {
+      padding: 11px 14px;
+      font-size: .84rem;
+      border-right: 1px solid var(--border);
+      background: var(--input-bg);
+    }
+
+    .cmp-cell:last-child {
+      border-right: none;
+    }
+
+    .cmp-cell.header {
+      background: var(--surface2);
+      font-family: 'DM Mono', monospace;
+      font-size: .7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .cmp-cell.item-name {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .cmp-cell.price-cell {
+      font-family: 'DM Mono', monospace;
+      text-align: right;
+      position: relative;
+    }
+
+    .cmp-cell.best {
+      background: rgba(0, 229, 160, .07);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .cmp-cell.worst {
+      color: var(--warn);
+    }
+
+    .cmp-cell.saving {
+      font-family: 'DM Mono', monospace;
+      text-align: right;
+      font-size: .78rem;
+      color: var(--accent2);
+    }
+
+    .price-diff {
+      font-size: .68rem;
+      display: block;
+      margin-top: 2px;
+    }
+
+    .price-diff.cheaper {
+      color: var(--accent);
+    }
+
+    .price-diff.pricier {
+      color: var(--warn);
+    }
+
+    /* Star rating */
+    .stars {
+      color: #ffc107;
+      font-size: .9rem;
+      letter-spacing: 1px;
+    }
+
+    @media(max-width:640px) {
+      header {
+        padding: 0 16px;
+      }
+
+      .tab-nav {
+        padding: 16px 16px 0;
+      }
+
+      .content {
+        padding: 20px 16px 60px;
+      }
+
+      .form-grid,
+      .form-grid.cols-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .form-group.span-2,
+      .form-group.span-3 {
+        grid-column: span 1;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .mg-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .quote-row {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        color: #000;
+      }
+
+      header,
+      .tab-nav,
+      .no-print {
+        display: none !important;
+      }
+
+      .tab-panel {
+        display: none !important;
+      }
+
+      #tab-preview {
+        display: block !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Top bar integrada con la app -->
+  <div class="cot-topbar">
+    <div class="cot-topbar-left">
+      <a href="/" class="cot-back-btn">← Volver al sistema</a>
+      <div class="cot-topbar-title">📱 Bit House <span>· Cotizaciones</span></div>
+    </div>
+    <div class="cot-topbar-actions">
+      <button class="btn btn-ghost" onclick="clearForm()">🗑 Limpiar</button>
+      <button class="btn btn-accent2" onclick="saveQuote()">💾 Guardar</button>
+      <button class="btn btn-accent" onclick="printQuote()">🖨 Imprimir</button>
+    </div>
+  </div>
+
+  <nav class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('recepcion',this)">
+      <div class="tab-dot"></div>1. Recepción
+    </button>
+    <button class="tab-btn" onclick="switchTab('cotizacion',this)">
+      <div class="tab-dot"></div>2. Cotización
+    </button>
+    <button class="tab-btn" onclick="switchTab('terminos',this)">
+      <div class="tab-dot"></div>3. Términos
+    </button>
+    <button class="tab-btn" onclick="switchTab('garantia',this)">
+      <div class="tab-dot"></div>4. Garantía
+    </button>
+    <button class="tab-btn" onclick="switchTab('inventario',this)">
+      <div class="tab-dot"></div>📦 Inventario
+    </button>
+    <button class="tab-btn" onclick="switchTab('proveedores',this)">
+      <div class="tab-dot"></div>🏪 Proveedores
+    </button>
+    <button class="tab-btn" onclick="switchTab('margenes',this)">
+      <div class="tab-dot"></div>⚙️ Márgenes
+    </button>
+    <button class="tab-btn" onclick="switchTab('historial',this)">
+      <div class="tab-dot"></div>Historial
+    </button>
+    <button class="tab-btn" onclick="switchTab('preview',this)">
+      <div class="tab-dot"></div>Vista previa
+    </button>
+  </nav>
+
+  <div class="content">
+
+    <!-- ═══ 1: RECEPCIÓN ═══ -->
+    <div class="tab-panel active" id="tab-recepcion">
+      <div class="section-header">
+        <div class="section-badge">// formulario de ingreso</div>
+        <div class="section-title">Recepción del Equipo</div>
+        <div class="section-sub">Complete todos los datos al momento de recibir el dispositivo.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon">👤</div>Datos del Cliente
+        </div>
+        <div class="form-grid">
+          <div class="form-group"><label>Nombre completo *</label><input type="text" id="cli-nombre"
+              placeholder="Ej: Juan Pérez"></div>
+          <div class="form-group"><label>RUT / DNI</label><input type="text" id="cli-rut" placeholder="12.345.678-9">
+          </div>
+          <div class="form-group"><label>Teléfono *</label><input type="tel" id="cli-tel" placeholder="+56 9 1234 5678">
+          </div>
+          <div class="form-group"><label>WhatsApp</label><input type="tel" id="cli-wa" placeholder="+56 9 1234 5678">
+          </div>
+          <div class="form-group span-2"><label>Correo electrónico</label><input type="email" id="cli-email"
+              placeholder="cliente@email.com"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon">📱</div>Datos del Equipo
+        </div>
+        <div class="form-grid cols-3">
+          <div class="form-group"><label>Marca *</label>
+            <select id="eq-marca">
+              <option value="">Seleccionar...</option>
+              <option>Apple / iPhone</option>
+              <option>Samsung</option>
+              <option>Motorola</option>
+              <option>Xiaomi</option>
+              <option>Huawei</option>
+              <option>LG</option>
+              <option>Sony</option>
+              <option>Nokia</option>
+              <option>OnePlus</option>
+              <option>Google Pixel</option>
+              <option>Otro</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Modelo *</label><input type="text" id="eq-modelo"
+              placeholder="Ej: iPhone 14 Pro"></div>
+          <div class="form-group"><label>IMEI / S/N</label><input type="text" id="eq-imei" placeholder="15 dígitos">
+          </div>
+          <div class="form-group"><label>Color</label><input type="text" id="eq-color" placeholder="Negro, blanco...">
+          </div>
+          <div class="form-group"><label>Capacidad</label>
+            <select id="eq-cap">
+              <option>N/A</option>
+              <option>64 GB</option>
+              <option>128 GB</option>
+              <option>256 GB</option>
+              <option>512 GB</option>
+              <option>1 TB</option>
+            </select>
+          </div>
+          <div class="form-group"><label>N° Orden</label><input type="text" id="eq-orden" readonly style="opacity:.6">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon">🎒</div>Accesorios Recibidos
+        </div>
+        <div class="check-group">
+          <label class="check-label"><input type="checkbox">
+            <div class="check-text">Cable / Cargador<div class="check-sub">Incluye adaptador de corriente</div>
+            </div>
+          </label>
+          <label class="check-label"><input type="checkbox">
+            <div class="check-text">Caja original</div>
+          </label>
+          <label class="check-label"><input type="checkbox">
+            <div class="check-text">Funda / Protector</div>
+          </label>
+          <label class="check-label"><input type="checkbox">
+            <div class="check-text">Vidrio templado / Screen protector</div>
+          </label>
+          <label class="check-label"><input type="checkbox">
+            <div class="check-text">Tarjeta SIM / MicroSD<div class="check-sub">⚠️ Se recomienda retirarla antes de
+                dejar el equipo</div>
+            </div>
+          </label>
+          <label class="check-label"><input type="checkbox">
+            <div class="check-text">Auriculares</div>
+          </label>
+        </div>
+        <div style="margin-top:14px"><label>Otros accesorios</label><input type="text" placeholder="Descripción...">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon">🔍</div>Estado Físico del Equipo
+        </div>
+        <div class="form-grid" style="margin-bottom:20px">
+          <div class="form-group"><label>Estado de la pantalla</label>
+            <div class="chip-group">
+              <label class="chip-label"><input type="radio" name="pantalla"><span class="chip">✅ Sin
+                  daños</span></label>
+              <label class="chip-label"><input type="radio" name="pantalla"><span class="chip">🔸 Rayones</span></label>
+              <label class="chip-label"><input type="radio" name="pantalla"><span class="chip">💥 Rota</span></label>
+              <label class="chip-label"><input type="radio" name="pantalla"><span class="chip">⬛ Manchas
+                  LCD</span></label>
+            </div>
+          </div>
+          <div class="form-group"><label>Estado de la carcasa</label>
+            <div class="chip-group">
+              <label class="chip-label"><input type="radio" name="carcasa"><span class="chip">✅ Sin daños</span></label>
+              <label class="chip-label"><input type="radio" name="carcasa"><span class="chip">🔸 Rayones</span></label>
+              <label class="chip-label"><input type="radio" name="carcasa"><span class="chip">💥 Rota</span></label>
+            </div>
+          </div>
+          <div class="form-group"><label>Humedad / Agua</label>
+            <div class="chip-group">
+              <label class="chip-label"><input type="radio" name="humedad"><span class="chip">✅ No</span></label>
+              <label class="chip-label"><input type="radio" name="humedad"><span class="chip">⚠️ Posible</span></label>
+              <label class="chip-label"><input type="radio" name="humedad"><span class="chip">💧
+                  Confirmado</span></label>
+            </div>
+          </div>
+          <div class="form-group"><label>Reparaciones previas</label>
+            <div class="chip-group">
+              <label class="chip-label"><input type="radio" name="previo"><span class="chip">✅ No</span></label>
+              <label class="chip-label"><input type="radio" name="previo"><span class="chip">⚠️ Sí</span></label>
+              <label class="chip-label"><input type="radio" name="previo"><span class="chip">❓ Desconoce</span></label>
+            </div>
+          </div>
+        </div>
+        <label style="margin-bottom:12px;display:block">Mapa de daños — Haga clic en el teléfono para marcar
+          golpes</label>
+        <div class="damage-map-wrapper">
+          <div class="phone-outline" id="phoneMap" onclick="addDamage(event)"></div>
+          <div class="damage-legend">
+            <div class="damage-legend-title">Daños marcados</div>
+            <div id="damageList">
+              <div style="color:var(--muted);font-size:.82rem;font-style:italic">Haga clic en el teléfono para marcar
+                puntos.</div>
+            </div>
+            <button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="clearDamages()">✕ Limpiar
+              mapa</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon">📝</div>Motivo de Ingreso
+        </div>
+        <div class="form-grid cols-1">
+          <div class="form-group"><label>Descripción del problema (según cliente) *</label><textarea id="motivo-cliente"
+              rows="3" placeholder="El cliente indica que..."></textarea></div>
+          <div class="form-group"><label>Diagnóstico inicial del técnico</label><textarea id="motivo-tecnico" rows="3"
+              placeholder="Diagnóstico preliminar..."></textarea></div>
+          <div class="form-group"><label>Técnico responsable</label><input type="text" id="tecnico"
+              placeholder="Nombre del técnico"></div>
+          <div class="form-group"><label>Fecha de ingreso</label><input type="datetime-local" id="fecha-ingreso"></div>
+          <div class="form-group"><label>Fecha estimada de entrega</label><input type="datetime-local"></div>
+        </div>
+      </div>
+      <div class="alert alert-warn">⚠️ <span>Recuerde tomar fotografías del equipo antes de iniciar cualquier
+          trabajo.</span></div>
+      <button class="btn btn-accent"
+        onclick="switchTab('cotizacion',document.querySelectorAll('.tab-btn')[1])">Siguiente → Cotización</button>
+    </div>
+
+    <!-- ═══ 2: COTIZACIÓN ═══ -->
+    <div class="tab-panel" id="tab-cotizacion">
+      <div class="section-header">
+        <div class="section-badge">// presupuesto detallado</div>
+        <div class="section-title">Cotización de Servicios</div>
+        <div class="section-sub">Busque repuestos del inventario — el precio de venta se aplica automáticamente con el
+          margen configurado por categoría.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon">🔎</div>Buscar en Inventario
+          <span style="font-size:.76rem;color:var(--muted);font-weight:400;margin-left:auto">Precio venta = Costo ×
+            Margen (configurable en ⚙️ Márgenes)</span>
+        </div>
+        <div class="autocomplete-wrap">
+          <input type="text" id="invSearch" placeholder="Buscar repuesto por nombre, marca o categoría..."
+            oninput="searchAC(this.value)" onkeydown="handleACKey(event)" autocomplete="off">
+          <div class="ac-list" id="acList"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon">⚡</div>Servicios de Mano de Obra
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <button class="chip" style="cursor:pointer;background:var(--input-bg);color:var(--text)"
+            onclick="addQuick('M.O. Cambio de pantalla',8000,'Mano de obra')">🔧 M.O. Pantalla</button>
+          <button class="chip" style="cursor:pointer;background:var(--input-bg);color:var(--text)"
+            onclick="addQuick('M.O. Cambio de batería',5000,'Mano de obra')">🔧 M.O. Batería</button>
+          <button class="chip" style="cursor:pointer;background:var(--input-bg);color:var(--text)"
+            onclick="addQuick('M.O. Conector de carga',6000,'Mano de obra')">🔧 M.O. Conector</button>
+          <button class="chip" style="cursor:pointer;background:var(--input-bg);color:var(--text)"
+            onclick="addQuick('Diagnóstico técnico',5000,'Diagnóstico')">🔬 Diagnóstico</button>
+          <button class="chip" style="cursor:pointer;background:var(--input-bg);color:var(--text)"
+            onclick="addQuick('Limpieza ultrasónica',8000,'Servicio')">✨ Limpieza</button>
+          <button class="chip" style="cursor:pointer;background:var(--input-bg);color:var(--text)"
+            onclick="addQuick('Reparación por agua / humedad',22000,'Servicio')">💧 Daño por agua</button>
+          <button class="chip" style="cursor:pointer;background:var(--input-bg);color:var(--text)"
+            onclick="addEmptyRow()">+ Agregar manual</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon">📋</div>Detalle de Cotización
+        </div>
+        <div style="overflow-x:auto">
+          <table class="services-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Descripción</th>
+                <th>Categoría</th>
+                <th style="text-align:center">Cant.</th>
+                <th style="text-align:right">Costo unit.</th>
+                <th style="text-align:right">Margen</th>
+                <th style="text-align:right">Precio venta</th>
+                <th style="text-align:right">Subtotal</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="serviceTableBody">
+              <tr id="empty-row">
+                <td colspan="9" style="text-align:center;color:var(--muted);font-style:italic;padding:24px">Busque en el
+                  inventario o agregue servicios de mano de obra</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:14px"><button class="btn btn-ghost btn-sm" onclick="addDiscount()">% Descuento</button>
+        </div>
+
+        <div class="totals-box">
+          <div class="total-row"><span>Subtotal</span><span class="total-accent" id="t-subtotal">$0</span></div>
+          <div class="total-row"><span>Descuentos</span><span class="total-accent" id="t-descuento">$0</span></div>
+          <div class="total-row">
+            <span>IVA (19%)</span>
+            <div style="display:flex;align-items:center;gap:10px">
+              <label class="toggle"><input type="checkbox" id="ivaToggle" onchange="recalc()"><span
+                  class="slider"></span></label>
+              <span class="total-accent" id="t-iva">$0</span>
+            </div>
+          </div>
+          <div class="total-row"><span>💸 Costo total repuestos</span><span
+              style="color:var(--warn);font-family:'DM Mono',monospace" id="t-costo">$0</span></div>
+          <div class="total-row"><span>💰 Ganancia estimada</span><span
+              style="color:var(--accent2);font-family:'DM Mono',monospace" id="t-ganancia">$0</span></div>
+          <div class="total-row grand"><span>TOTAL CLIENTE</span><span class="total-accent" id="t-total"
+              style="font-size:1.3rem">$0</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon">💬</div>Notas
+        </div>
+        <div class="form-grid cols-1">
+          <div class="form-group"><label>Observaciones</label><textarea id="obs-cotizacion" rows="3"
+              placeholder="Notas adicionales..."></textarea></div>
+          <div class="form-group"><label>Tiempo estimado</label>
+            <select id="tiempo-rep">
+              <option>Mismo día (2-4 hrs)</option>
+              <option>24 horas</option>
+              <option>2-3 días hábiles</option>
+              <option>5-7 días hábiles</option>
+              <option>1-2 semanas</option>
+              <option>A confirmar</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Validez cotización</label>
+            <select id="validez">
+              <option>7 días hábiles</option>
+              <option>15 días hábiles</option>
+              <option>30 días</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <button class="btn btn-ghost" onclick="switchTab('recepcion',document.querySelectorAll('.tab-btn')[0])">←
+          Volver</button>
+        <button class="btn btn-accent"
+          onclick="switchTab('terminos',document.querySelectorAll('.tab-btn')[2])">Siguiente → Términos</button>
+      </div>
+    </div>
+
+    <!-- ═══ 3: TÉRMINOS ═══ -->
+    <div class="tab-panel" id="tab-terminos">
+      <div class="section-header">
+        <div class="section-badge">// términos legales</div>
+        <div class="section-title">Términos y Condiciones</div>
+      </div>
+      <div class="terms-block">
+        <h4>📄 1. Autorización de Trabajo</h4>
+        <p>Al entregar el equipo, el cliente autoriza expresamente su apertura, inspección y diagnóstico. Cualquier
+          trabajo adicional requerirá aprobación previa.</p>
+      </div>
+      <div class="terms-block">
+        <h4>💰 2. Diagnóstico y Cobro</h4>
+        <p>El diagnóstico tiene costo de <strong>$5.000</strong>. Si el cliente NO aprueba la reparación, debe abonar el
+          diagnóstico antes de retirar el equipo. Los precios son estimados y pueden variar si se detectan daños
+          adicionales.</p>
+      </div>
+      <div class="terms-block">
+        <h4>⚠️ 3. Riesgos y Responsabilidad</h4>
+        <p>El taller NO se responsabiliza por pérdida de datos. <strong>Se recomienda realizar un respaldo (backup)
+            antes de entregar el equipo.</strong> En equipos con daño por agua o golpes severos pueden surgir
+          complicaciones adicionales.</p>
+      </div>
+      <div class="terms-block">
+        <h4>⏳ 4. Plazo de Reparación</h4>
+        <p>Los plazos son estimativos y pueden variar por demoras en repuestos o complejidad técnica. El cliente será
+          notificado.</p>
+      </div>
+      <div class="terms-block">
+        <h4>📦 5. Retiro del Equipo</h4>
+        <p>El cliente tiene <strong>30 días</strong> para retirar el equipo listo. Pasados <strong>90 días</strong> sin
+          respuesta, el equipo puede considerarse abandonado.</p>
+      </div>
+      <div class="terms-block">
+        <h4>🔒 6. Privacidad</h4>
+        <p>Los datos personales son tratados con estricta confidencialidad y usados únicamente para gestión del
+          servicio.</p>
+      </div>
+      <div class="terms-block">
+        <h4>🔄 7. Repuestos</h4>
+        <p>Salvo indicación, se usan repuestos genéricos compatibles. Si se solicitan originales, el precio puede
+          variar. Los repuestos cambiados pueden ser devueltos si se solicita.</p>
+      </div>
+      <hr class="sep">
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon">✅</div>Aceptación del Cliente
+        </div>
+        <div class="check-group" style="margin-bottom:20px">
+          <label class="check-label"><input type="checkbox">
+            <div class="check-text">He leído y acepto los términos y condiciones.</div>
+          </label>
+          <label class="check-label"><input type="checkbox">
+            <div class="check-text">Declaro haber realizado respaldo de datos o eximo al taller de responsabilidad por
+              pérdida de información.</div>
+          </label>
+          <label class="check-label"><input type="checkbox">
+            <div class="check-text">Apruebo la cotización y autorizo el inicio del trabajo.</div>
+          </label>
+          <label class="check-label"><input type="checkbox">
+            <div class="check-text">Entiendo los riesgos inherentes a la reparación.</div>
+          </label>
+        </div>
+        <div class="form-grid">
+          <div class="form-group"><label>Firma cliente</label><canvas class="sig-canvas" id="sigCanvas" width="400"
+              height="100"></canvas><button class="btn btn-ghost btn-sm" onclick="clearSig()" style="margin-top:8px">✕
+              Borrar</button></div>
+          <div class="form-group"><label>Firma técnico</label><canvas class="sig-canvas" id="sigCanvasTec" width="400"
+              height="100"></canvas><button class="btn btn-ghost btn-sm" onclick="clearSigTec()"
+              style="margin-top:8px">✕ Borrar</button></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <button class="btn btn-ghost" onclick="switchTab('cotizacion',document.querySelectorAll('.tab-btn')[1])">←
+          Volver</button>
+        <button class="btn btn-accent"
+          onclick="switchTab('garantia',document.querySelectorAll('.tab-btn')[3])">Siguiente → Garantía</button>
+      </div>
+    </div>
+
+    <!-- ═══ 4: GARANTÍA ═══ -->
+    <div class="tab-panel" id="tab-garantia">
+      <div class="section-header">
+        <div class="section-badge">// política de garantía</div>
+        <div class="section-title">Garantía del Servicio</div>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon">🛡</div>Configurar Garantía
+        </div>
+        <div class="form-grid">
+          <div class="form-group"><label>Período</label>
+            <select id="garantia-periodo">
+              <option>Sin garantía</option>
+              <option>15 días</option>
+              <option selected>30 días</option>
+              <option>60 días</option>
+              <option>90 días</option>
+              <option>6 meses</option>
+              <option>1 año</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Aplica a</label>
+            <select id="garantia-aplica">
+              <option>Mano de obra solamente</option>
+              <option selected>Mano de obra + repuesto</option>
+              <option>Solo repuesto</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="terms-block">
+        <h4>✅ ¿Qué cubre?</h4>
+        <p>Defectos del repuesto instalado y/o errores en la mano de obra. Si el mismo problema reaparece, se corrige
+          sin costo.</p>
+      </div>
+      <div class="terms-block">
+        <h4>❌ ¿Qué NO cubre?</h4>
+        <p>• Golpes, caídas o líquidos posteriores a la reparación.<br>• Apertura por terceros no autorizados.<br>• Uso
+          inadecuado.<br>• Daños eléctricos por cargadores no originales.<br>• Desgaste natural del repuesto.</p>
+      </div>
+      <div class="terms-block">
+        <h4>⚡ Garantía según repuesto</h4>
+        <p><strong>Original/OEM:</strong> 6 meses – 1 año. <strong>Compatible alta calidad:</strong> 30–90 días.
+          <strong>Genérico:</strong> 15 días. <strong>Mano de obra:</strong> 30 días.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon">📝</div>Condiciones específicas
+        </div>
+        <div class="form-group"><label>Observaciones de garantía</label><textarea id="garantia-obs" rows="3"
+            placeholder="Ej: Garantía solo sobre cambio de pantalla..."></textarea></div>
+        <div class="alert alert-info" style="margin-top:12px">💡 <span>La garantía se activa desde la entrega al
+            cliente.</span></div>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <button class="btn btn-ghost" onclick="switchTab('terminos',document.querySelectorAll('.tab-btn')[2])">←
+          Volver</button>
+        <button class="btn btn-accent" onclick="switchTab('preview',document.querySelectorAll('.tab-btn')[7])">Ver Vista
+          Previa →</button>
+      </div>
+    </div>
+
+    <!-- ═══ 5: INVENTARIO ═══ -->
+    <div class="tab-panel" id="tab-inventario">
+      <div class="section-header">
+        <div class="section-badge">// gestión de stock</div>
+        <div class="section-title">Inventario de Repuestos</div>
+        <div class="section-sub">Precios de costo + margen automático por categoría. Al cotizar, el precio de venta se
+          calcula instantáneamente.</div>
+      </div>
+      <div class="stats-grid" id="invStats"></div>
+      <div class="card" style="padding-bottom:8px">
+        <div class="card-title" style="justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="card-title-icon">📦</div>Repuestos y Servicios
+          </div>
+          <button class="btn btn-accent btn-sm" onclick="openModal()">+ Agregar repuesto</button>
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+          <input type="text" id="invFilter" placeholder="🔍 Filtrar..." oninput="renderInv()"
+            style="flex:1;min-width:180px">
+          <select id="catFilter" onchange="renderInv()" style="width:auto;min-width:160px">
+            <option value="">Todas las categorías</option>
+          </select>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="inv-table">
+            <thead>
+              <tr>
+                <th>Nombre del repuesto</th>
+                <th>Categoría</th>
+                <th>Marca / Modelo</th>
+                <th style="text-align:right">Precio costo</th>
+                <th style="text-align:right">Margen</th>
+                <th style="text-align:right">Precio venta</th>
+                <th style="text-align:center">Stock</th>
+                <th style="text-align:center">Ganancia %</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="invBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ 6: MÁRGENES ═══ -->
+    <div class="tab-panel" id="tab-margenes">
+      <div class="section-header">
+        <div class="section-badge">// configuración de rentabilidad</div>
+        <div class="section-title">Márgenes por Categoría</div>
+        <div class="section-sub">Precio de venta = Precio de costo × Multiplicador. Configure cada categoría de forma
+          independiente.</div>
+      </div>
+      <div class="alert alert-info">💡 <span>Ejemplo: Módulo pantalla con costo $10.000 y margen ×2.7 → precio de venta
+          automático <strong>$27.000</strong>. La ganancia es $17.000 (170% sobre costo / 63% sobre venta).</span></div>
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon">⚙️</div>Multiplicadores por Categoría
+        </div>
+        <div class="mg-grid" id="mgGrid"></div>
+        <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-accent" onclick="saveMargins()">💾 Guardar márgenes</button>
+          <button class="btn btn-ghost" onclick="resetMargins()">↺ Restablecer defecto</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon">📊</div>Tabla de Rentabilidad
+        </div>
+        <div style="overflow-x:auto">
+          <table class="inv-table">
+            <thead>
+              <tr>
+                <th>Categoría</th>
+                <th style="text-align:center">Multiplicador</th>
+                <th style="text-align:center">% Ganancia / Costo</th>
+                <th style="text-align:center">% Margen / Venta</th>
+                <th>Ejemplo (costo $10.000)</th>
+              </tr>
+            </thead>
+            <tbody id="mgPreview"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ 7: HISTORIAL ═══ -->
+    <div class="tab-panel" id="tab-historial">
+      <div class="section-header">
+        <div class="section-badge">// registro de órdenes</div>
+        <div class="section-title">Historial de Cotizaciones</div>
+      </div>
+      <div class="card" style="padding:0">
+        <div class="quote-row header">
+          <span>Orden</span><span>Cliente</span><span>Equipo</span><span>Fecha</span><span>Total</span><span>Estado</span>
+        </div>
+        <div id="historialContent">
+          <div style="padding:32px;text-align:center;color:var(--muted)">No hay órdenes guardadas aún.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PROVEEDORES ═══ -->
+    <div class="tab-panel" id="tab-proveedores">
+      <div class="section-header">
+        <div class="section-badge">// comparación de precios</div>
+        <div class="section-title">Proveedores</div>
+        <div class="section-sub">Registre sus proveedores, sus precios por repuesto y compare de un vistazo dónde
+          conviene comprar.</div>
+      </div>
+
+      <div class="stats-grid" id="provStats"></div>
+
+      <!-- TABS internas -->
+      <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px;">
+        <button class="tab-btn active" id="ptab-provs" onclick="switchProvTab('provs',this)"
+          style="padding:8px 18px;font-size:.82rem">🏪 Mis proveedores</button>
+        <button class="tab-btn" id="ptab-cmp" onclick="switchProvTab('cmp',this)"
+          style="padding:8px 18px;font-size:.82rem">📊 Comparador por repuesto</button>
+        <button class="tab-btn" id="ptab-best" onclick="switchProvTab('best',this)"
+          style="padding:8px 18px;font-size:.82rem">🏆 Mejor precio global</button>
+      </div>
+
+      <!-- SUB-PANEL: lista proveedores -->
+      <div id="ppanel-provs">
+        <div
+          style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+          <input type="text" id="provFilter" placeholder="🔍 Buscar proveedor..." oninput="renderProvList()"
+            style="max-width:280px">
+          <button class="btn btn-accent btn-sm" onclick="openProvModal()">+ Agregar proveedor</button>
+        </div>
+        <div id="provListWrap"></div>
+      </div>
+
+      <!-- SUB-PANEL: comparador -->
+      <div id="ppanel-cmp" style="display:none">
+        <div class="card">
+          <div class="card-title">
+            <div class="card-title-icon">🔍</div>Seleccionar repuesto a comparar
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <select id="cmpItemSel" onchange="renderComparador()" style="flex:1;min-width:220px">
+              <option value="">-- Seleccione un repuesto --</option>
+            </select>
+            <select id="cmpProvSel" onchange="renderComparador()" style="width:auto;min-width:180px">
+              <option value="">Todos los proveedores</option>
+            </select>
+          </div>
+        </div>
+        <div id="cmpResult"></div>
+      </div>
+
+      <!-- SUB-PANEL: mejor precio global -->
+      <div id="ppanel-best" style="display:none">
+        <div class="alert alert-info">🏆 <span>Para cada repuesto del inventario, se muestra el proveedor con el
+            <strong>menor precio</strong> y el ahorro potencial versus el más caro.</span></div>
+        <div class="card" style="padding:0">
+          <table class="prov-table">
+            <thead>
+              <tr>
+                <th>Repuesto</th>
+                <th>Categoría</th>
+                <th style="text-align:right">Mejor precio</th>
+                <th>Proveedor ganador</th>
+                <th style="text-align:right">Precio más alto</th>
+                <th style="text-align:right">Ahorro</th>
+                <th style="text-align:center">Oferta de proveedores</th>
+              </tr>
+            </thead>
+            <tbody id="bestPriceBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ 8: VISTA PREVIA ═══ -->
+    <div class="tab-panel" id="tab-preview">
+      <div class="section-header no-print">
+        <div class="section-badge">// documento final</div>
+        <div class="section-title">Vista Previa</div>
+      </div>
+      <div id="previewContent"
+        style="background:#fff;color:#000;border-radius:var(--radius);padding:40px;font-family:'DM Sans',sans-serif">
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- MODAL PROVEEDOR -->
+  <div class="modal-overlay" id="provModal">
+    <div class="modal" style="max-width:560px">
+      <div class="modal-title"><span id="provModalTitle">🏪 Agregar Proveedor</span><button class="modal-close"
+          onclick="closeProvModal()">✕</button></div>
+      <div class="form-grid cols-1" style="gap:14px">
+        <div class="form-group"><label>Nombre del proveedor *</label><input type="text" id="pm-name"
+            placeholder="Ej: Repuestos Express, MercadoLibre, Ali..."></div>
+        <div class="form-grid">
+          <div class="form-group"><label>Tipo</label>
+            <select id="pm-type">
+              <option>Mayorista local</option>
+              <option>Minorista local</option>
+              <option>Importador directo</option>
+              <option>Marketplace (ML/Ali)</option>
+              <option>Tienda online</option>
+              <option>Otro</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Calificación</label>
+            <select id="pm-rating">
+              <option value="5">⭐⭐⭐⭐⭐ Excelente</option>
+              <option value="4" selected>⭐⭐⭐⭐ Bueno</option>
+              <option value="3">⭐⭐⭐ Regular</option>
+              <option value="2">⭐⭐ Malo</option>
+              <option value="1">⭐ Muy malo</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group"><label>Contacto / Teléfono</label><input type="text" id="pm-contact"
+              placeholder="+56 9 ..."></div>
+          <div class="form-group"><label>Tiempo de entrega</label>
+            <select id="pm-delivery">
+              <option>Inmediato (retiro)</option>
+              <option>1-2 días</option>
+              <option>3-5 días</option>
+              <option>1 semana</option>
+              <option>2-3 semanas (importación)</option>
+              <option>+1 mes</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group"><label>Website / URL</label><input type="text" id="pm-url" placeholder="https://...">
+          </div>
+          <div class="form-group"><label>Pago aceptado</label>
+            <select id="pm-payment">
+              <option>Efectivo</option>
+              <option>Transferencia</option>
+              <option>Efectivo + Transferencia</option>
+              <option>Tarjeta</option>
+              <option>Todos los medios</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group"><label>Notas / Observaciones</label><input type="text" id="pm-notes"
+            placeholder="Mínimo de compra, condiciones especiales, etc."></div>
+
+        <div style="border-top:1px solid var(--border);padding-top:16px">
+          <div
+            style="font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;color:var(--white);margin-bottom:12px">
+            Precios de este proveedor por repuesto</div>
+          <div class="alert alert-info" style="margin-bottom:12px">💡 <span>Agregue los precios que le ofrece este
+              proveedor. Puede agregar más después desde la vista del proveedor.</span></div>
+          <div id="pmPricesWrap">
+            <div style="display:grid;grid-template-columns:1fr 120px 28px;gap:8px;margin-bottom:6px" id="pmPricesRows">
+            </div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="addPmPriceRow()">+ Agregar precio</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:20px">
+        <button class="btn btn-accent" style="flex:1" onclick="saveProv()">💾 Guardar proveedor</button>
+        <button class="btn btn-ghost" onclick="closeProvModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL AGREGAR PRECIO A PROVEEDOR -->
+  <div class="modal-overlay" id="addPriceModal">
+    <div class="modal" style="max-width:480px">
+      <div class="modal-title"><span id="addPriceTitle">➕ Agregar precio de repuesto</span><button class="modal-close"
+          onclick="document.getElementById('addPriceModal').classList.remove('open')">✕</button></div>
+      <div class="form-grid cols-1" style="gap:14px">
+        <div class="form-group"><label>Repuesto del inventario</label>
+          <select id="ap-item">
+            <option value="">-- Seleccionar --</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Precio del proveedor ($)</label><input type="number" id="ap-price"
+            placeholder="0" min="0" oninput="updateAPPreview()"></div>
+        <div class="form-group"><label>Calidad del repuesto</label>
+          <select id="ap-quality">
+            <option value="original">🥇 Original / OEM</option>
+            <option value="premium" selected>🥈 Compatible Premium</option>
+            <option value="estandar">🥉 Compatible Estándar</option>
+            <option value="economico">💲 Económico / Genérico</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Disponibilidad</label>
+          <select id="ap-avail">
+            <option>En stock</option>
+            <option>Disponible en 1-3 días</option>
+            <option>Bajo pedido (1 semana)</option>
+            <option>Importación (2-4 semanas)</option>
+            <option>Sin stock</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Notas (precio por cantidad, variante, etc.)</label><input type="text"
+            id="ap-notes" placeholder="Ej: precio x5 unidades, versión sin lector..."></div>
+        <div
+          style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px"
+          id="apPreview">
+          <div style="font-size:.73rem;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:5px">COMPARATIVA
+            CON INVENTARIO</div>
+          <div style="font-size:.86rem;color:var(--text)" id="apPreviewText">Seleccione un repuesto para ver comparativa
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:20px">
+        <button class="btn btn-accent" style="flex:1" onclick="saveProvPrice()">💾 Guardar precio</button>
+        <button class="btn btn-ghost"
+          onclick="document.getElementById('addPriceModal').classList.remove('open')">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL AGREGAR ITEM MODAL -->
+  <div class="modal-overlay" id="addModal">
+    <div class="modal">
+      <div class="modal-title"><span id="modalTitle">➕ Agregar Repuesto</span><button class="modal-close"
+          onclick="closeModal()">✕</button></div>
+      <div class="form-grid cols-1" style="gap:14px">
+        <div class="form-group"><label>Nombre *</label><input type="text" id="m-name"
+            placeholder="Ej: Módulo pantalla iPhone 14"></div>
+        <div class="form-group"><label>Categoría *</label>
+          <select id="m-cat" onchange="updateModalPreview()">
+            <option>Módulo pantalla</option>
+            <option>Batería</option>
+            <option>Conector carga</option>
+            <option>Cámara</option>
+            <option>Carcasa</option>
+            <option>Botones</option>
+            <option>Parlante / Micrófono</option>
+            <option>Flex / Cable</option>
+            <option>Servicio</option>
+            <option>Mano de obra</option>
+            <option>Diagnóstico</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Marca / Modelo compatible</label><input type="text" id="m-brand"
+            placeholder="Ej: iPhone 13, 14 / Samsung A53"></div>
+        <div class="form-group"><label>Precio de costo ($) *</label><input type="number" id="m-cost" placeholder="0"
+            min="0" oninput="updateModalPreview()"></div>
+        <div class="form-group">
+          <label>Margen personalizado (×) — vacío = usar el de la categoría</label>
+          <input type="number" id="m-margin" placeholder="Ej: 2.7" step="0.1" min="1" oninput="updateModalPreview()">
+        </div>
+        <div class="form-group"><label>Stock disponible</label><input type="number" id="m-stock" placeholder="0"
+            min="0">
+        </div>
+        <div class="form-group"><label>Stock mínimo (alerta)</label><input type="number" id="m-minstock" placeholder="2"
+            min="0"></div>
+        <div class="form-group"><label>Notas</label><input type="text" id="m-notes"
+            placeholder="Calidad, proveedor, etc."></div>
+        <div
+          style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px">
+          <div style="font-size:.75rem;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:6px">PRECIO DE
+            VENTA CALCULADO</div>
+          <div style="font-size:1.5rem;font-weight:800;font-family:'Syne',sans-serif;color:var(--accent)" id="mpPrice">
+            $0
+          </div>
+          <div style="font-size:.78rem;color:var(--muted);margin-top:4px" id="mpInfo">—</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:20px">
+        <button class="btn btn-accent" style="flex:1" onclick="saveItem()">💾 Guardar</button>
+        <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ════════════ STATE ════════════
+    let services = [], damages = [], editId = null, acIdx = -1;
+    let orderCounter = parseInt(localStorage.getItem('orderCounter') || '1000');
+    let savedQuotes = JSON.parse(localStorage.getItem('savedQuotes') || '[]');
+
+    const DEF_MARGINS = {
+      'Módulo pantalla': 2.7, 'Batería': 2.5, 'Conector carga': 2.8, 'Cámara': 2.6,
+      'Carcasa': 2.4, 'Botones': 3.0, 'Parlante / Micrófono': 2.8, 'Flex / Cable': 3.0,
+      'Servicio': 1.0, 'Mano de obra': 1.0, 'Diagnóstico': 1.0, 'Otro': 2.5
+    };
+    const MG_DESC = {
+      'Módulo pantalla': 'Pantallas y módulos táctiles', 'Batería': 'Baterías y acumuladores',
+      'Conector carga': 'Puerto USB/Lightning', 'Cámara': 'Módulos de cámara frontal/trasera',
+      'Carcasa': 'Tapas traseras y marcos', 'Botones': 'Botones físicos y laterales',
+      'Parlante / Micrófono': 'Audio interno', 'Flex / Cable': 'Cintas y cables internos',
+      'Servicio': 'Precio fijo manual', 'Mano de obra': 'Precio fijo manual',
+      'Diagnóstico': 'Precio fijo manual', 'Otro': 'Misceláneos'
+    };
+    let margins = JSON.parse(localStorage.getItem('margins') || 'null') || { ...DEF_MARGINS };
+
+    let inventory = JSON.parse(localStorage.getItem('inventory') || 'null');
+    if (!inventory) {
+      inventory = [
+        { id: 1, name: 'Módulo pantalla iPhone 14', cat: 'Módulo pantalla', brand: 'Apple iPhone 14', cost: 32000, stock: 3, min: 1, notes: 'OLED compatible', margin: null },
+        { id: 2, name: 'Módulo pantalla Samsung A54', cat: 'Módulo pantalla', brand: 'Samsung A54', cost: 18000, stock: 5, min: 2, notes: '', margin: null },
+        { id: 3, name: 'Módulo pantalla Motorola G32', cat: 'Módulo pantalla', brand: 'Motorola G32', cost: 14000, stock: 2, min: 1, notes: 'LCD', margin: null },
+        { id: 4, name: 'Batería iPhone 13', cat: 'Batería', brand: 'Apple iPhone 13', cost: 8500, stock: 8, min: 3, notes: '2000mAh', margin: null },
+        { id: 5, name: 'Batería iPhone 14', cat: 'Batería', brand: 'Apple iPhone 14', cost: 12000, stock: 4, min: 2, notes: '', margin: null },
+        { id: 6, name: 'Batería Samsung A32', cat: 'Batería', brand: 'Samsung A32', cost: 5000, stock: 6, min: 2, notes: '', margin: null },
+        { id: 7, name: 'Conector USB-C universal', cat: 'Conector carga', brand: 'Universal', cost: 2500, stock: 12, min: 4, notes: '', margin: null },
+        { id: 8, name: 'Conector Lightning iPhone', cat: 'Conector carga', brand: 'Apple iPhone', cost: 3500, stock: 7, min: 2, notes: '', margin: null },
+        { id: 9, name: 'Cámara trasera iPhone 12', cat: 'Cámara', brand: 'Apple iPhone 12', cost: 22000, stock: 2, min: 1, notes: 'Triple cámara', margin: null },
+        { id: 10, name: 'Cámara frontal Samsung A53', cat: 'Cámara', brand: 'Samsung A53', cost: 9000, stock: 3, min: 1, notes: '', margin: null },
+        { id: 11, name: 'Carcasa trasera Xiaomi Redmi Note 11', cat: 'Carcasa', brand: 'Xiaomi Redmi Note 11', cost: 7000, stock: 4, min: 1, notes: '', margin: null },
+        { id: 12, name: 'Parlante inferior iPhone 11', cat: 'Parlante / Micrófono', brand: 'Apple iPhone 11', cost: 4500, stock: 5, min: 2, notes: '', margin: null },
+        { id: 13, name: 'Botón home Samsung A12', cat: 'Botones', brand: 'Samsung A12', cost: 1800, stock: 10, min: 3, notes: '', margin: null },
+        { id: 14, name: 'Flex botón power iPhone X', cat: 'Flex / Cable', brand: 'Apple iPhone X', cost: 3200, stock: 6, min: 2, notes: '', margin: null },
+      ];
+      localStorage.setItem('inventory', JSON.stringify(inventory));
+    }
+    let invIdCnt = Math.max(...inventory.map(i => i.id), 0) + 1;
+    document.getElementById('eq-orden').value = 'ORD-' + (orderCounter + 1);
+
+    // ════════════ HELPERS ════════════
+    const fmt = n => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(n || 0);
+    const getM = item => item.margin || (margins[item.cat] || 2.5);
+    const getSP = item => Math.round(item.cost * getM(item));
+
+    // ════════════ TABS ════════════
+    function switchTab(name, btn) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => { if (!b.id || !b.id.startsWith('ptab')) b.classList.remove('active'); });
+      document.getElementById('tab-' + name).classList.add('active');
+      btn.classList.add('active');
+      if (name === 'preview') genPreview();
+      if (name === 'historial') renderHist();
+      if (name === 'inventario') { renderInvStats(); renderInv(); }
+      if (name === 'margenes') renderMargins();
+      if (name === 'proveedores') { renderProvStats(); renderProvList(); }
+    }
+
+    // ════════════ MARGINS ════════════
+    function renderMargins() {
+      document.getElementById('mgGrid').innerHTML = Object.keys(DEF_MARGINS).map(cat => `
+    <div class="mg-row">
+      <div class="mg-label"><div class="mg-name">${cat}</div><div class="mg-desc">${MG_DESC[cat]}</div></div>
+      <div class="mg-input-wrap">
+        <span style="color:var(--muted);font-size:.82rem">×</span>
+        <input type="number" step="0.1" min="1" max="20" value="${margins[cat] || DEF_MARGINS[cat]}"
+          id="mg-${cat.replace(/\W/g, '_')}" oninput="renderMgPreview()">
+      </div>
+    </div>`).join('');
+      renderMgPreview();
+    }
+    function renderMgPreview() {
+      document.getElementById('mgPreview').innerHTML = Object.keys(DEF_MARGINS).map(cat => {
+        const k = cat.replace(/\W/g, '_');
+        const el = document.getElementById('mg-' + k);
+        const m = el ? parseFloat(el.value) || DEF_MARGINS[cat] : DEF_MARGINS[cat];
+        const pc = ((m - 1) * 100).toFixed(0);
+        const pv = ((1 - 1 / m) * 100).toFixed(0);
+        const cls = m >= 2.5 ? 'mh' : m >= 1.8 ? 'mm' : 'ml';
+        return `<tr><td><span class="category-tag">${cat}</span></td>
+      <td style="text-align:center"><span class="margin-pill ${cls}">×${m.toFixed(1)}</span></td>
+      <td style="text-align:center;font-family:'DM Mono',monospace;color:var(--accent)">${pc}%</td>
+      <td style="text-align:center;font-family:'DM Mono',monospace;color:var(--accent2)">${pv}%</td>
+      <td style="font-family:'DM Mono',monospace;color:var(--text)">${fmt(10000 * m)}</td></tr>`;
+      }).join('');
+    }
+    function saveMargins() {
+      Object.keys(DEF_MARGINS).forEach(cat => {
+        const el = document.getElementById('mg-' + cat.replace(/\W/g, '_'));
+        if (el) margins[cat] = parseFloat(el.value) || DEF_MARGINS[cat];
+      });
+      localStorage.setItem('margins', JSON.stringify(margins));
+      renderInv();
+      alert('✅ Márgenes guardados.');
+    }
+    function resetMargins() {
+      if (!confirm('¿Restablecer márgenes por defecto?')) return;
+      margins = { ...DEF_MARGINS };
+      localStorage.setItem('margins', JSON.stringify(margins));
+      renderMargins(); renderInv();
+    }
+
+    // ════════════ INVENTORY ════════════
+    function saveInv() { localStorage.setItem('inventory', JSON.stringify(inventory)); }
+    function renderInvStats() {
+      const out = inventory.filter(i => i.stock === 0).length;
+      const low = inventory.filter(i => i.stock > 0 && i.stock <= i.min).length;
+      const val = inventory.reduce((a, i) => a + i.cost * i.stock, 0);
+      const valV = inventory.reduce((a, i) => a + getSP(i) * i.stock, 0);
+      document.getElementById('invStats').innerHTML = `
+    <div class="stat-card"><div class="stat-label">Total productos</div><div class="stat-value" style="color:var(--accent)">${inventory.length}</div><div class="stat-sub">en inventario</div></div>
+    <div class="stat-card"><div class="stat-label">Stock bajo</div><div class="stat-value" style="color:#ffc107">${low}</div><div class="stat-sub">por reponer</div></div>
+    <div class="stat-card"><div class="stat-label">Sin stock</div><div class="stat-value" style="color:var(--warn)">${out}</div><div class="stat-sub">agotados</div></div>
+    <div class="stat-card"><div class="stat-label">Valor venta aprox.</div><div class="stat-value" style="font-size:1rem;color:var(--accent2)">${fmt(valV)}</div><div class="stat-sub">costo: ${fmt(val)}</div></div>`;
+    }
+    function renderInv() {
+      const f = (document.getElementById('invFilter')?.value || '').toLowerCase();
+      const cf = document.getElementById('catFilter')?.value || '';
+      // refresh cat options
+      const cats = [...new Set(inventory.map(i => i.cat))].sort();
+      const cs = document.getElementById('catFilter');
+      const prev = cs.value;
+      cs.innerHTML = '<option value="">Todas las categorías</option>' + cats.map(c => `<option value="${c}"${c === prev ? ' selected' : ''}>${c}</option>`).join('');
+
+      const list = inventory.filter(i => {
+        const mt = !f || i.name.toLowerCase().includes(f) || (i.brand || '').toLowerCase().includes(f) || i.cat.toLowerCase().includes(f);
+        return mt && (!cf || i.cat === cf);
+      });
+      const tbody = document.getElementById('invBody');
+      if (!list.length) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:28px">Sin resultados.</td></tr>'; return; }
+      tbody.innerHTML = list.map(item => {
+        const sp = getSP(item); const m = getM(item);
+        const gain = sp - item.cost; const pct = item.cost > 0 ? ((gain / item.cost) * 100).toFixed(0) : 0;
+        const cls = m >= 2.5 ? 'mh' : m >= 1.8 ? 'mm' : 'ml';
+        const custom = item.margin ? '✏️ ' : '';
+        let stockEl = item.stock === 0 ? `<span class="stock-out">⛔ Agotado</span>` :
+          item.stock <= item.min ? `<span class="stock-low">⚠️ ${item.stock}</span>` :
+            `<span class="stock-ok">✅ ${item.stock}</span>`;
+        const barW = Math.min(100, Math.round((pct / 300) * 100));
+        return `<tr>
+      <td><strong style="color:var(--text)">${item.name}</strong>${item.notes ? `<div style="font-size:.72rem;color:var(--muted)">${item.notes}</div>` : ''}</td>
+      <td><span class="category-tag">${item.cat}</span></td>
+      <td style="color:var(--muted);font-size:.8rem">${item.brand || '—'}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;color:var(--warn)">${fmt(item.cost)}</td>
+      <td style="text-align:right"><span class="margin-pill ${cls}">${custom}×${m.toFixed(1)}</span></td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;color:var(--accent);font-weight:700">${fmt(sp)}</td>
+      <td style="text-align:center">${stockEl}</td>
+      <td><div style="display:flex;align-items:center;gap:6px">
+        <div class="profit-bar-wrap"><div class="profit-bar" style="width:${barW}%"></div></div>
+        <span style="font-family:'DM Mono',monospace;font-size:.74rem;color:var(--accent2)">${pct}%</span>
+      </div></td>
+      <td><div style="display:flex;gap:4px">
+        <button class="btn btn-ghost btn-sm" onclick="editItem(${item.id})">✏️</button>
+        <button class="btn btn-ghost btn-sm" onclick="delItem(${item.id})" style="color:var(--warn)">🗑</button>
+      </div></td></tr>`;
+      }).join('');
+    }
+
+    // ════════════ INVENTORY MODAL ════════════
+    function openModal() {
+      editId = null;
+      document.getElementById('modalTitle').textContent = '➕ Agregar Repuesto / Servicio';
+      ['m-name', 'm-brand', 'm-cost', 'm-margin', 'm-stock', 'm-minstock', 'm-notes'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('m-cat').value = 'Módulo pantalla';
+      updateModalPreview();
+      document.getElementById('addModal').classList.add('open');
+    }
+    function editItem(id) {
+      const item = inventory.find(i => i.id === id); if (!item) return;
+      editId = id;
+      document.getElementById('modalTitle').textContent = '✏️ Editar Repuesto';
+      document.getElementById('m-name').value = item.name;
+      document.getElementById('m-cat').value = item.cat;
+      document.getElementById('m-brand').value = item.brand || '';
+      document.getElementById('m-cost').value = item.cost;
+      document.getElementById('m-margin').value = item.margin || '';
+      document.getElementById('m-stock').value = item.stock;
+      document.getElementById('m-minstock').value = item.min;
+      document.getElementById('m-notes').value = item.notes || '';
+      updateModalPreview();
+      document.getElementById('addModal').classList.add('open');
+    }
+    function closeModal() { document.getElementById('addModal').classList.remove('open'); }
+    function updateModalPreview() {
+      const cost = parseFloat(document.getElementById('m-cost').value) || 0;
+      const cat = document.getElementById('m-cat').value;
+      const cm = parseFloat(document.getElementById('m-margin').value) || 0;
+      const m = cm > 0 ? cm : (margins[cat] || 2.5);
+      const sp = Math.round(cost * m); const gain = sp - cost;
+      document.getElementById('mpPrice').textContent = fmt(sp);
+      document.getElementById('mpInfo').textContent = `${fmt(cost)} × ${m.toFixed(2)} = ${fmt(sp)} | Ganancia: ${fmt(gain)} (${cost > 0 ? ((gain / cost) * 100).toFixed(0) : 0}% sobre costo)`;
+    }
+    function saveItem() {
+      const name = document.getElementById('m-name').value.trim();
+      const cat = document.getElementById('m-cat').value;
+      const cost = parseFloat(document.getElementById('m-cost').value) || 0;
+      if (!name || !cat) { alert('Nombre y categoría son obligatorios.'); return; }
+      const item = {
+        id: editId || invIdCnt++, name, cat,
+        brand: document.getElementById('m-brand').value.trim(),
+        cost, margin: parseFloat(document.getElementById('m-margin').value) || null,
+        stock: parseInt(document.getElementById('m-stock').value) || 0,
+        min: parseInt(document.getElementById('m-minstock').value) || 2,
+        notes: document.getElementById('m-notes').value.trim()
+      };
+      if (editId) { const idx = inventory.findIndex(i => i.id === editId); if (idx > -1) inventory[idx] = item; }
+      else inventory.push(item);
+      saveInv(); renderInv(); renderInvStats(); closeModal();
+    }
+    function delItem(id) {
+      if (!confirm('¿Eliminar este repuesto?')) return;
+      inventory = inventory.filter(i => i.id !== id);
+      saveInv(); renderInv(); renderInvStats();
+    }
+
+    // ════════════ AUTOCOMPLETE ════════════
+    function searchAC(q) {
+      const list = document.getElementById('acList');
+      if (!q || q.length < 2) { list.classList.remove('open'); return; }
+      const res = inventory.filter(i =>
+        i.name.toLowerCase().includes(q.toLowerCase()) ||
+        (i.brand || '').toLowerCase().includes(q.toLowerCase()) ||
+        i.cat.toLowerCase().includes(q.toLowerCase())
+      ).slice(0, 8);
+      if (!res.length) { list.classList.remove('open'); return; }
+      acIdx = -1;
+      list.innerHTML = res.map((item, i) => {
+        const sp = getSP(item);
+        return `<div class="ac-item" onclick="selectAC(${item.id})">
+      <span class="ac-cat">${item.cat}</span>
+      <span class="ac-name">${item.name}${item.brand ? ` <small style="color:var(--muted)">(${item.brand})</small>` : ''}</span>
+      <span class="ac-cost">Costo: ${fmt(item.cost)}</span>
+      <span style="margin:0 4px;color:var(--border)">→</span>
+      <span class="ac-price">${fmt(sp)}</span>
+    </div>`;
+      }).join('');
+      list._res = res;
+      list.classList.add('open');
+    }
+    function handleACKey(e) {
+      const list = document.getElementById('acList');
+      const items = list.querySelectorAll('.ac-item');
+      if (e.key === 'ArrowDown') { acIdx = Math.min(acIdx + 1, items.length - 1); hiAC(items); e.preventDefault(); }
+      else if (e.key === 'ArrowUp') { acIdx = Math.max(acIdx - 1, -1); hiAC(items); e.preventDefault(); }
+      else if (e.key === 'Enter' && acIdx >= 0) { items[acIdx].click(); e.preventDefault(); }
+      else if (e.key === 'Escape') list.classList.remove('open');
+    }
+    function hiAC(items) { items.forEach((el, i) => el.classList.toggle('sel', i === acIdx)); }
+    function selectAC(id) {
+      const item = inventory.find(i => i.id === id); if (!item) return;
+      const sp = getSP(item); const m = getM(item);
+      addRow(item.name, item.cat, item.cost, m, sp, item.id);
+      document.getElementById('invSearch').value = '';
+      document.getElementById('acList').classList.remove('open');
+    }
+    document.addEventListener('click', e => { if (!e.target.closest('.autocomplete-wrap')) document.getElementById('acList').classList.remove('open'); });
+
+    // ════════════ QUOTATION ROWS ════════════
+    let rowId = 0;
+    function addRow(name, cat, cost, margin, salePrice, invId = null) {
+      const empRow = document.getElementById('empty-row'); if (empRow) empRow.remove();
+      rowId++; const id = rowId;
+      services.push({ id, name, cat, cost, margin, price: salePrice, qty: 1, invId });
+      const tbody = document.getElementById('serviceTableBody');
+      const isFixed = ['Servicio', 'Mano de obra', 'Diagnóstico'].includes(cat);
+      const mgLabel = isFixed
+        ? '<span style="color:var(--muted);font-size:.73rem;font-family:\'DM Mono\',monospace">manual</span>'
+        : `<span style="color:var(--accent2);font-family:'DM Mono',monospace;font-size:.78rem">×${margin.toFixed(1)}</span>`;
+      const tr = document.createElement('tr'); tr.id = 'row-' + id;
+      tr.innerHTML = `
+    <td style="color:var(--muted);font-family:'DM Mono',monospace;font-size:.7rem">${rowId}</td>
+    <td><input type="text" value="${name}" style="width:100%;min-width:140px" onchange="updRow(${id},'name',this.value)"></td>
+    <td><span class="category-tag" style="font-size:.68rem">${cat}</span></td>
+    <td style="text-align:center"><input type="number" value="1" min="1" style="width:48px;text-align:center" onchange="updRow(${id},'qty',this.value)"></td>
+    <td style="text-align:right;font-family:'DM Mono',monospace;font-size:.78rem;color:var(--warn)">${cost > 0 ? fmt(cost) : '—'}</td>
+    <td style="text-align:right">${mgLabel}</td>
+    <td><input type="number" value="${salePrice}" style="width:100px;text-align:right;font-family:'DM Mono',monospace" onchange="updRow(${id},'price',this.value)"></td>
+    <td style="text-align:right;font-family:'DM Mono',monospace;color:var(--accent);font-weight:700" id="sub-${id}">${fmt(salePrice)}</td>
+    <td><button class="remove-btn" onclick="remRow(${id})">✕</button></td>`;
+      tbody.appendChild(tr); recalc();
+    }
+    function addQuick(name, price, cat) { addRow(name, cat, 0, 1, price); }
+    function addEmptyRow() { addRow('Servicio / Repuesto', 'Otro', 0, 1, 0); }
+    function addDiscount() { addRow('Descuento', 'Otro', 0, 1, -5000); }
+    function updRow(id, field, val) {
+      const s = services.find(s => s.id === id); if (!s) return;
+      if (field === 'name') s.name = val;
+      if (field === 'qty') s.qty = parseInt(val) || 1;
+      if (field === 'price') s.price = parseFloat(val) || 0;
+      document.getElementById('sub-' + id).textContent = fmt(s.qty * s.price);
+      recalc();
+    }
+    function remRow(id) {
+      services = services.filter(s => s.id !== id);
+      const el = document.getElementById('row-' + id); if (el) el.remove();
+      if (!services.length) document.getElementById('serviceTableBody').innerHTML = '<tr id="empty-row"><td colspan="9" style="text-align:center;color:var(--muted);font-style:italic;padding:24px">Busque en el inventario o agregue servicios de mano de obra</td></tr>';
+      recalc();
+    }
+    function recalc() {
+      const sub = services.reduce((a, s) => a + s.qty * s.price, 0);
+      const cost = services.reduce((a, s) => a + s.qty * (s.cost || 0), 0);
+      const disc = services.filter(s => s.price < 0).reduce((a, s) => a + s.qty * s.price, 0);
+      const iva = document.getElementById('ivaToggle').checked ? Math.max(0, sub * 0.19) : 0;
+      const total = sub + iva;
+      document.getElementById('t-subtotal').textContent = fmt(sub);
+      document.getElementById('t-descuento').textContent = fmt(disc);
+      document.getElementById('t-iva').textContent = fmt(iva);
+      document.getElementById('t-costo').textContent = fmt(cost);
+      document.getElementById('t-ganancia').textContent = fmt(total - cost);
+      document.getElementById('t-total').textContent = fmt(total);
+    }
+
+    // ════════════ DAMAGE MAP ════════════
+    function addDamage(e) {
+      const map = document.getElementById('phoneMap');
+      const rect = map.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
+      const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
+      const n = damages.length + 1; damages.push({ x, y, n });
+      const dot = document.createElement('div');
+      dot.className = 'damage-dot'; dot.style.left = x + '%'; dot.style.top = y + '%';
+      map.appendChild(dot);
+      const list = document.getElementById('damageList');
+      if (n === 1) list.innerHTML = '';
+      const d = document.createElement('div'); d.className = 'damage-item';
+      d.innerHTML = `<strong style="color:var(--warn)">${n}</strong> Punto de daño`;
+      list.appendChild(d);
+    }
+    function clearDamages() {
+      damages = [];
+      document.querySelectorAll('#phoneMap .damage-dot').forEach(d => d.remove());
+      document.getElementById('damageList').innerHTML = '<div style="color:var(--muted);font-size:.82rem;font-style:italic">Haga clic para marcar puntos.</div>';
+    }
+
+    // ════════════ SIGNATURES ════════════
+    function initCanvas(id) {
+      const c = document.getElementById(id); if (!c) return;
+      let drawing = false; const ctx = c.getContext('2d');
+      ctx.strokeStyle = '#00e5a0'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+      const pos = (e, c) => { const r = c.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+      c.addEventListener('mousedown', e => { drawing = true; ctx.beginPath(); ctx.moveTo(...pos(e, c)); });
+      c.addEventListener('mousemove', e => { if (!drawing) return; ctx.lineTo(...pos(e, c)); ctx.stroke(); });
+      c.addEventListener('mouseup', () => drawing = false);
+      c.addEventListener('touchstart', e => { e.preventDefault(); drawing = true; ctx.beginPath(); ctx.moveTo(...pos(e.touches[0], c)); }, { passive: false });
+      c.addEventListener('touchmove', e => { e.preventDefault(); if (!drawing) return; ctx.lineTo(...pos(e.touches[0], c)); ctx.stroke(); }, { passive: false });
+      c.addEventListener('touchend', () => drawing = false);
+    }
+    function clearSig() { const c = document.getElementById('sigCanvas'); c.getContext('2d').clearRect(0, 0, c.width, c.height); }
+    function clearSigTec() { const c = document.getElementById('sigCanvasTec'); c.getContext('2d').clearRect(0, 0, c.width, c.height); }
+    initCanvas('sigCanvas'); initCanvas('sigCanvasTec');
+
+    // ════════════ SAVE / CLEAR ════════════
+    function saveQuote() {
+      orderCounter++; localStorage.setItem('orderCounter', orderCounter);
+      const q = {
+        id: 'ORD-' + orderCounter, fecha: new Date().toLocaleDateString('es-CL'),
+        cliente: document.getElementById('cli-nombre').value || '(Sin nombre)',
+        equipo: [document.getElementById('eq-marca').value, document.getElementById('eq-modelo').value].filter(Boolean).join(' ') || '(Sin equipo)',
+        total: document.getElementById('t-total').textContent, estado: 'Pendiente'
+      };
+      savedQuotes.unshift(q); localStorage.setItem('savedQuotes', JSON.stringify(savedQuotes));
+      document.getElementById('eq-orden').value = 'ORD-' + (orderCounter + 1);
+      alert('✅ Cotización guardada como ' + q.id);
+    }
+    function clearForm() {
+      if (!confirm('¿Limpiar todo el formulario?')) return;
+      ['cli-nombre', 'cli-rut', 'cli-tel', 'cli-wa', 'cli-email', 'eq-modelo', 'eq-imei', 'eq-color', 'tecnico', 'motivo-cliente', 'motivo-tecnico', 'obs-cotizacion', 'garantia-obs'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+      services = [];
+      document.getElementById('serviceTableBody').innerHTML = '<tr id="empty-row"><td colspan="9" style="text-align:center;color:var(--muted);font-style:italic;padding:24px">Busque en el inventario o agregue servicios de mano de obra</td></tr>';
+      recalc(); clearDamages(); clearSig(); clearSigTec();
+    }
+    function renderHist() {
+      const el = document.getElementById('historialContent');
+      if (!savedQuotes.length) { el.innerHTML = '<div style="padding:32px;text-align:center;color:var(--muted)">No hay órdenes guardadas.</div>'; return; }
+      el.innerHTML = savedQuotes.map(q => `
+    <div class="quote-row">
+      <span class="quote-id">${q.id}</span><span>${q.cliente}</span>
+      <span style="color:var(--muted)">${q.equipo}</span>
+      <span style="color:var(--muted);font-family:'DM Mono',monospace;font-size:.78rem">${q.fecha}</span>
+      <span style="color:var(--accent);font-family:'DM Mono',monospace">${q.total}</span>
+      <span><span class="badge badge-pending">${q.estado}</span></span>
+    </div>`).join('');
+    }
+
+    // ════════════ PREVIEW ════════════
+    function genPreview() {
+      const g = id => document.getElementById(id)?.value || '—';
+      const nombre = g('cli-nombre'), tel = g('cli-tel'), email = g('cli-email'), rut = g('cli-rut');
+      const marca = g('eq-marca'), modelo = g('eq-modelo'), imei = g('eq-imei'), orden = g('eq-orden');
+      const total = document.getElementById('t-total').textContent;
+      const ganancia = document.getElementById('t-ganancia').textContent;
+      const fecha = new Date().toLocaleDateString('es-CL', { day: '2-digit', month: 'long', year: 'numeric' });
+      const garantia = g('garantia-periodo'), tiempo = g('tiempo-rep'), motivo = g('motivo-cliente'), obs = g('obs-cotizacion');
+      const rows = services.map((s, i) => `<tr>
+    <td style="padding:8px;border-bottom:1px solid #eee;color:#999;font-size:.78rem">${i + 1}</td>
+    <td style="padding:8px;border-bottom:1px solid #eee">${s.name}</td>
+    <td style="padding:8px;border-bottom:1px solid #eee;color:#777;font-size:.78rem">${s.cat}</td>
+    <td style="padding:8px;border-bottom:1px solid #eee;text-align:center">${s.qty}</td>
+    <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;font-family:monospace">${fmt(s.price)}</td>
+    <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;font-family:monospace;font-weight:700">${fmt(s.qty * s.price)}</td></tr>`).join('') || '<tr><td colspan="6" style="padding:16px;text-align:center;color:#999">Sin servicios</td></tr>';
+
+      document.getElementById('previewContent').innerHTML = `
+    <div style="max-width:700px;margin:0 auto;font-family:'DM Sans',sans-serif;color:#111">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:16px;border-bottom:2px solid #111;margin-bottom:24px">
+        <div><div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800">📱 TechFix<span style="color:#00c87a">Pro</span></div>
+          <div style="color:#666;font-size:.82rem;margin-top:3px">Servicio Técnico de Teléfonos Celulares</div>
+          <div style="color:#999;font-size:.76rem">📍 Dirección · 📞 Teléfono · ✉️ email@techfix.cl</div></div>
+        <div style="text-align:right">
+          <div style="font-family:monospace;font-size:1.1rem;font-weight:700;color:#00c87a">${orden}</div>
+          <div style="color:#666;font-size:.8rem">${fecha}</div>
+          <div style="display:inline-block;background:#fff3cd;color:#856404;border:1px solid #ffc107;border-radius:999px;padding:2px 10px;font-size:.7rem;margin-top:4px">PENDIENTE</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+        <div style="background:#f8f9fa;border-radius:8px;padding:14px">
+          <div style="font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:#555;margin-bottom:8px">Cliente</div>
+          <div style="font-size:.86rem;line-height:1.8"><strong>${nombre}</strong><br>RUT: ${rut}<br>📞 ${tel}<br>✉️ ${email}</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:8px;padding:14px">
+          <div style="font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:#555;margin-bottom:8px">Equipo</div>
+          <div style="font-size:.86rem;line-height:1.8"><strong>${marca} ${modelo}</strong><br>IMEI: ${imei}<br>Falla: ${motivo.substring(0, 60)}${motivo.length > 60 ? '...' : ''}<br>Plazo: ${tiempo}</div>
+        </div>
+      </div>
+      <div style="font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:#555;margin-bottom:10px">Detalle de Servicios</div>
+      <table style="width:100%;border-collapse:collapse;font-size:.84rem;margin-bottom:14px">
+        <thead><tr style="background:#111;color:#fff">
+          <th style="padding:8px;text-align:left;font-weight:500;font-size:.73rem">#</th>
+          <th style="padding:8px;text-align:left;font-weight:500;font-size:.73rem">Descripción</th>
+          <th style="padding:8px;text-align:left;font-weight:500;font-size:.73rem">Categoría</th>
+          <th style="padding:8px;text-align:center;font-weight:500;font-size:.73rem">Cant.</th>
+          <th style="padding:8px;text-align:right;font-weight:500;font-size:.73rem">P. Unitario</th>
+          <th style="padding:8px;text-align:right;font-weight:500;font-size:.73rem">Subtotal</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div style="text-align:right;background:#f8f9fa;border-radius:8px;padding:14px;margin-bottom:16px">
+        <div style="color:#666;font-size:.84rem;margin-bottom:3px">Subtotal: <strong style="font-family:monospace">${document.getElementById('t-subtotal').textContent}</strong></div>
+        <div style="color:#666;font-size:.84rem;margin-bottom:6px">IVA: <strong style="font-family:monospace">${document.getElementById('t-iva').textContent}</strong></div>
+        <div style="font-size:1.3rem;font-weight:800;font-family:'Syne',sans-serif">TOTAL: <span style="color:#00c87a;font-family:monospace">${total}</span></div>
+      </div>
+      ${obs !== '—' ? `<div style="background:#e8f5e9;border-left:3px solid #00c87a;padding:10px 14px;border-radius:6px;font-size:.82rem;margin-bottom:14px;color:#2d6a4f"><strong>Observaciones:</strong> ${obs}</div>` : ''}
+      <div style="background:#e3f2fd;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:.82rem">🛡 <strong>Garantía:</strong> ${garantia} | Desde la fecha de entrega al cliente.</div>
+      <div style="font-size:.74rem;color:#888;border-top:1px solid #ddd;padding-top:14px;line-height:1.7;margin-bottom:22px">
+        <strong>Términos:</strong> Al entregar el equipo el cliente acepta los términos y condiciones. Diagnóstico con costo si no se aprueba reparación. Datos del equipo son responsabilidad del cliente. Garantía no aplica por caídas, agua o apertura por terceros.
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;padding-top:16px;border-top:1px solid #ddd">
+        <div style="text-align:center"><div style="height:50px;border-bottom:1px solid #ccc;margin-bottom:6px"></div><div style="font-size:.74rem;color:#666">Firma del cliente</div></div>
+        <div style="text-align:center"><div style="height:50px;border-bottom:1px solid #ccc;margin-bottom:6px"></div><div style="font-size:.74rem;color:#666">Firma del técnico</div></div>
+      </div>
+    </div>`;
+    }
+    function printQuote() { genPreview(); setTimeout(() => window.print(), 200); }
+
+    // ════════════ PROVEEDORES ════════════
+    let suppliers = JSON.parse(localStorage.getItem('suppliers') || 'null');
+    if (!suppliers) {
+      suppliers = [
+        {
+          id: 1, name: 'Repuestos Express', type: 'Mayorista local', rating: 5, contact: '+56 9 8765 4321', delivery: '1-2 días', url: '', payment: 'Efectivo + Transferencia', notes: 'Mínimo $20.000. Buenos descuentos por volumen.',
+          prices: [
+            { itemId: 1, price: 26000, quality: 'premium', avail: 'En stock', notes: '' },
+            { itemId: 2, price: 14500, quality: 'premium', avail: 'En stock', notes: '' },
+            { itemId: 4, price: 7000, quality: 'premium', avail: 'En stock', notes: '' },
+            { itemId: 7, price: 1800, quality: 'estandar', avail: 'En stock', notes: '' },
+          ]
+        },
+        {
+          id: 2, name: 'TechParts Online', type: 'Tienda online', rating: 4, contact: 'ventas@techparts.cl', delivery: '3-5 días', url: 'https://techparts.cl', payment: 'Transferencia', notes: 'Despacho a todo Chile. Factura disponible.',
+          prices: [
+            { itemId: 1, price: 24500, quality: 'premium', avail: 'En stock', notes: 'Envío gratis +$50.000' },
+            { itemId: 3, price: 11000, quality: 'estandar', avail: 'En stock', notes: '' },
+            { itemId: 5, price: 10000, quality: 'premium', avail: 'En stock', notes: '' },
+            { itemId: 9, price: 18500, quality: 'premium', avail: 'Bajo pedido (1 semana)', notes: '' },
+          ]
+        },
+        {
+          id: 3, name: 'AliExpress / Importación', type: 'Marketplace (ML/Ali)', rating: 3, contact: '', delivery: '2-3 semanas (importación)', url: 'https://aliexpress.com', payment: 'Tarjeta', notes: 'Precios bajos pero demora 3-4 semanas. Sin garantía de calidad constante.',
+          prices: [
+            { itemId: 1, price: 18000, quality: 'estandar', avail: 'Importación (2-4 semanas)', notes: 'Calidad variable' },
+            { itemId: 2, price: 10000, quality: 'estandar', avail: 'Importación (2-4 semanas)', notes: '' },
+            { itemId: 4, price: 4500, quality: 'economico', avail: 'Importación (2-4 semanas)', notes: '' },
+            { itemId: 5, price: 7500, quality: 'economico', avail: 'Importación (2-4 semanas)', notes: '' },
+          ]
+        },
+      ];
+      localStorage.setItem('suppliers', JSON.stringify(suppliers));
+    }
+    let provIdCnt = Math.max(...suppliers.map(s => s.id), 0) + 1;
+    let editProvId = null;
+    let editingProvForPrice = null;
+    let pmPriceRowCount = 0;
+
+    function saveSuppliers() { localStorage.setItem('suppliers', JSON.stringify(suppliers)); }
+
+    // Sub-tab switch
+    function switchProvTab(name, btn) {
+      ['provs', 'cmp', 'best'].forEach(t => {
+        document.getElementById('ppanel-' + t).style.display = t === name ? '' : 'none';
+        document.getElementById('ptab-' + t).classList.toggle('active', t === name);
+      });
+      if (name === 'cmp') populateCmpSelects();
+      if (name === 'best') renderBestPrice();
+      if (name === 'provs') renderProvList();
+    }
+
+    // ── Proveedor stats
+    function renderProvStats() {
+      const total = suppliers.length;
+      const allPrices = suppliers.flatMap(s => s.prices);
+      const coveredItems = new Set(allPrices.map(p => p.itemId)).size;
+      // find best saving
+      let maxSaving = 0;
+      inventory.forEach(item => {
+        const prices = suppliers.map(s => s.prices.find(p => p.itemId === item.id)?.price).filter(Boolean);
+        if (prices.length >= 2) {
+          const saving = Math.max(...prices) - Math.min(...prices);
+          if (saving > maxSaving) maxSaving = saving;
+        }
+      });
+      const avgRating = total ? (suppliers.reduce((a, s) => a + s.rating, 0) / total).toFixed(1) : 0;
+      document.getElementById('provStats').innerHTML = `
+    <div class="stat-card"><div class="stat-label">Proveedores</div><div class="stat-value" style="color:var(--accent)">${total}</div><div class="stat-sub">registrados</div></div>
+    <div class="stat-card"><div class="stat-label">Repuestos cotizados</div><div class="stat-value" style="color:var(--accent2)">${coveredItems}</div><div class="stat-sub">con al menos 1 precio</div></div>
+    <div class="stat-card"><div class="stat-label">Mayor ahorro potencial</div><div class="stat-value" style="font-size:1rem;color:var(--accent)">${fmt(maxSaving)}</div><div class="stat-sub">en un mismo repuesto</div></div>
+    <div class="stat-card"><div class="stat-label">Rating promedio</div><div class="stat-value" style="color:#ffc107">${avgRating}</div><div class="stat-sub">${'⭐'.repeat(Math.round(avgRating))}</div></div>
+  `;
+    }
+
+    // ── Lista proveedores
+    function renderProvList() {
+      const f = (document.getElementById('provFilter')?.value || '').toLowerCase();
+      const list = suppliers.filter(s => !f || s.name.toLowerCase().includes(f) || s.type.toLowerCase().includes(f));
+      const wrap = document.getElementById('provListWrap');
+      if (!list.length) { wrap.innerHTML = '<div style="text-align:center;color:var(--muted);padding:32px">No hay proveedores. Agregue uno con el botón de arriba.</div>'; return; }
+      wrap.innerHTML = list.map(s => {
+        const tagCls = s.rating >= 4 ? 'prov-tag-a' : s.rating === 3 ? 'prov-tag-b' : 'prov-tag-c';
+        const stars = '⭐'.repeat(s.rating);
+        const priceCount = s.prices.length;
+        // Find best prices this supplier offers vs others
+        const wins = s.prices.filter(p => {
+          const others = suppliers.filter(x => x.id !== s.id).map(x => x.prices.find(q => q.itemId === p.itemId)?.price).filter(Boolean);
+          return !others.length || p.price <= Math.min(...others);
+        }).length;
+
+        const priceRows = s.prices.map(p => {
+          const item = inventory.find(i => i.id === p.itemId);
+          if (!item) return '';
+          const currentCost = item.cost;
+          const diff = currentCost - p.price;
+          const diffPct = currentCost > 0 ? ((diff / currentCost) * 100).toFixed(0) : 0;
+          const isBest = suppliers.every(x => x.id === s.id || !(x.prices.find(q => q.itemId === p.itemId)?.price < p.price));
+          const qualityLabels = { original: '🥇 Original', premium: '🥈 Premium', estandar: '🥉 Estándar', economico: '💲 Económico' };
+          const savingEl = diff > 0
+            ? `<span style="color:var(--accent);font-family:'DM Mono',monospace;font-size:.75rem">▼ ${fmt(diff)} (${Math.abs(diffPct)}% más barato)</span>`
+            : diff < 0
+              ? `<span style="color:var(--warn);font-family:'DM Mono',monospace;font-size:.75rem">▲ ${fmt(Math.abs(diff))} (${Math.abs(diffPct)}% más caro)</span>`
+              : `<span style="color:var(--muted);font-size:.75rem">= Igual al inventario</span>`;
+          return `<tr ${isBest ? 'class="best-price"' : ''}>
+        <td>${isBest ? '<span class="winner-badge">🏆 Mejor</span> ' : ''}${item.name}</td>
+        <td><span class="category-tag">${item.cat}</span></td>
+        <td style="font-size:.78rem;color:var(--muted)">${qualityLabels[p.quality] || p.quality}</td>
+        <td style="text-align:right;font-family:'DM Mono',monospace;font-weight:700;color:${isBest ? 'var(--accent)' : 'var(--text)'}">${fmt(p.price)}</td>
+        <td style="text-align:right;font-family:'DM Mono',monospace;font-size:.8rem;color:var(--muted)">${fmt(item.cost)}</td>
+        <td>${savingEl}</td>
+        <td style="font-size:.75rem;color:var(--muted)">${p.avail}</td>
+        <td style="font-size:.75rem;color:var(--muted)">${p.notes || '—'}</td>
+        <td>
+          <button class="btn btn-ghost btn-sm" onclick="editProvPrice(${s.id},${p.itemId})" title="Editar precio">✏️</button>
+          <button class="btn btn-ghost btn-sm" onclick="delProvPrice(${s.id},${p.itemId})" title="Eliminar precio" style="color:var(--warn)">🗑</button>
+        </td>
+      </tr>`;
+        }).filter(Boolean).join('');
+
+        return `<div class="prov-card">
+      <div class="prov-header">
+        <div class="prov-name">
+          🏪 ${s.name}
+          <span class="prov-tag ${tagCls}">${stars} ${s.type}</span>
+          ${wins > 0 ? `<span style="font-size:.73rem;color:var(--accent);background:rgba(0,229,160,.1);padding:2px 8px;border-radius:999px;border:1px solid rgba(0,229,160,.2)">🏆 Mejor precio en ${wins}</span>` : ''}
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm" onclick="openAddPriceModal(${s.id})">+ Precio</button>
+          <button class="btn btn-ghost btn-sm" onclick="editProv(${s.id})">✏️</button>
+          <button class="btn btn-ghost btn-sm" onclick="delProv(${s.id})" style="color:var(--warn)">🗑</button>
+        </div>
+      </div>
+      <div class="prov-meta">
+        ${s.contact ? `<span>📞 ${s.contact}</span>` : ''}
+        ${s.url ? `<span>🌐 <a href="${s.url}" target="_blank" style="color:var(--accent2)">${s.url.replace('https://', '')}</a></span>` : ''}
+        <span>🚚 ${s.delivery}</span>
+        <span>💳 ${s.payment}</span>
+        <span>📦 ${priceCount} repuesto${priceCount !== 1 ? 's' : ''} cotizado${priceCount !== 1 ? 's' : ''}</span>
+        ${s.notes ? `<span style="color:var(--muted)">📝 ${s.notes}</span>` : ''}
+      </div>
+      ${priceCount > 0 ? `
+      <div style="overflow-x:auto">
+        <table class="prov-table">
+          <thead><tr>
+            <th>Repuesto</th><th>Categoría</th><th>Calidad</th>
+            <th style="text-align:right">Precio prov.</th>
+            <th style="text-align:right">Costo actual</th>
+            <th>Diferencia</th>
+            <th>Disponibilidad</th>
+            <th>Notas</th><th></th>
+          </tr></thead>
+          <tbody>${priceRows}</tbody>
+        </table>
+      </div>` : `<div style="color:var(--muted);font-size:.84rem;font-style:italic;padding:8px 0">Sin precios registrados aún. Use "+ Precio" para agregar.</div>`}
+    </div>`;
+      }).join('');
+    }
+
+    // ── Comparador
+    function populateCmpSelects() {
+      const allItemIds = [...new Set(suppliers.flatMap(s => s.prices.map(p => p.itemId)))];
+      const itemSel = document.getElementById('cmpItemSel');
+      const provSel = document.getElementById('cmpProvSel');
+      const prevItem = itemSel.value;
+      itemSel.innerHTML = '<option value="">-- Seleccione un repuesto --</option>' +
+        allItemIds.map(id => {
+          const item = inventory.find(i => i.id === id);
+          return item ? `<option value="${id}" ${id == prevItem ? 'selected' : ''}>${item.name}</option>` : '';
+        }).filter(Boolean).join('');
+      provSel.innerHTML = '<option value="">Todos los proveedores</option>' +
+        suppliers.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+      if (prevItem) renderComparador();
+    }
+
+    function renderComparador() {
+      const itemId = parseInt(document.getElementById('cmpItemSel').value);
+      const filtProvId = parseInt(document.getElementById('cmpProvSel').value) || null;
+      const result = document.getElementById('cmpResult');
+      if (!itemId) { result.innerHTML = ''; return; }
+      const item = inventory.find(i => i.id === itemId);
+      if (!item) return;
+
+      const provPrices = suppliers
+        .filter(s => !filtProvId || s.id === filtProvId)
+        .map(s => {
+          const p = s.prices.find(p => p.itemId === itemId);
+          return p ? { supplier: s, price: p } : null;
+        }).filter(Boolean).sort((a, b) => a.price.price - b.price.price);
+
+      if (!provPrices.length) {
+        result.innerHTML = `<div class="card"><div style="text-align:center;color:var(--muted);padding:24px">Ningún proveedor tiene precio para este repuesto.<br><small>Agregue precios desde la sección "Mis proveedores".</small></div></div>`;
+        return;
+      }
+
+      const best = provPrices[0].price.price;
+      const worst = provPrices[provPrices.length - 1].price.price;
+      const currentCost = item.cost;
+      const salePrice = getSP(item);
+      const qualityLabels = { original: '🥇 Original / OEM', premium: '🥈 Compatible Premium', estandar: '🥉 Estándar', economico: '💲 Económico' };
+
+      const rows = provPrices.map((entry, idx) => {
+        const isBest = entry.price.price === best;
+        const isWorst = provPrices.length > 1 && entry.price.price === worst;
+        const diff = entry.price.price - best;
+        const saving = worst - entry.price.price;
+        const margin = salePrice - entry.price.price;
+        const marginPct = salePrice > 0 ? ((margin / salePrice) * 100).toFixed(0) : 0;
+        const stars = '⭐'.repeat(entry.supplier.rating);
+        return `<tr ${isBest ? 'class="best-price"' : ''}>
+      <td>
+        ${isBest ? '<span class="winner-badge">🏆 Más barato</span>' : `<span style="color:var(--muted);font-family:'DM Mono',monospace;font-size:.75rem">#${idx + 1}</span>`}
+        <strong style="margin-left:6px;color:var(--text)">${entry.supplier.name}</strong>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:2px">${entry.supplier.type} · 🚚 ${entry.supplier.delivery}</div>
+      </td>
+      <td style="font-size:.78rem">${qualityLabels[entry.price.quality] || entry.price.quality}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-weight:700;font-size:1rem;color:${isBest ? 'var(--accent)' : isWorst ? 'var(--warn)' : 'var(--text)'}">${fmt(entry.price.price)}</td>
+      <td style="text-align:right">
+        ${isBest ? '<span style="color:var(--accent);font-size:.78rem">Base</span>' : `<span style="color:var(--warn);font-family:\'DM Mono\',monospace;font-size:.78rem">+${fmt(diff)}</span>`}
+      </td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-size:.82rem;color:var(--accent2)">${fmt(margin)}<div style="font-size:.7rem;color:var(--muted)">${marginPct}% del PV</div></td>
+      <td style="font-size:.78rem;color:${entry.price.avail === 'En stock' ? 'var(--accent)' : 'var(--muted)'}">${entry.price.avail}</td>
+      <td style="font-size:.75rem;color:var(--muted)">${entry.price.notes || '—'}</td>
+      <td><button class="btn btn-accent2 btn-sm" onclick="useSupplierPrice(${item.id},${entry.price.price})" title="Usar este precio como costo en inventario">✅ Usar</button></td>
+    </tr>`;
+      }).join('');
+
+      result.innerHTML = `
+    <div class="card">
+      <div class="card-title" style="margin-bottom:14px">
+        <div class="card-title-icon">📊</div>
+        Comparación: <span style="color:var(--accent)">${item.name}</span>
+        <span class="category-tag" style="margin-left:4px">${item.cat}</span>
+      </div>
+      <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:20px;padding:14px;background:var(--surface2);border-radius:var(--radius-sm)">
+        <div><div style="font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;margin-bottom:4px">Precio más bajo</div><div style="font-size:1.3rem;font-weight:800;font-family:'Syne',sans-serif;color:var(--accent)">${fmt(best)}</div></div>
+        <div><div style="font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;margin-bottom:4px">Precio más alto</div><div style="font-size:1.3rem;font-weight:800;font-family:'Syne',sans-serif;color:var(--warn)">${fmt(worst)}</div></div>
+        <div><div style="font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;margin-bottom:4px">Ahorro potencial</div><div style="font-size:1.3rem;font-weight:800;font-family:'Syne',sans-serif;color:var(--accent2)">${fmt(worst - best)}</div></div>
+        <div><div style="font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;margin-bottom:4px">Costo actual inv.</div><div style="font-size:1.3rem;font-weight:800;font-family:'Syne',sans-serif;color:var(--text)">${fmt(currentCost)}</div></div>
+        <div><div style="font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;margin-bottom:4px">Precio de venta</div><div style="font-size:1.3rem;font-weight:800;font-family:'Syne',sans-serif;color:var(--text)">${fmt(salePrice)}</div></div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="prov-table">
+          <thead><tr>
+            <th>Proveedor</th><th>Calidad</th>
+            <th style="text-align:right">Precio prov.</th>
+            <th style="text-align:right">vs Mejor</th>
+            <th style="text-align:right">Ganancia (PV)</th>
+            <th>Disponibilidad</th><th>Notas</th><th></th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <div class="alert alert-info" style="margin-top:14px;margin-bottom:0">💡 <span>Presione <strong>✅ Usar</strong> en cualquier fila para actualizar el precio de costo del inventario con el precio de ese proveedor.</span></div>
+    </div>`;
+    }
+
+    // ── Mejor precio global
+    function renderBestPrice() {
+      const tbody = document.getElementById('bestPriceBody');
+      const itemsWithPrices = inventory.filter(item =>
+        suppliers.some(s => s.prices.find(p => p.itemId === item.id))
+      );
+      if (!itemsWithPrices.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:28px">Agregue precios a sus proveedores para ver la comparación.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = itemsWithPrices.map(item => {
+        const provPrices = suppliers
+          .map(s => { const p = s.prices.find(p => p.itemId === item.id); return p ? { name: s.name, price: p.price, id: s.id } : null; })
+          .filter(Boolean).sort((a, b) => a.price - b.price);
+        const best = provPrices[0];
+        const worst = provPrices[provPrices.length - 1];
+        const saving = worst.price - best.price;
+        const savingPct = worst.price > 0 ? ((saving / worst.price) * 100).toFixed(0) : 0;
+        const dots = provPrices.map(p => {
+          const isBest = p.price === best.price;
+          return `<span title="${p.name}: ${fmt(p.price)}" style="display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:999px;font-size:.7rem;font-family:'DM Mono',monospace;margin:2px;background:${isBest ? 'rgba(0,229,160,.12)' : 'rgba(42,42,58,.6)'};color:${isBest ? 'var(--accent)' : 'var(--muted)'};border:1px solid ${isBest ? 'rgba(0,229,160,.3)' : 'var(--border)'}">
+        ${isBest ? '🏆 ' : ''}${p.name.split(' ')[0]}: ${fmt(p.price)}
+      </span>`;
+        }).join('');
+        return `<tr>
+      <td><strong style="color:var(--text)">${item.name}</strong></td>
+      <td><span class="category-tag">${item.cat}</span></td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-weight:700;color:var(--accent)">${fmt(best.price)}</td>
+      <td><span class="winner-badge">🏆 ${best.name}</span></td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;color:var(--warn)">${fmt(worst.price)}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;color:var(--accent2)">${saving > 0 ? fmt(saving) + ` <small style="color:var(--muted)">(${savingPct}%)</small>` : '<span style="color:var(--muted)">—</span>'}</td>
+      <td>${dots}</td>
+    </tr>`;
+      }).join('');
+    }
+
+    // ── Usar precio del proveedor
+    function useSupplierPrice(itemId, price) {
+      const item = inventory.find(i => i.id === itemId);
+      if (!item) return;
+      if (!confirm(`¿Actualizar el costo de "${item.name}" a ${fmt(price)} en el inventario?`)) return;
+      item.cost = price;
+      saveInv();
+      renderComparador();
+      renderBestPrice();
+      alert(`✅ Precio actualizado a ${fmt(price)}`);
+    }
+
+    // ── Modal proveedor
+    function openProvModal() {
+      editProvId = null;
+      document.getElementById('provModalTitle').textContent = '🏪 Agregar Proveedor';
+      ['pm-name', 'pm-contact', 'pm-url', 'pm-notes'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('pm-type').value = 'Mayorista local';
+      document.getElementById('pm-rating').value = '4';
+      document.getElementById('pm-delivery').value = '1-2 días';
+      document.getElementById('pm-payment').value = 'Efectivo + Transferencia';
+      pmPriceRowCount = 0;
+      document.getElementById('pmPricesRows').innerHTML = '';
+      document.getElementById('provModal').classList.add('open');
+    }
+
+    function editProv(id) {
+      const s = suppliers.find(s => s.id === id);
+      if (!s) return;
+      editProvId = id;
+      document.getElementById('provModalTitle').textContent = '✏️ Editar Proveedor';
+      document.getElementById('pm-name').value = s.name;
+      document.getElementById('pm-type').value = s.type;
+      document.getElementById('pm-rating').value = s.rating;
+      document.getElementById('pm-contact').value = s.contact || '';
+      document.getElementById('pm-delivery').value = s.delivery;
+      document.getElementById('pm-url').value = s.url || '';
+      document.getElementById('pm-payment').value = s.payment;
+      document.getElementById('pm-notes').value = s.notes || '';
+      pmPriceRowCount = 0;
+      document.getElementById('pmPricesRows').innerHTML = '';
+      document.getElementById('provModal').classList.add('open');
+    }
+
+    function closeProvModal() { document.getElementById('provModal').classList.remove('open'); }
+
+    function addPmPriceRow() {
+      const c = pmPriceRowCount++;
+      const opts = inventory.map(i => `<option value="${i.id}">${i.name}</option>`).join('');
+      const row = document.createElement('div');
+      row.style.cssText = 'display:contents';
+      row.innerHTML = `
+    <select style="font-size:.82rem" id="pmpr-item-${c}"><option value="">-- Repuesto --</option>${opts}</select>
+    <input type="number" placeholder="Precio $" id="pmpr-price-${c}" min="0" style="font-family:'DM Mono',monospace">
+    <button type="button" class="remove-btn" onclick="this.parentElement.remove()" style="font-size:.9rem;flex-shrink:0">✕</button>
+  `;
+      document.getElementById('pmPricesRows').appendChild(row);
+    }
+
+    function saveProv() {
+      const name = document.getElementById('pm-name').value.trim();
+      if (!name) { alert('El nombre es obligatorio.'); return; }
+      // Collect price rows
+      const prices = editProvId ? (suppliers.find(s => s.id === editProvId)?.prices || []) : [];
+      document.querySelectorAll('#pmPricesRows > div').forEach(row => {
+        const itemEl = row.querySelector('[id^="pmpr-item"]');
+        const priceEl = row.querySelector('[id^="pmpr-price"]');
+        if (itemEl && priceEl && itemEl.value && priceEl.value) {
+          const itemId = parseInt(itemEl.value);
+          const existing = prices.findIndex(p => p.itemId === itemId);
+          const entry = { itemId, price: parseFloat(priceEl.value), quality: 'premium', avail: 'En stock', notes: '' };
+          if (existing > -1) prices[existing] = entry; else prices.push(entry);
+        }
+      });
+      const s = {
+        id: editProvId || provIdCnt++,
+        name, type: document.getElementById('pm-type').value,
+        rating: parseInt(document.getElementById('pm-rating').value),
+        contact: document.getElementById('pm-contact').value.trim(),
+        delivery: document.getElementById('pm-delivery').value,
+        url: document.getElementById('pm-url').value.trim(),
+        payment: document.getElementById('pm-payment').value,
+        notes: document.getElementById('pm-notes').value.trim(),
+        prices
+      };
+      if (editProvId) { const idx = suppliers.findIndex(x => x.id === editProvId); if (idx > -1) suppliers[idx] = s; }
+      else suppliers.push(s);
+      saveSuppliers();
+      renderProvList();
+      renderProvStats();
+      closeProvModal();
+    }
+
+    function delProv(id) {
+      const s = suppliers.find(s => s.id === id);
+      if (!confirm(`¿Eliminar proveedor "${s?.name}"?`)) return;
+      suppliers = suppliers.filter(s => s.id !== id);
+      saveSuppliers();
+      renderProvList();
+      renderProvStats();
+    }
+
+    // ── Add price to existing supplier
+    function openAddPriceModal(supplierId) {
+      editingProvForPrice = supplierId;
+      const s = suppliers.find(s => s.id === supplierId);
+      document.getElementById('addPriceTitle').textContent = `➕ Agregar precio — ${s?.name}`;
+      const sel = document.getElementById('ap-item');
+      sel.innerHTML = '<option value="">-- Seleccionar repuesto --</option>' +
+        inventory.map(i => `<option value="${i.id}">${i.name} (${i.cat})</option>`).join('');
+      document.getElementById('ap-price').value = '';
+      document.getElementById('ap-quality').value = 'premium';
+      document.getElementById('ap-avail').value = 'En stock';
+      document.getElementById('ap-notes').value = '';
+      document.getElementById('apPreviewText').textContent = 'Seleccione un repuesto para ver comparativa';
+      document.getElementById('addPriceModal').classList.add('open');
+    }
+
+    function updateAPPreview() {
+      const itemId = parseInt(document.getElementById('ap-item').value);
+      const price = parseFloat(document.getElementById('ap-price').value) || 0;
+      const el = document.getElementById('apPreviewText');
+      if (!itemId || !price) { el.textContent = 'Ingrese repuesto y precio.'; return; }
+      const item = inventory.find(i => i.id === itemId);
+      if (!item) return;
+      const sp = getSP(item);
+      const margin = sp - price;
+      const marginPct = sp > 0 ? ((margin / sp) * 100).toFixed(0) : 0;
+      const otherPrices = suppliers
+        .filter(s => s.id !== editingProvForPrice)
+        .map(s => { const p = s.prices.find(p => p.itemId === itemId); return p ? { name: s.name, price: p.price } : null; })
+        .filter(Boolean);
+      const cheaper = otherPrices.filter(p => p.price < price);
+      const cmpText = otherPrices.length
+        ? (cheaper.length ? `⚠️ ${cheaper.length} proveedor(es) ofrecen más barato: ${cheaper.map(p => `${p.name} ${fmt(p.price)}`).join(', ')}` : '✅ Este es el precio más bajo entre proveedores')
+        : 'Primer precio para este repuesto.';
+      el.innerHTML = `Costo actual inventario: <strong>${fmt(item.cost)}</strong> | PV: <strong>${fmt(sp)}</strong> | Ganancia con este precio: <strong style="color:var(--accent2)">${fmt(margin)} (${marginPct}%)</strong><br><span style="font-size:.78rem;margin-top:4px;display:block">${cmpText}</span>`;
+    }
+
+    function editProvPrice(supplierId, itemId) {
+      editingProvForPrice = supplierId;
+      const s = suppliers.find(s => s.id === supplierId);
+      const p = s?.prices.find(p => p.itemId === itemId);
+      if (!p) return;
+      document.getElementById('addPriceTitle').textContent = `✏️ Editar precio — ${s.name}`;
+      const sel = document.getElementById('ap-item');
+      sel.innerHTML = '<option value="">-- Seleccionar repuesto --</option>' +
+        inventory.map(i => `<option value="${i.id}" ${i.id === itemId ? 'selected' : ''}>${i.name} (${i.cat})</option>`).join('');
+      document.getElementById('ap-price').value = p.price;
+      document.getElementById('ap-quality').value = p.quality;
+      document.getElementById('ap-avail').value = p.avail;
+      document.getElementById('ap-notes').value = p.notes || '';
+      updateAPPreview();
+      document.getElementById('addPriceModal').classList.add('open');
+    }
+
+    function saveProvPrice() {
+      const itemId = parseInt(document.getElementById('ap-item').value);
+      const price = parseFloat(document.getElementById('ap-price').value) || 0;
+      if (!itemId || !price) { alert('Seleccione repuesto y precio.'); return; }
+      const s = suppliers.find(s => s.id === editingProvForPrice);
+      if (!s) return;
+      const existing = s.prices.findIndex(p => p.itemId === itemId);
+      const entry = { itemId, price, quality: document.getElementById('ap-quality').value, avail: document.getElementById('ap-avail').value, notes: document.getElementById('ap-notes').value.trim() };
+      if (existing > -1) s.prices[existing] = entry; else s.prices.push(entry);
+      saveSuppliers();
+      renderProvList();
+      renderProvStats();
+      document.getElementById('addPriceModal').classList.remove('open');
+    }
+
+    function delProvPrice(supplierId, itemId) {
+      const s = suppliers.find(s => s.id === supplierId);
+      if (!confirm('¿Eliminar este precio?')) return;
+      s.prices = s.prices.filter(p => p.itemId !== itemId);
+      saveSuppliers();
+      renderProvList();
+      renderProvStats();
+    }
+
+    // proveedores tab is handled directly in the main switchTab function above
+
+    const now = new Date(), pad = n => String(n).padStart(2, '0');
+    document.getElementById('fecha-ingreso').value = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    renderMargins();
+  </script>
+</body>
+
+</html>

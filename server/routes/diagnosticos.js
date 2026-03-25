@@ -17,25 +17,34 @@ router.post('/', async (req, res) => {
             });
         }
 
+        // Asegurar tipo numérico para equipo_id
+        const equipoIdNum = parseInt(equipo_id);
+        if (isNaN(equipoIdNum)) {
+            return res.status(400).json({ error: 'equipo_id debe ser un número válido' });
+        }
+
         // Verificar que el equipo existe
-        const equipo = await db.get('SELECT * FROM equipos WHERE id = ?', [equipo_id]);
+        const equipo = await db.get('SELECT * FROM equipos WHERE id = ?', [equipoIdNum]);
         if (!equipo) {
             return res.status(404).json({ error: 'Equipo no encontrado' });
         }
 
+        // Convertir reparable a integer (1 o 0) de forma explícita
+        const reparableInt = (reparable === false || reparable === 'false' || reparable === 0) ? 0 : 1;
+
         const result = await db.run(`
             INSERT INTO diagnosticos (equipo_id, tecnico, diagnostico_detallado, reparable, observaciones)
             VALUES (?, ?, ?, ?, ?)
-        `, [equipo_id, tecnico, diagnostico_detallado, reparable !== false ? 1 : 0, observaciones || null]);
+        `, [equipoIdNum, tecnico, diagnostico_detallado, reparableInt, observaciones || null]);
 
         // Actualizar estado del equipo a 'diagnostico'
-        await db.run('UPDATE equipos SET estado_actual = ? WHERE id = ?', ['diagnostico', equipo_id]);
+        await db.run('UPDATE equipos SET estado_actual = ? WHERE id = ?', ['diagnostico', equipoIdNum]);
 
         // Registrar cambio de estado
         await db.run(`
             INSERT INTO estados_historial (equipo_id, estado_anterior, estado_nuevo, observaciones, usuario)
             VALUES (?, ?, ?, ?, ?)
-        `, [equipo_id, equipo.estado_actual, 'diagnostico', 'Diagnóstico técnico completado', tecnico]);
+        `, [equipoIdNum, equipo.estado_actual, 'diagnostico', 'Diagnóstico técnico completado', tecnico]);
 
         const nuevoDiagnostico = await db.get('SELECT * FROM diagnosticos WHERE id = ?', [result.lastID]);
 
@@ -45,7 +54,7 @@ router.post('/', async (req, res) => {
         });
     } catch (error) {
         console.error('Error al crear diagnóstico:', error);
-        res.status(500).json({ error: 'Error al crear diagnóstico' });
+        res.status(500).json({ error: 'Error al crear diagnóstico: ' + error.message });
     }
 });
 

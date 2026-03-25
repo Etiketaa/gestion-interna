@@ -1,0 +1,33 @@
+{
+    "version": 2,
+    "public": true,
+    "rewrites": [
+        {
+            "source": "/api/(.*)",
+            "destination": "https://tu-backend-en-railway.up.railway.app/api/$1"
+        },
+        {
+            "source": "/uploads/(.*)",
+            "destination": "https://tu-backend-en-railway.up.railway.app/uploads/$1"
+        },
+        {
+            "source": "/(.*)",
+            "destination": "/public/$1"
+        }
+    ],
+    "headers": [
+        {
+            "source": "/(.*)",
+            "headers": [
+                {
+                    "key": "X-Frame-Options",
+                    "value": "DENY"
+                },
+                {
+                    "key": "X-Content-Type-Options",
+                    "value": "nosniff"
+                }
+            ]
+        }
+    ]
+}

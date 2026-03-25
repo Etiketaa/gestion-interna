@@ -483,8 +483,15 @@ async function subirFotos(equipoId) {
 
     try {
         showLoading();
+        const token = getAuthToken();
+        const headers = {};
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
         const response = await fetch(`${API_URL}/fotos`, {
             method: 'POST',
+            headers,
             body: formData
         });
 

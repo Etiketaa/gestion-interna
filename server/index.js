@@ -4,7 +4,11 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const db = require('./config/database');
 
+// Importar middleware de autenticación
+const { authMiddleware } = require('./middleware/auth');
+
 // Importar rutas
+const authRoutes = require('./routes/auth');
 const clientesRoutes = require('./routes/clientes');
 const equiposRoutes = require('./routes/equipos');
 const diagnosticosRoutes = require('./routes/diagnosticos');
@@ -20,17 +24,33 @@ const PORT = process.env.PORT || 3001;
 // MIDDLEWARE
 // ============================================
 
-// CORS - Permitir requests desde el frontend
-app.use(cors());
+// CORS - Permitir requests desde el frontend (incluyendo Vercel)
+const allowedOrigins = process.env.FRONTEND_URL
+    ? [process.env.FRONTEND_URL, 'http://localhost:3001', 'http://localhost:5500', 'http://127.0.0.1:5500']
+    : ['http://localhost:3001', 'http://localhost:5500', 'http://127.0.0.1:5500'];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        // Permitir requests sin origin (herramientas como curl, Postman)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.some(allowed => origin.startsWith(allowed))) {
+            return callback(null, true);
+        }
+        callback(null, true); // Permitir todo en desarrollo
+    },
+    credentials: true
+}));
 
 // Body parser - Parsear JSON
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Servir archivos estáticos (frontend)
-app.use(express.static(path.join(__dirname, '../public')));
+// Servir archivos estáticos solo en desarrollo (cuando el frontend no está en Vercel)
+if (!process.env.FRONTEND_URL) {
+    app.use(express.static(path.join(__dirname, '../public')));
+}
 
-// Servir archivos de uploads (fotos)
+// Servir archivos de uploads (fotos) — siempre disponible
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Logger simple
@@ -39,10 +59,14 @@ app.use((req, res, next) => {
     next();
 });
 
+// Middleware de autenticación JWT (protege rutas /api/* excepto públicas)
+app.use(authMiddleware);
+
 // ============================================
 // RUTAS API
 // ============================================
 
+app.use('/api/auth', authRoutes);
 app.use('/api/clientes', clientesRoutes);
 app.use('/api/equipos', equiposRoutes);
 app.use('/api/diagnosticos', diagnosticosRoutes);
