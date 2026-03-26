@@ -236,6 +236,64 @@ const initSchema = async () => {
             fecha_subida TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
 
+        -- ═══ COTIZACIÓN: Inventario de repuestos ═══
+        CREATE TABLE IF NOT EXISTS cot_inventario (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            cat VARCHAR(100) NOT NULL,
+            brand VARCHAR(255),
+            cost DECIMAL(12, 2) NOT NULL DEFAULT 0,
+            margin DECIMAL(5, 2),
+            stock INTEGER DEFAULT 0,
+            min_stock INTEGER DEFAULT 2,
+            notes TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        -- ═══ COTIZACIÓN: Proveedores ═══
+        CREATE TABLE IF NOT EXISTS cot_proveedores (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            type VARCHAR(100),
+            rating INTEGER DEFAULT 4,
+            contact VARCHAR(255),
+            delivery VARCHAR(100),
+            url VARCHAR(500),
+            payment VARCHAR(100),
+            notes TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        -- ═══ COTIZACIÓN: Precios de proveedor por repuesto ═══
+        CREATE TABLE IF NOT EXISTS cot_proveedor_precios (
+            id SERIAL PRIMARY KEY,
+            proveedor_id INTEGER NOT NULL REFERENCES cot_proveedores(id) ON DELETE CASCADE,
+            item_id INTEGER NOT NULL REFERENCES cot_inventario(id) ON DELETE CASCADE,
+            price DECIMAL(12, 2) NOT NULL,
+            quality VARCHAR(50) DEFAULT 'premium',
+            avail VARCHAR(100) DEFAULT 'En stock',
+            notes TEXT
+        );
+
+        -- ═══ COTIZACIÓN: Cotizaciones guardadas ═══
+        CREATE TABLE IF NOT EXISTS cot_cotizaciones (
+            id SERIAL PRIMARY KEY,
+            orden VARCHAR(50) UNIQUE NOT NULL,
+            cliente_nombre VARCHAR(255),
+            equipo_desc VARCHAR(255),
+            servicios TEXT,
+            total DECIMAL(12, 2) DEFAULT 0,
+            estado VARCHAR(50) DEFAULT 'Pendiente',
+            fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        -- ═══ COTIZACIÓN: Configuración (márgenes, etc.) ═══
+        CREATE TABLE IF NOT EXISTS cot_config (
+            id SERIAL PRIMARY KEY,
+            key VARCHAR(100) UNIQUE NOT NULL,
+            value TEXT NOT NULL
+        );
+
         -- Índices para mejorar performance
         CREATE INDEX IF NOT EXISTS idx_equipos_cliente ON equipos(cliente_id);
         CREATE INDEX IF NOT EXISTS idx_equipos_estado ON equipos(estado_actual);
@@ -244,6 +302,8 @@ const initSchema = async () => {
         CREATE INDEX IF NOT EXISTS idx_presupuestos_equipo ON presupuestos(equipo_id);
         CREATE INDEX IF NOT EXISTS idx_historial_equipo ON estados_historial(equipo_id);
         CREATE INDEX IF NOT EXISTS idx_fotos_equipo ON fotos(equipo_id);
+        CREATE INDEX IF NOT EXISTS idx_cot_precios_prov ON cot_proveedor_precios(proveedor_id);
+        CREATE INDEX IF NOT EXISTS idx_cot_precios_item ON cot_proveedor_precios(item_id);
     `;
 
     const statements = schema.split(';').filter(s => s.trim());

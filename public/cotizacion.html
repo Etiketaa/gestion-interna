@@ -2275,8 +2275,8 @@
   <script>
     // ════════════ STATE ════════════
     let services = [], damages = [], editId = null, acIdx = -1;
-    let orderCounter = parseInt(localStorage.getItem('orderCounter') || '1000');
-    let savedQuotes = JSON.parse(localStorage.getItem('savedQuotes') || '[]');
+    let orderCounter = 1000;
+    let savedQuotes = [];
 
     const DEF_MARGINS = {
       'Módulo pantalla': 2.7, 'Batería': 2.5, 'Conector carga': 2.8, 'Cámara': 2.6,
@@ -2291,30 +2291,37 @@
       'Servicio': 'Precio fijo manual', 'Mano de obra': 'Precio fijo manual',
       'Diagnóstico': 'Precio fijo manual', 'Otro': 'Misceláneos'
     };
-    let margins = JSON.parse(localStorage.getItem('margins') || 'null') || { ...DEF_MARGINS };
+    let margins = { ...DEF_MARGINS };
+    let inventory = [];
+    let suppliers = [];
+    let invIdCnt = 1;
 
-    let inventory = JSON.parse(localStorage.getItem('inventory') || 'null');
-    if (!inventory) {
-      inventory = [
-        { id: 1, name: 'Módulo pantalla iPhone 14', cat: 'Módulo pantalla', brand: 'Apple iPhone 14', cost: 32000, stock: 3, min: 1, notes: 'OLED compatible', margin: null },
-        { id: 2, name: 'Módulo pantalla Samsung A54', cat: 'Módulo pantalla', brand: 'Samsung A54', cost: 18000, stock: 5, min: 2, notes: '', margin: null },
-        { id: 3, name: 'Módulo pantalla Motorola G32', cat: 'Módulo pantalla', brand: 'Motorola G32', cost: 14000, stock: 2, min: 1, notes: 'LCD', margin: null },
-        { id: 4, name: 'Batería iPhone 13', cat: 'Batería', brand: 'Apple iPhone 13', cost: 8500, stock: 8, min: 3, notes: '2000mAh', margin: null },
-        { id: 5, name: 'Batería iPhone 14', cat: 'Batería', brand: 'Apple iPhone 14', cost: 12000, stock: 4, min: 2, notes: '', margin: null },
-        { id: 6, name: 'Batería Samsung A32', cat: 'Batería', brand: 'Samsung A32', cost: 5000, stock: 6, min: 2, notes: '', margin: null },
-        { id: 7, name: 'Conector USB-C universal', cat: 'Conector carga', brand: 'Universal', cost: 2500, stock: 12, min: 4, notes: '', margin: null },
-        { id: 8, name: 'Conector Lightning iPhone', cat: 'Conector carga', brand: 'Apple iPhone', cost: 3500, stock: 7, min: 2, notes: '', margin: null },
-        { id: 9, name: 'Cámara trasera iPhone 12', cat: 'Cámara', brand: 'Apple iPhone 12', cost: 22000, stock: 2, min: 1, notes: 'Triple cámara', margin: null },
-        { id: 10, name: 'Cámara frontal Samsung A53', cat: 'Cámara', brand: 'Samsung A53', cost: 9000, stock: 3, min: 1, notes: '', margin: null },
-        { id: 11, name: 'Carcasa trasera Xiaomi Redmi Note 11', cat: 'Carcasa', brand: 'Xiaomi Redmi Note 11', cost: 7000, stock: 4, min: 1, notes: '', margin: null },
-        { id: 12, name: 'Parlante inferior iPhone 11', cat: 'Parlante / Micrófono', brand: 'Apple iPhone 11', cost: 4500, stock: 5, min: 2, notes: '', margin: null },
-        { id: 13, name: 'Botón home Samsung A12', cat: 'Botones', brand: 'Samsung A12', cost: 1800, stock: 10, min: 3, notes: '', margin: null },
-        { id: 14, name: 'Flex botón power iPhone X', cat: 'Flex / Cable', brand: 'Apple iPhone X', cost: 3200, stock: 6, min: 2, notes: '', margin: null },
-      ];
-      localStorage.setItem('inventory', JSON.stringify(inventory));
+    // ════════════ API HELPERS ════════════
+    const API = window.API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3001/api' : '/api');
+    const token = () => localStorage.getItem('token') || '';
+    const hdrs = () => ({ 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token() });
+    async function apiGet(path) { const r = await fetch(API + path, { headers: hdrs() }); return r.json(); }
+    async function apiPost(path, body) { const r = await fetch(API + path, { method: 'POST', headers: hdrs(), body: JSON.stringify(body) }); return r.json(); }
+    async function apiPut(path, body) { const r = await fetch(API + path, { method: 'PUT', headers: hdrs(), body: JSON.stringify(body) }); return r.json(); }
+    async function apiDelete(path) { const r = await fetch(API + path, { method: 'DELETE', headers: hdrs() }); return r.json(); }
+
+    // ════════════ INIT APP ════════════
+    async function initApp() {
+      try {
+        inventory = await apiGet('/cotizacion/inventario');
+        invIdCnt = Math.max(...inventory.map(i => i.id), 0) + 1;
+        margins = await apiGet('/cotizacion/margenes');
+        suppliers = await apiGet('/cotizacion/proveedores');
+        savedQuotes = await apiGet('/cotizacion/cotizaciones');
+        const cnt = await apiGet('/cotizacion/cotizaciones/counter');
+        orderCounter = cnt.counter || 1000;
+      } catch (e) {
+        console.warn('⚠️ API no disponible, usando datos vacíos:', e.message);
+      }
+      document.getElementById('eq-orden').value = 'ORD-' + (orderCounter + 1);
+      renderMargins();
     }
-    let invIdCnt = Math.max(...inventory.map(i => i.id), 0) + 1;
-    document.getElementById('eq-orden').value = 'ORD-' + (orderCounter + 1);
+    initApp();
 
     // ════════════ HELPERS ════════════
     const fmt = n => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(n || 0);
@@ -2362,24 +2369,24 @@
       <td style="font-family:'DM Mono',monospace;color:var(--text)">${fmt(10000 * m)}</td></tr>`;
       }).join('');
     }
-    function saveMargins() {
+    async function saveMargins() {
       Object.keys(DEF_MARGINS).forEach(cat => {
         const el = document.getElementById('mg-' + cat.replace(/\W/g, '_'));
         if (el) margins[cat] = parseFloat(el.value) || DEF_MARGINS[cat];
       });
-      localStorage.setItem('margins', JSON.stringify(margins));
+      await apiPut('/cotizacion/margenes', margins);
       renderInv();
       alert('✅ Márgenes guardados.');
     }
-    function resetMargins() {
+    async function resetMargins() {
       if (!confirm('¿Restablecer márgenes por defecto?')) return;
       margins = { ...DEF_MARGINS };
-      localStorage.setItem('margins', JSON.stringify(margins));
+      await apiPut('/cotizacion/margenes', margins);
       renderMargins(); renderInv();
     }
 
     // ════════════ INVENTORY ════════════
-    function saveInv() { localStorage.setItem('inventory', JSON.stringify(inventory)); }
+    async function saveInv() { /* Data saved via individual API calls */ }
     function renderInvStats() {
       const out = inventory.filter(i => i.stock === 0).length;
       const low = inventory.filter(i => i.stock > 0 && i.stock <= i.min).length;
@@ -2468,27 +2475,34 @@
       document.getElementById('mpPrice').textContent = fmt(sp);
       document.getElementById('mpInfo').textContent = `${fmt(cost)} × ${m.toFixed(2)} = ${fmt(sp)} | Ganancia: ${fmt(gain)} (${cost > 0 ? ((gain / cost) * 100).toFixed(0) : 0}% sobre costo)`;
     }
-    function saveItem() {
+    async function saveItem() {
       const name = document.getElementById('m-name').value.trim();
       const cat = document.getElementById('m-cat').value;
       const cost = parseFloat(document.getElementById('m-cost').value) || 0;
       if (!name || !cat) { alert('Nombre y categoría son obligatorios.'); return; }
-      const item = {
-        id: editId || invIdCnt++, name, cat,
+      const itemData = {
+        name, cat,
         brand: document.getElementById('m-brand').value.trim(),
         cost, margin: parseFloat(document.getElementById('m-margin').value) || null,
         stock: parseInt(document.getElementById('m-stock').value) || 0,
         min: parseInt(document.getElementById('m-minstock').value) || 2,
         notes: document.getElementById('m-notes').value.trim()
       };
-      if (editId) { const idx = inventory.findIndex(i => i.id === editId); if (idx > -1) inventory[idx] = item; }
-      else inventory.push(item);
-      saveInv(); renderInv(); renderInvStats(); closeModal();
+      if (editId) {
+        await apiPut('/cotizacion/inventario/' + editId, itemData);
+        const idx = inventory.findIndex(i => i.id === editId);
+        if (idx > -1) inventory[idx] = { ...inventory[idx], ...itemData };
+      } else {
+        const res = await apiPost('/cotizacion/inventario', itemData);
+        inventory.push({ id: res.id, ...itemData });
+      }
+      renderInv(); renderInvStats(); closeModal();
     }
-    function delItem(id) {
+    async function delItem(id) {
       if (!confirm('¿Eliminar este repuesto?')) return;
+      await apiDelete('/cotizacion/inventario/' + id);
       inventory = inventory.filter(i => i.id !== id);
-      saveInv(); renderInv(); renderInvStats();
+      renderInv(); renderInvStats();
     }
 
     // ════════════ AUTOCOMPLETE ════════════
@@ -2628,17 +2642,26 @@
     initCanvas('sigCanvas'); initCanvas('sigCanvasTec');
 
     // ════════════ SAVE / CLEAR ════════════
-    function saveQuote() {
-      orderCounter++; localStorage.setItem('orderCounter', orderCounter);
+    async function saveQuote() {
+      const totalRaw = document.getElementById('t-total').textContent;
+      const total = parseInt(totalRaw.replace(/[^0-9]/g, '')) || 0;
       const q = {
-        id: 'ORD-' + orderCounter, fecha: new Date().toLocaleDateString('es-CL'),
+        orden: 'ORD-' + (orderCounter + 1),
         cliente: document.getElementById('cli-nombre').value || '(Sin nombre)',
         equipo: [document.getElementById('eq-marca').value, document.getElementById('eq-modelo').value].filter(Boolean).join(' ') || '(Sin equipo)',
-        total: document.getElementById('t-total').textContent, estado: 'Pendiente'
+        servicios: services,
+        total,
+        estado: 'Pendiente'
       };
-      savedQuotes.unshift(q); localStorage.setItem('savedQuotes', JSON.stringify(savedQuotes));
-      document.getElementById('eq-orden').value = 'ORD-' + (orderCounter + 1);
-      alert('✅ Cotización guardada como ' + q.id);
+      try {
+        const res = await apiPost('/cotizacion/cotizaciones', q);
+        orderCounter++;
+        savedQuotes.unshift({ ...q, id: res.id, fecha: new Date().toISOString() });
+        document.getElementById('eq-orden').value = 'ORD-' + (orderCounter + 1);
+        alert('✅ Cotización guardada como ' + q.orden);
+      } catch (e) {
+        alert('❌ Error al guardar cotización: ' + e.message);
+      }
     }
     function clearForm() {
       if (!confirm('¿Limpiar todo el formulario?')) return;
@@ -2647,17 +2670,21 @@
       document.getElementById('serviceTableBody').innerHTML = '<tr id="empty-row"><td colspan="9" style="text-align:center;color:var(--muted);font-style:italic;padding:24px">Busque en el inventario o agregue servicios de mano de obra</td></tr>';
       recalc(); clearDamages(); clearSig(); clearSigTec();
     }
-    function renderHist() {
+    async function renderHist() {
       const el = document.getElementById('historialContent');
+      try {
+        savedQuotes = await apiGet('/cotizacion/cotizaciones');
+      } catch (e) { }
       if (!savedQuotes.length) { el.innerHTML = '<div style="padding:32px;text-align:center;color:var(--muted)">No hay órdenes guardadas.</div>'; return; }
       el.innerHTML = savedQuotes.map(q => `
-    <div class="quote-row">
-      <span class="quote-id">${q.id}</span><span>${q.cliente}</span>
-      <span style="color:var(--muted)">${q.equipo}</span>
-      <span style="color:var(--muted);font-family:'DM Mono',monospace;font-size:.78rem">${q.fecha}</span>
-      <span style="color:var(--accent);font-family:'DM Mono',monospace">${q.total}</span>
-      <span><span class="badge badge-pending">${q.estado}</span></span>
-    </div>`).join('');
+      <div class="quote-row">
+        <div style="font-family:'DM Mono',monospace;color:var(--accent)">${q.orden || ('ORD-' + q.id)}</div>
+        <div style="font-weight:500">${q.cliente}</div>
+        <div style="font-size:.82rem;color:var(--muted)">${q.equipo}</div>
+        <div style="font-family:'DM Mono',monospace;font-size:.82rem;color:var(--muted)">${new Date(q.fecha).toLocaleDateString('es-CL')}</div>
+        <div style="font-family:'DM Mono',monospace;color:var(--accent);font-weight:600;text-align:right">${fmt(q.total)}</div>
+        <div style="text-align:right"><span class="badge badge-pending">${q.estado}</span></div>
+      </div>`).join('');
     }
 
     // ════════════ PREVIEW ════════════
@@ -2730,45 +2757,13 @@
     function printQuote() { genPreview(); setTimeout(() => window.print(), 200); }
 
     // ════════════ PROVEEDORES ════════════
-    let suppliers = JSON.parse(localStorage.getItem('suppliers') || 'null');
-    if (!suppliers) {
-      suppliers = [
-        {
-          id: 1, name: 'Repuestos Express', type: 'Mayorista local', rating: 5, contact: '+56 9 8765 4321', delivery: '1-2 días', url: '', payment: 'Efectivo + Transferencia', notes: 'Mínimo $20.000. Buenos descuentos por volumen.',
-          prices: [
-            { itemId: 1, price: 26000, quality: 'premium', avail: 'En stock', notes: '' },
-            { itemId: 2, price: 14500, quality: 'premium', avail: 'En stock', notes: '' },
-            { itemId: 4, price: 7000, quality: 'premium', avail: 'En stock', notes: '' },
-            { itemId: 7, price: 1800, quality: 'estandar', avail: 'En stock', notes: '' },
-          ]
-        },
-        {
-          id: 2, name: 'TechParts Online', type: 'Tienda online', rating: 4, contact: 'ventas@techparts.cl', delivery: '3-5 días', url: 'https://techparts.cl', payment: 'Transferencia', notes: 'Despacho a todo Chile. Factura disponible.',
-          prices: [
-            { itemId: 1, price: 24500, quality: 'premium', avail: 'En stock', notes: 'Envío gratis +$50.000' },
-            { itemId: 3, price: 11000, quality: 'estandar', avail: 'En stock', notes: '' },
-            { itemId: 5, price: 10000, quality: 'premium', avail: 'En stock', notes: '' },
-            { itemId: 9, price: 18500, quality: 'premium', avail: 'Bajo pedido (1 semana)', notes: '' },
-          ]
-        },
-        {
-          id: 3, name: 'AliExpress / Importación', type: 'Marketplace (ML/Ali)', rating: 3, contact: '', delivery: '2-3 semanas (importación)', url: 'https://aliexpress.com', payment: 'Tarjeta', notes: 'Precios bajos pero demora 3-4 semanas. Sin garantía de calidad constante.',
-          prices: [
-            { itemId: 1, price: 18000, quality: 'estandar', avail: 'Importación (2-4 semanas)', notes: 'Calidad variable' },
-            { itemId: 2, price: 10000, quality: 'estandar', avail: 'Importación (2-4 semanas)', notes: '' },
-            { itemId: 4, price: 4500, quality: 'economico', avail: 'Importación (2-4 semanas)', notes: '' },
-            { itemId: 5, price: 7500, quality: 'economico', avail: 'Importación (2-4 semanas)', notes: '' },
-          ]
-        },
-      ];
-      localStorage.setItem('suppliers', JSON.stringify(suppliers));
-    }
-    let provIdCnt = Math.max(...suppliers.map(s => s.id), 0) + 1;
+    // suppliers loaded from API in initApp()
+    let provIdCnt = 100;
     let editProvId = null;
     let editingProvForPrice = null;
     let pmPriceRowCount = 0;
 
-    function saveSuppliers() { localStorage.setItem('suppliers', JSON.stringify(suppliers)); }
+    async function saveSuppliers() { /* Data saved via individual API calls */ }
 
     // Sub-tab switch
     function switchProvTab(name, btn) {
@@ -3023,15 +3018,19 @@
     }
 
     // ── Usar precio del proveedor
-    function useSupplierPrice(itemId, price) {
+    async function useSupplierPrice(itemId, price) {
       const item = inventory.find(i => i.id === itemId);
       if (!item) return;
       if (!confirm(`¿Actualizar el costo de "${item.name}" a ${fmt(price)} en el inventario?`)) return;
-      item.cost = price;
-      saveInv();
-      renderComparador();
-      renderBestPrice();
-      alert(`✅ Precio actualizado a ${fmt(price)}`);
+      try {
+        await apiPut('/cotizacion/inventario/' + itemId, { ...item, cost: price });
+        item.cost = price;
+        renderComparador();
+        renderBestPrice();
+        alert(`✅ Precio actualizado a ${fmt(price)}`);
+      } catch (e) {
+        alert('❌ Error al actualizar costo: ' + e.message);
+      }
     }
 
     // ── Modal proveedor
@@ -3081,47 +3080,41 @@
       document.getElementById('pmPricesRows').appendChild(row);
     }
 
-    function saveProv() {
+    async function saveProv() {
       const name = document.getElementById('pm-name').value.trim();
       if (!name) { alert('El nombre es obligatorio.'); return; }
-      // Collect price rows
-      const prices = editProvId ? (suppliers.find(s => s.id === editProvId)?.prices || []) : [];
-      document.querySelectorAll('#pmPricesRows > div').forEach(row => {
-        const itemEl = row.querySelector('[id^="pmpr-item"]');
-        const priceEl = row.querySelector('[id^="pmpr-price"]');
-        if (itemEl && priceEl && itemEl.value && priceEl.value) {
-          const itemId = parseInt(itemEl.value);
-          const existing = prices.findIndex(p => p.itemId === itemId);
-          const entry = { itemId, price: parseFloat(priceEl.value), quality: 'premium', avail: 'En stock', notes: '' };
-          if (existing > -1) prices[existing] = entry; else prices.push(entry);
-        }
-      });
-      const s = {
-        id: editProvId || provIdCnt++,
+      const sData = {
         name, type: document.getElementById('pm-type').value,
         rating: parseInt(document.getElementById('pm-rating').value),
         contact: document.getElementById('pm-contact').value.trim(),
         delivery: document.getElementById('pm-delivery').value,
         url: document.getElementById('pm-url').value.trim(),
         payment: document.getElementById('pm-payment').value,
-        notes: document.getElementById('pm-notes').value.trim(),
-        prices
+        notes: document.getElementById('pm-notes').value.trim()
       };
-      if (editProvId) { const idx = suppliers.findIndex(x => x.id === editProvId); if (idx > -1) suppliers[idx] = s; }
-      else suppliers.push(s);
-      saveSuppliers();
-      renderProvList();
-      renderProvStats();
-      closeProvModal();
+      try {
+        if (editProvId) {
+          await apiPut('/cotizacion/proveedores/' + editProvId, sData);
+          const idx = suppliers.findIndex(x => x.id === editProvId);
+          if (idx > -1) suppliers[idx] = { ...suppliers[idx], ...sData };
+        } else {
+          const res = await apiPost('/cotizacion/proveedores', sData);
+          suppliers.push({ id: res.id, ...sData, prices: [] });
+        }
+        renderProvList(); renderProvStats(); closeProvModal();
+      } catch (e) {
+        alert('❌ Error al guardar proveedor: ' + e.message);
+      }
     }
-
-    function delProv(id) {
-      const s = suppliers.find(s => s.id === id);
-      if (!confirm(`¿Eliminar proveedor "${s?.name}"?`)) return;
-      suppliers = suppliers.filter(s => s.id !== id);
-      saveSuppliers();
-      renderProvList();
-      renderProvStats();
+    async function delProv(id) {
+      if (!confirm('¿Eliminar proveedor?')) return;
+      try {
+        await apiDelete('/cotizacion/proveedores/' + id);
+        suppliers = suppliers.filter(s => s.id !== id);
+        renderProvList(); renderProvStats();
+      } catch (e) {
+        alert('❌ Error al eliminar proveedor: ' + e.message);
+      }
     }
 
     // ── Add price to existing supplier
@@ -3178,28 +3171,39 @@
       document.getElementById('addPriceModal').classList.add('open');
     }
 
-    function saveProvPrice() {
+    async function saveProvPrice() {
       const itemId = parseInt(document.getElementById('ap-item').value);
       const price = parseFloat(document.getElementById('ap-price').value) || 0;
       if (!itemId || !price) { alert('Seleccione repuesto y precio.'); return; }
-      const s = suppliers.find(s => s.id === editingProvForPrice);
-      if (!s) return;
-      const existing = s.prices.findIndex(p => p.itemId === itemId);
-      const entry = { itemId, price, quality: document.getElementById('ap-quality').value, avail: document.getElementById('ap-avail').value, notes: document.getElementById('ap-notes').value.trim() };
-      if (existing > -1) s.prices[existing] = entry; else s.prices.push(entry);
-      saveSuppliers();
-      renderProvList();
-      renderProvStats();
-      document.getElementById('addPriceModal').classList.remove('open');
+      const pData = {
+        itemId, price,
+        quality: document.getElementById('ap-quality').value,
+        avail: document.getElementById('ap-avail').value,
+        notes: document.getElementById('ap-notes').value.trim()
+      };
+      try {
+        await apiPost(`/cotizacion/proveedores/${editingProvForPrice}/precios`, pData);
+        const s = suppliers.find(s => s.id === editingProvForPrice);
+        if (s) {
+          const idx = s.prices.findIndex(p => p.itemId === itemId);
+          if (idx > -1) s.prices[idx] = pData; else s.prices.push(pData);
+        }
+        renderProvList(); renderProvStats();
+        document.getElementById('addPriceModal').classList.remove('open');
+      } catch (e) {
+        alert('❌ Error al guardar precio: ' + e.message);
+      }
     }
-
-    function delProvPrice(supplierId, itemId) {
-      const s = suppliers.find(s => s.id === supplierId);
+    async function delProvPrice(supplierId, itemId) {
       if (!confirm('¿Eliminar este precio?')) return;
-      s.prices = s.prices.filter(p => p.itemId !== itemId);
-      saveSuppliers();
-      renderProvList();
-      renderProvStats();
+      try {
+        await apiDelete(`/cotizacion/proveedores/${supplierId}/precios/${itemId}`);
+        const s = suppliers.find(s => s.id === supplierId);
+        if (s) s.prices = s.prices.filter(p => p.itemId !== itemId);
+        renderProvList(); renderProvStats();
+      } catch (e) {
+        alert('❌ Error al eliminar precio: ' + e.message);
+      }
     }
 
     // proveedores tab is handled directly in the main switchTab function above

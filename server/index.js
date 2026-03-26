@@ -16,6 +16,9 @@ const presupuestosRoutes = require('./routes/presupuestos');
 const estadosRoutes = require('./routes/estados');
 const trackingRoutes = require('./routes/tracking');
 const fotosRoutes = require('./routes/fotos');
+const cotInvRoutes = require('./routes/cotizacion-inventario');
+const cotProvRoutes = require('./routes/cotizacion-proveedores');
+const cotQuotesRoutes = require('./routes/cotizacion-quotes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -74,6 +77,9 @@ app.use('/api/presupuestos', presupuestosRoutes);
 app.use('/api/estados', estadosRoutes);
 app.use('/api/tracking', trackingRoutes); // Ruta pública para clientes
 app.use('/api/fotos', fotosRoutes); // Ruta para subir/obtener fotos
+app.use('/api/cotizacion', cotInvRoutes); // Inventario + márgenes cotización
+app.use('/api/cotizacion/proveedores', cotProvRoutes); // Proveedores cotización
+app.use('/api/cotizacion/cotizaciones', cotQuotesRoutes); // Cotizaciones guardadas
 
 // Ruta raíz de la API
 app.get('/api', (req, res) => {
