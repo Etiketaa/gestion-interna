@@ -32,15 +32,32 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 /**
- * Configurar navegación
+ * Configurar navegación y menú móvil
  */
 function setupNavigation() {
     const navLinks = document.querySelectorAll('.nav-link');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+
+    // Toggle menu
+    document.getElementById('btn-menu')?.addEventListener('click', () => {
+        sidebar?.classList.add('active');
+        overlay?.classList.add('active');
+    });
+
+    overlay?.addEventListener('click', () => {
+        sidebar?.classList.remove('active');
+        overlay?.classList.remove('active');
+    });
+
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             const page = link.getAttribute('data-page');
             showPage(page);
+            // Close menu on mobile after cliking
+            sidebar?.classList.remove('active');
+            overlay?.classList.remove('active');
         });
     });
 }
