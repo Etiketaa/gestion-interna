@@ -995,9 +995,16 @@
 
                     <!-- ═══ 8: VISTA PREVIA ═══ -->
                     <div class="tab-panel" id="tab-preview">
-                        <div class="section-header no-print">
-                            <div class="section-badge">// documento final</div>
-                            <div class="section-title">Vista Previa</div>
+                        <div class="section-header no-print"
+                            style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                            <div>
+                                <div class="section-badge">// documento final</div>
+                                <div class="section-title">Vista Previa</div>
+                            </div>
+                            <div style="display:flex; gap:10px;">
+                                <button class="btn btn-ghost" onclick="window.print()">🖨️ Imprimir</button>
+                                <button class="btn btn-accent" onclick="descargarPDF()">📥 Descargar PDF</button>
+                            </div>
                         </div>
                         <div id="previewContent"
                             style="background:#fff;color:#000;border-radius:var(--radius);padding:40px;font-family:'DM Sans',sans-serif">
