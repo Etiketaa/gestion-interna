@@ -60,7 +60,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="/cotizacion.html" target="_blank" class="nav-link"
+                        <a href="#" class="nav-link" data-page="cotizacion"
                             style="margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px;">
                             <span class="nav-icon">📋</span>
                             <span>Cotizaciones</span>
@@ -291,6 +291,560 @@
                     </div>
                 </div>
             </div>
+        
+            <!-- Cotizacion Page -->
+            <div id="page-cotizacion" class="page">
+                <div class="page-header">
+                    <span class="page-badge">// atención comercial</span>
+                    <h2 class="page-title">Recepción y Cotización</h2>
+                    <p class="page-subtitle">Recepción de equipos y generación de cotizaciones</p>
+                </div>
+                <nav class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('recepcion',this)"><div class="tab-dot"></div>1. Recepción</button>
+  <button class="tab-btn" onclick="switchTab('cotizacion',this)"><div class="tab-dot"></div>2. Cotización</button>
+  <button class="tab-btn" onclick="switchTab('terminos',this)"><div class="tab-dot"></div>3. Términos</button>
+  <button class="tab-btn" onclick="switchTab('garantia',this)"><div class="tab-dot"></div>4. Garantía</button>
+  <button class="tab-btn" onclick="switchTab('inventario',this)"><div class="tab-dot"></div>📦 Inventario</button>
+  <button class="tab-btn" onclick="switchTab('proveedores',this)"><div class="tab-dot"></div>🏪 Proveedores</button>
+  <button class="tab-btn" onclick="switchTab('margenes',this)"><div class="tab-dot"></div>⚙️ Márgenes</button>
+  <button class="tab-btn" onclick="switchTab('historial',this)"><div class="tab-dot"></div>Historial</button>
+  <button class="tab-btn" onclick="switchTab('preview',this)"><div class="tab-dot"></div>Vista previa</button>
+</nav>
+
+<div class="content">
+
+<!-- ═══ 1: RECEPCIÓN ═══ -->
+<div class="tab-panel active" id="tab-recepcion">
+  <div class="section-header">
+    <div class="section-badge">// formulario de ingreso</div>
+    <div class="section-title">Recepción del Equipo</div>
+    <div class="section-sub">Complete todos los datos al momento de recibir el dispositivo.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="card-title-icon">👤</div>Datos del Cliente</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Nombre completo *</label><input type="text" id="cli-nombre" placeholder="Ej: Juan Pérez"></div>
+      <div class="form-group"><label>RUT / DNI</label><input type="text" id="cli-rut" placeholder="12.345.678-9"></div>
+      <div class="form-group"><label>Teléfono *</label><input type="tel" id="cli-tel" placeholder="+56 9 1234 5678"></div>
+      <div class="form-group"><label>WhatsApp</label><input type="tel" id="cli-wa" placeholder="+56 9 1234 5678"></div>
+      <div class="form-group span-2"><label>Correo electrónico</label><input type="email" id="cli-email" placeholder="cliente@email.com"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="card-title-icon">📱</div>Datos del Equipo</div>
+    <div class="form-grid cols-3">
+      <div class="form-group"><label>Marca *</label>
+        <select id="eq-marca"><option value="">Seleccionar...</option><option>Apple / iPhone</option><option>Samsung</option><option>Motorola</option><option>Xiaomi</option><option>Huawei</option><option>LG</option><option>Sony</option><option>Nokia</option><option>OnePlus</option><option>Google Pixel</option><option>Otro</option></select>
+      </div>
+      <div class="form-group"><label>Modelo *</label><input type="text" id="eq-modelo" placeholder="Ej: iPhone 14 Pro"></div>
+      <div class="form-group"><label>IMEI / S/N</label><input type="text" id="eq-imei" placeholder="15 dígitos"></div>
+      <div class="form-group"><label>Color</label><input type="text" id="eq-color" placeholder="Negro, blanco..."></div>
+      <div class="form-group"><label>Capacidad</label>
+        <select id="eq-cap"><option>N/A</option><option>64 GB</option><option>128 GB</option><option>256 GB</option><option>512 GB</option><option>1 TB</option></select>
+      </div>
+      <div class="form-group"><label>N° Orden</label><input type="text" id="eq-orden" readonly style="opacity:.6"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="card-title-icon">🎒</div>Accesorios Recibidos</div>
+    <div class="check-group">
+      <label class="check-label"><input type="checkbox"><div class="check-text">Cable / Cargador<div class="check-sub">Incluye adaptador de corriente</div></div></label>
+      <label class="check-label"><input type="checkbox"><div class="check-text">Caja original</div></label>
+      <label class="check-label"><input type="checkbox"><div class="check-text">Funda / Protector</div></label>
+      <label class="check-label"><input type="checkbox"><div class="check-text">Vidrio templado / Screen protector</div></label>
+      <label class="check-label"><input type="checkbox"><div class="check-text">Tarjeta SIM / MicroSD<div class="check-sub">⚠️ Se recomienda retirarla antes de dejar el equipo</div></div></label>
+      <label class="check-label"><input type="checkbox"><div class="check-text">Auriculares</div></label>
+    </div>
+    <div style="margin-top:14px"><label>Otros accesorios</label><input type="text" placeholder="Descripción..."></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="card-title-icon">🔍</div>Estado Físico del Equipo</div>
+    <div class="form-grid" style="margin-bottom:20px">
+      <div class="form-group"><label>Estado de la pantalla</label>
+        <div class="chip-group">
+          <label class="chip-label"><input type="radio" name="pantalla"><span class="chip">✅ Sin daños</span></label>
+          <label class="chip-label"><input type="radio" name="pantalla"><span class="chip">🔸 Rayones</span></label>
+          <label class="chip-label"><input type="radio" name="pantalla"><span class="chip">💥 Rota</span></label>
+          <label class="chip-label"><input type="radio" name="pantalla"><span class="chip">⬛ Manchas LCD</span></label>
+        </div>
+      </div>
+      <div class="form-group"><label>Estado de la carcasa</label>
+        <div class="chip-group">
+          <label class="chip-label"><input type="radio" name="carcasa"><span class="chip">✅ Sin daños</span></label>
+          <label class="chip-label"><input type="radio" name="carcasa"><span class="chip">🔸 Rayones</span></label>
+          <label class="chip-label"><input type="radio" name="carcasa"><span class="chip">💥 Rota</span></label>
+        </div>
+      </div>
+      <div class="form-group"><label>Humedad / Agua</label>
+        <div class="chip-group">
+          <label class="chip-label"><input type="radio" name="humedad"><span class="chip">✅ No</span></label>
+          <label class="chip-label"><input type="radio" name="humedad"><span class="chip">⚠️ Posible</span></label>
+          <label class="chip-label"><input type="radio" name="humedad"><span class="chip">💧 Confirmado</span></label>
+        </div>
+      </div>
+      <div class="form-group"><label>Reparaciones previas</label>
+        <div class="chip-group">
+          <label class="chip-label"><input type="radio" name="previo"><span class="chip">✅ No</span></label>
+          <label class="chip-label"><input type="radio" name="previo"><span class="chip">⚠️ Sí</span></label>
+          <label class="chip-label"><input type="radio" name="previo"><span class="chip">❓ Desconoce</span></label>
+        </div>
+      </div>
+    </div>
+    <label style="margin-bottom:12px;display:block">Mapa de daños — Haga clic en el teléfono para marcar golpes</label>
+    <div class="damage-map-wrapper">
+      <div class="phone-outline" id="phoneMap" onclick="addDamage(event)"></div>
+      <div class="damage-legend">
+        <div class="damage-legend-title">Daños marcados</div>
+        <div id="damageList"><div style="color:var(--muted);font-size:.82rem;font-style:italic">Haga clic en el teléfono para marcar puntos.</div></div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="clearDamages()">✕ Limpiar mapa</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="card-title-icon">📝</div>Motivo de Ingreso</div>
+    <div class="form-grid cols-1">
+      <div class="form-group"><label>Descripción del problema (según cliente) *</label><textarea id="motivo-cliente" rows="3" placeholder="El cliente indica que..."></textarea></div>
+      <div class="form-group"><label>Diagnóstico inicial del técnico</label><textarea id="motivo-tecnico" rows="3" placeholder="Diagnóstico preliminar..."></textarea></div>
+      <div class="form-group"><label>Técnico responsable</label><input type="text" id="tecnico" placeholder="Nombre del técnico"></div>
+      <div class="form-group"><label>Fecha de ingreso</label><input type="datetime-local" id="fecha-ingreso"></div>
+      <div class="form-group"><label>Fecha estimada de entrega</label><input type="datetime-local"></div>
+    </div>
+  </div>
+  <div class="alert alert-warn">⚠️ <span>Recuerde tomar fotografías del equipo antes de iniciar cualquier trabajo.</span></div>
+  <button class="btn btn-accent" onclick="switchTab('cotizacion',document.querySelectorAll('.tab-btn')[1])">Siguiente → Cotización</button>
+</div>
+
+<!-- ═══ 2: COTIZACIÓN ═══ -->
+<div class="tab-panel" id="tab-cotizacion">
+  <div class="section-header">
+    <div class="section-badge">// presupuesto detallado</div>
+    <div class="section-title">Cotización de Servicios</div>
+    <div class="section-sub">Busque repuestos del inventario — el precio de venta se aplica automáticamente con el margen configurado por categoría.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="card-title-icon">🔎</div>Buscar en Inventario
+      <span style="font-size:.76rem;color:var(--muted);font-weight:400;margin-left:auto">Precio venta = Costo × Margen (configurable en ⚙️ Márgenes)</span>
+    </div>
+    <div class="autocomplete-wrap">
+      <input type="text" id="invSearch" placeholder="Buscar repuesto por nombre, marca o categoría..." oninput="searchAC(this.value)" onkeydown="handleACKey(event)" autocomplete="off">
+      <div class="ac-list" id="acList"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="card-title-icon">⚡</div>Servicios de Mano de Obra</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      <button class="chip" style="cursor:pointer;background:var(--input-bg);color:var(--text)" onclick="addQuick('M.O. Cambio de pantalla',8000,'Mano de obra')">🔧 M.O. Pantalla</button>
+      <button class="chip" style="cursor:pointer;background:var(--input-bg);color:var(--text)" onclick="addQuick('M.O. Cambio de batería',5000,'Mano de obra')">🔧 M.O. Batería</button>
+      <button class="chip" style="cursor:pointer;background:var(--input-bg);color:var(--text)" onclick="addQuick('M.O. Conector de carga',6000,'Mano de obra')">🔧 M.O. Conector</button>
+      <button class="chip" style="cursor:pointer;background:var(--input-bg);color:var(--text)" onclick="addQuick('Diagnóstico técnico',5000,'Diagnóstico')">🔬 Diagnóstico</button>
+      <button class="chip" style="cursor:pointer;background:var(--input-bg);color:var(--text)" onclick="addQuick('Limpieza ultrasónica',8000,'Servicio')">✨ Limpieza</button>
+      <button class="chip" style="cursor:pointer;background:var(--input-bg);color:var(--text)" onclick="addQuick('Reparación por agua / humedad',22000,'Servicio')">💧 Daño por agua</button>
+      <button class="chip" style="cursor:pointer;background:var(--input-bg);color:var(--text)" onclick="addEmptyRow()">+ Agregar manual</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="card-title-icon">📋</div>Detalle de Cotización</div>
+    <div style="overflow-x:auto">
+      <table class="services-table">
+        <thead>
+          <tr>
+            <th>#</th><th>Descripción</th><th>Categoría</th>
+            <th style="text-align:center">Cant.</th>
+            <th style="text-align:right">Costo unit.</th>
+            <th style="text-align:right">Margen</th>
+            <th style="text-align:right">Precio venta</th>
+            <th style="text-align:right">Subtotal</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="serviceTableBody">
+          <tr id="empty-row"><td colspan="9" style="text-align:center;color:var(--muted);font-style:italic;padding:24px">Busque en el inventario o agregue servicios de mano de obra</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="margin-top:14px"><button class="btn btn-ghost btn-sm" onclick="addDiscount()">% Descuento</button></div>
+
+    <div class="totals-box">
+      <div class="total-row"><span>Subtotal</span><span class="total-accent" id="t-subtotal">$0</span></div>
+      <div class="total-row"><span>Descuentos</span><span class="total-accent" id="t-descuento">$0</span></div>
+      <div class="total-row">
+        <span>IVA (19%)</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <label class="toggle"><input type="checkbox" id="ivaToggle" onchange="recalc()"><span class="slider"></span></label>
+          <span class="total-accent" id="t-iva">$0</span>
+        </div>
+      </div>
+      <div class="total-row"><span>💸 Costo total repuestos</span><span style="color:var(--warn);font-family:'DM Mono',monospace" id="t-costo">$0</span></div>
+      <div class="total-row"><span>💰 Ganancia estimada</span><span style="color:var(--accent2);font-family:'DM Mono',monospace" id="t-ganancia">$0</span></div>
+      <div class="total-row grand"><span>TOTAL CLIENTE</span><span class="total-accent" id="t-total" style="font-size:1.3rem">$0</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="card-title-icon">💬</div>Notas</div>
+    <div class="form-grid cols-1">
+      <div class="form-group"><label>Observaciones</label><textarea id="obs-cotizacion" rows="3" placeholder="Notas adicionales..."></textarea></div>
+      <div class="form-group"><label>Tiempo estimado</label>
+        <select id="tiempo-rep"><option>Mismo día (2-4 hrs)</option><option>24 horas</option><option>2-3 días hábiles</option><option>5-7 días hábiles</option><option>1-2 semanas</option><option>A confirmar</option></select>
+      </div>
+      <div class="form-group"><label>Validez cotización</label>
+        <select id="validez"><option>7 días hábiles</option><option>15 días hábiles</option><option>30 días</option></select>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap">
+    <button class="btn btn-ghost" onclick="switchTab('recepcion',document.querySelectorAll('.tab-btn')[0])">← Volver</button>
+    <button class="btn btn-accent" onclick="switchTab('terminos',document.querySelectorAll('.tab-btn')[2])">Siguiente → Términos</button>
+  </div>
+</div>
+
+<!-- ═══ 3: TÉRMINOS ═══ -->
+<div class="tab-panel" id="tab-terminos">
+  <div class="section-header"><div class="section-badge">// términos legales</div><div class="section-title">Términos y Condiciones</div></div>
+  <div class="terms-block"><h4>📄 1. Autorización de Trabajo</h4><p>Al entregar el equipo, el cliente autoriza expresamente su apertura, inspección y diagnóstico. Cualquier trabajo adicional requerirá aprobación previa.</p></div>
+  <div class="terms-block"><h4>💰 2. Diagnóstico y Cobro</h4><p>El diagnóstico tiene costo de <strong>$5.000</strong>. Si el cliente NO aprueba la reparación, debe abonar el diagnóstico antes de retirar el equipo. Los precios son estimados y pueden variar si se detectan daños adicionales.</p></div>
+  <div class="terms-block"><h4>⚠️ 3. Riesgos y Responsabilidad</h4><p>El taller NO se responsabiliza por pérdida de datos. <strong>Se recomienda realizar un respaldo (backup) antes de entregar el equipo.</strong> En equipos con daño por agua o golpes severos pueden surgir complicaciones adicionales.</p></div>
+  <div class="terms-block"><h4>⏳ 4. Plazo de Reparación</h4><p>Los plazos son estimativos y pueden variar por demoras en repuestos o complejidad técnica. El cliente será notificado.</p></div>
+  <div class="terms-block"><h4>📦 5. Retiro del Equipo</h4><p>El cliente tiene <strong>30 días</strong> para retirar el equipo listo. Pasados <strong>90 días</strong> sin respuesta, el equipo puede considerarse abandonado.</p></div>
+  <div class="terms-block"><h4>🔒 6. Privacidad</h4><p>Los datos personales son tratados con estricta confidencialidad y usados únicamente para gestión del servicio.</p></div>
+  <div class="terms-block"><h4>🔄 7. Repuestos</h4><p>Salvo indicación, se usan repuestos genéricos compatibles. Si se solicitan originales, el precio puede variar. Los repuestos cambiados pueden ser devueltos si se solicita.</p></div>
+  <hr class="sep">
+  <div class="card">
+    <div class="card-title"><div class="card-title-icon">✅</div>Aceptación del Cliente</div>
+    <div class="check-group" style="margin-bottom:20px">
+      <label class="check-label"><input type="checkbox"><div class="check-text">He leído y acepto los términos y condiciones.</div></label>
+      <label class="check-label"><input type="checkbox"><div class="check-text">Declaro haber realizado respaldo de datos o eximo al taller de responsabilidad por pérdida de información.</div></label>
+      <label class="check-label"><input type="checkbox"><div class="check-text">Apruebo la cotización y autorizo el inicio del trabajo.</div></label>
+      <label class="check-label"><input type="checkbox"><div class="check-text">Entiendo los riesgos inherentes a la reparación.</div></label>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label>Firma cliente</label><canvas class="sig-canvas" id="sigCanvas" width="400" height="100"></canvas><button class="btn btn-ghost btn-sm" onclick="clearSig()" style="margin-top:8px">✕ Borrar</button></div>
+      <div class="form-group"><label>Firma técnico</label><canvas class="sig-canvas" id="sigCanvasTec" width="400" height="100"></canvas><button class="btn btn-ghost btn-sm" onclick="clearSigTec()" style="margin-top:8px">✕ Borrar</button></div>
+    </div>
+  </div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap">
+    <button class="btn btn-ghost" onclick="switchTab('cotizacion',document.querySelectorAll('.tab-btn')[1])">← Volver</button>
+    <button class="btn btn-accent" onclick="switchTab('garantia',document.querySelectorAll('.tab-btn')[3])">Siguiente → Garantía</button>
+  </div>
+</div>
+
+<!-- ═══ 4: GARANTÍA ═══ -->
+<div class="tab-panel" id="tab-garantia">
+  <div class="section-header"><div class="section-badge">// política de garantía</div><div class="section-title">Garantía del Servicio</div></div>
+  <div class="card">
+    <div class="card-title"><div class="card-title-icon">🛡</div>Configurar Garantía</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Período</label>
+        <select id="garantia-periodo"><option>Sin garantía</option><option>15 días</option><option selected>30 días</option><option>60 días</option><option>90 días</option><option>6 meses</option><option>1 año</option></select>
+      </div>
+      <div class="form-group"><label>Aplica a</label>
+        <select id="garantia-aplica"><option>Mano de obra solamente</option><option selected>Mano de obra + repuesto</option><option>Solo repuesto</option></select>
+      </div>
+    </div>
+  </div>
+  <div class="terms-block"><h4>✅ ¿Qué cubre?</h4><p>Defectos del repuesto instalado y/o errores en la mano de obra. Si el mismo problema reaparece, se corrige sin costo.</p></div>
+  <div class="terms-block"><h4>❌ ¿Qué NO cubre?</h4><p>• Golpes, caídas o líquidos posteriores a la reparación.<br>• Apertura por terceros no autorizados.<br>• Uso inadecuado.<br>• Daños eléctricos por cargadores no originales.<br>• Desgaste natural del repuesto.</p></div>
+  <div class="terms-block"><h4>⚡ Garantía según repuesto</h4><p><strong>Original/OEM:</strong> 6 meses – 1 año. <strong>Compatible alta calidad:</strong> 30–90 días. <strong>Genérico:</strong> 15 días. <strong>Mano de obra:</strong> 30 días.</p></div>
+  <div class="card">
+    <div class="card-title"><div class="card-title-icon">📝</div>Condiciones específicas</div>
+    <div class="form-group"><label>Observaciones de garantía</label><textarea id="garantia-obs" rows="3" placeholder="Ej: Garantía solo sobre cambio de pantalla..."></textarea></div>
+    <div class="alert alert-info" style="margin-top:12px">💡 <span>La garantía se activa desde la entrega al cliente.</span></div>
+  </div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap">
+    <button class="btn btn-ghost" onclick="switchTab('terminos',document.querySelectorAll('.tab-btn')[2])">← Volver</button>
+    <button class="btn btn-accent" onclick="switchTab('preview',document.querySelectorAll('.tab-btn')[7])">Ver Vista Previa →</button>
+  </div>
+</div>
+
+<!-- ═══ 5: INVENTARIO ═══ -->
+<div class="tab-panel" id="tab-inventario">
+  <div class="section-header">
+    <div class="section-badge">// gestión de stock</div>
+    <div class="section-title">Inventario de Repuestos</div>
+    <div class="section-sub">Precios de costo + margen automático por categoría. Al cotizar, el precio de venta se calcula instantáneamente.</div>
+  </div>
+  <div class="stats-grid" id="invStats"></div>
+  <div class="card" style="padding-bottom:8px">
+    <div class="card-title" style="justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:8px"><div class="card-title-icon">📦</div>Repuestos y Servicios</div>
+      <button class="btn btn-accent btn-sm" onclick="openModal()">+ Agregar repuesto</button>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+      <input type="text" id="invFilter" placeholder="🔍 Filtrar..." oninput="renderInv()" style="flex:1;min-width:180px">
+      <select id="catFilter" onchange="renderInv()" style="width:auto;min-width:160px">
+        <option value="">Todas las categorías</option>
+      </select>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="inv-table">
+        <thead><tr>
+          <th>Nombre del repuesto</th><th>Categoría</th><th>Marca / Modelo</th>
+          <th style="text-align:right">Precio costo</th>
+          <th style="text-align:right">Margen</th>
+          <th style="text-align:right">Precio venta</th>
+          <th style="text-align:center">Stock</th>
+          <th style="text-align:center">Ganancia %</th>
+          <th></th>
+        </tr></thead>
+        <tbody id="invBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 6: MÁRGENES ═══ -->
+<div class="tab-panel" id="tab-margenes">
+  <div class="section-header">
+    <div class="section-badge">// configuración de rentabilidad</div>
+    <div class="section-title">Márgenes por Categoría</div>
+    <div class="section-sub">Precio de venta = Precio de costo × Multiplicador. Configure cada categoría de forma independiente.</div>
+  </div>
+  <div class="alert alert-info">💡 <span>Ejemplo: Módulo pantalla con costo $10.000 y margen ×2.7 → precio de venta automático <strong>$27.000</strong>. La ganancia es $17.000 (170% sobre costo / 63% sobre venta).</span></div>
+  <div class="card">
+    <div class="card-title"><div class="card-title-icon">⚙️</div>Multiplicadores por Categoría</div>
+    <div class="mg-grid" id="mgGrid"></div>
+    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-accent" onclick="saveMargins()">💾 Guardar márgenes</button>
+      <button class="btn btn-ghost" onclick="resetMargins()">↺ Restablecer defecto</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="card-title-icon">📊</div>Tabla de Rentabilidad</div>
+    <div style="overflow-x:auto">
+      <table class="inv-table">
+        <thead><tr>
+          <th>Categoría</th><th style="text-align:center">Multiplicador</th>
+          <th style="text-align:center">% Ganancia / Costo</th>
+          <th style="text-align:center">% Margen / Venta</th>
+          <th>Ejemplo (costo $10.000)</th>
+        </tr></thead>
+        <tbody id="mgPreview"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 7: HISTORIAL ═══ -->
+<div class="tab-panel" id="tab-historial">
+  <div class="section-header"><div class="section-badge">// registro de órdenes</div><div class="section-title">Historial de Cotizaciones</div></div>
+  <div class="card" style="padding:0">
+    <div class="quote-row header"><span>Orden</span><span>Cliente</span><span>Equipo</span><span>Fecha</span><span>Total</span><span>Estado</span></div>
+    <div id="historialContent"><div style="padding:32px;text-align:center;color:var(--muted)">No hay órdenes guardadas aún.</div></div>
+  </div>
+</div>
+
+<!-- ═══ PROVEEDORES ═══ -->
+<div class="tab-panel" id="tab-proveedores">
+  <div class="section-header">
+    <div class="section-badge">// comparación de precios</div>
+    <div class="section-title">Proveedores</div>
+    <div class="section-sub">Registre sus proveedores, sus precios por repuesto y compare de un vistazo dónde conviene comprar.</div>
+  </div>
+
+  <div class="stats-grid" id="provStats"></div>
+
+  <!-- TABS internas -->
+  <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px;">
+    <button class="tab-btn active" id="ptab-provs" onclick="switchProvTab('provs',this)" style="padding:8px 18px;font-size:.82rem">🏪 Mis proveedores</button>
+    <button class="tab-btn" id="ptab-cmp" onclick="switchProvTab('cmp',this)" style="padding:8px 18px;font-size:.82rem">📊 Comparador por repuesto</button>
+    <button class="tab-btn" id="ptab-best" onclick="switchProvTab('best',this)" style="padding:8px 18px;font-size:.82rem">🏆 Mejor precio global</button>
+  </div>
+
+  <!-- SUB-PANEL: lista proveedores -->
+  <div id="ppanel-provs">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+      <input type="text" id="provFilter" placeholder="🔍 Buscar proveedor..." oninput="renderProvList()" style="max-width:280px">
+      <button class="btn btn-accent btn-sm" onclick="openProvModal()">+ Agregar proveedor</button>
+    </div>
+    <div id="provListWrap"></div>
+  </div>
+
+  <!-- SUB-PANEL: comparador -->
+  <div id="ppanel-cmp" style="display:none">
+    <div class="card">
+      <div class="card-title"><div class="card-title-icon">🔍</div>Seleccionar repuesto a comparar</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <select id="cmpItemSel" onchange="renderComparador()" style="flex:1;min-width:220px">
+          <option value="">-- Seleccione un repuesto --</option>
+        </select>
+        <select id="cmpProvSel" onchange="renderComparador()" style="width:auto;min-width:180px">
+          <option value="">Todos los proveedores</option>
+        </select>
+      </div>
+    </div>
+    <div id="cmpResult"></div>
+  </div>
+
+  <!-- SUB-PANEL: mejor precio global -->
+  <div id="ppanel-best" style="display:none">
+    <div class="alert alert-info">🏆 <span>Para cada repuesto del inventario, se muestra el proveedor con el <strong>menor precio</strong> y el ahorro potencial versus el más caro.</span></div>
+    <div class="card" style="padding:0">
+      <table class="prov-table">
+        <thead><tr>
+          <th>Repuesto</th><th>Categoría</th>
+          <th style="text-align:right">Mejor precio</th>
+          <th>Proveedor ganador</th>
+          <th style="text-align:right">Precio más alto</th>
+          <th style="text-align:right">Ahorro</th>
+          <th style="text-align:center">Oferta de proveedores</th>
+        </tr></thead>
+        <tbody id="bestPriceBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 8: VISTA PREVIA ═══ -->
+<div class="tab-panel" id="tab-preview">
+  <div class="section-header no-print"><div class="section-badge">// documento final</div><div class="section-title">Vista Previa</div></div>
+  <div id="previewContent" style="background:#fff;color:#000;border-radius:var(--radius);padding:40px;font-family:'DM Sans',sans-serif"></div>
+</div>
+
+</div><!-- /content -->
+
+<!-- MODAL PROVEEDOR -->
+<div class="modal-overlay" id="provModal">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-title"><span id="provModalTitle">🏪 Agregar Proveedor</span><button class="modal-close" onclick="closeProvModal()">✕</button></div>
+    <div class="form-grid cols-1" style="gap:14px">
+      <div class="form-group"><label>Nombre del proveedor *</label><input type="text" id="pm-name" placeholder="Ej: Repuestos Express, MercadoLibre, Ali..."></div>
+      <div class="form-grid">
+        <div class="form-group"><label>Tipo</label>
+          <select id="pm-type">
+            <option>Mayorista local</option><option>Minorista local</option>
+            <option>Importador directo</option><option>Marketplace (ML/Ali)</option>
+            <option>Tienda online</option><option>Otro</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Calificación</label>
+          <select id="pm-rating">
+            <option value="5">⭐⭐⭐⭐⭐ Excelente</option>
+            <option value="4" selected>⭐⭐⭐⭐ Bueno</option>
+            <option value="3">⭐⭐⭐ Regular</option>
+            <option value="2">⭐⭐ Malo</option>
+            <option value="1">⭐ Muy malo</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label>Contacto / Teléfono</label><input type="text" id="pm-contact" placeholder="+56 9 ..."></div>
+        <div class="form-group"><label>Tiempo de entrega</label>
+          <select id="pm-delivery">
+            <option>Inmediato (retiro)</option><option>1-2 días</option><option>3-5 días</option>
+            <option>1 semana</option><option>2-3 semanas (importación)</option><option>+1 mes</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label>Website / URL</label><input type="text" id="pm-url" placeholder="https://..."></div>
+        <div class="form-group"><label>Pago aceptado</label>
+          <select id="pm-payment">
+            <option>Efectivo</option><option>Transferencia</option><option>Efectivo + Transferencia</option>
+            <option>Tarjeta</option><option>Todos los medios</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>Notas / Observaciones</label><input type="text" id="pm-notes" placeholder="Mínimo de compra, condiciones especiales, etc."></div>
+
+      <div style="border-top:1px solid var(--border);padding-top:16px">
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;color:var(--white);margin-bottom:12px">Precios de este proveedor por repuesto</div>
+        <div class="alert alert-info" style="margin-bottom:12px">💡 <span>Agregue los precios que le ofrece este proveedor. Puede agregar más después desde la vista del proveedor.</span></div>
+        <div id="pmPricesWrap">
+          <div style="display:grid;grid-template-columns:1fr 120px 28px;gap:8px;margin-bottom:6px" id="pmPricesRows"></div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="addPmPriceRow()">+ Agregar precio</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button class="btn btn-accent" style="flex:1" onclick="saveProv()">💾 Guardar proveedor</button>
+      <button class="btn btn-ghost" onclick="closeProvModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AGREGAR PRECIO A PROVEEDOR -->
+<div class="modal-overlay" id="addPriceModal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-title"><span id="addPriceTitle">➕ Agregar precio de repuesto</span><button class="modal-close" onclick="document.getElementById('addPriceModal').classList.remove('open')">✕</button></div>
+    <div class="form-grid cols-1" style="gap:14px">
+      <div class="form-group"><label>Repuesto del inventario</label>
+        <select id="ap-item"><option value="">-- Seleccionar --</option></select>
+      </div>
+      <div class="form-group"><label>Precio del proveedor ($)</label><input type="number" id="ap-price" placeholder="0" min="0" oninput="updateAPPreview()"></div>
+      <div class="form-group"><label>Calidad del repuesto</label>
+        <select id="ap-quality">
+          <option value="original">🥇 Original / OEM</option>
+          <option value="premium" selected>🥈 Compatible Premium</option>
+          <option value="estandar">🥉 Compatible Estándar</option>
+          <option value="economico">💲 Económico / Genérico</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Disponibilidad</label>
+        <select id="ap-avail">
+          <option>En stock</option><option>Disponible en 1-3 días</option>
+          <option>Bajo pedido (1 semana)</option><option>Importación (2-4 semanas)</option><option>Sin stock</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Notas (precio por cantidad, variante, etc.)</label><input type="text" id="ap-notes" placeholder="Ej: precio x5 unidades, versión sin lector..."></div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px" id="apPreview">
+        <div style="font-size:.73rem;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:5px">COMPARATIVA CON INVENTARIO</div>
+        <div style="font-size:.86rem;color:var(--text)" id="apPreviewText">Seleccione un repuesto para ver comparativa</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button class="btn btn-accent" style="flex:1" onclick="saveProvPrice()">💾 Guardar precio</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('addPriceModal').classList.remove('open')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AGREGAR ITEM MODAL -->
+  <div class="modal">
+    <div class="modal-title"><span id="modalTitle">➕ Agregar Repuesto</span><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="form-grid cols-1" style="gap:14px">
+      <div class="form-group"><label>Nombre *</label><input type="text" id="m-name" placeholder="Ej: Módulo pantalla iPhone 14"></div>
+      <div class="form-group"><label>Categoría *</label>
+        <select id="m-cat" onchange="updateModalPreview()">
+          <option>Módulo pantalla</option><option>Batería</option><option>Conector carga</option>
+          <option>Cámara</option><option>Carcasa</option><option>Botones</option>
+          <option>Parlante / Micrófono</option><option>Flex / Cable</option>
+          <option>Servicio</option><option>Mano de obra</option><option>Diagnóstico</option><option>Otro</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Marca / Modelo compatible</label><input type="text" id="m-brand" placeholder="Ej: iPhone 13, 14 / Samsung A53"></div>
+      <div class="form-group"><label>Precio de costo ($) *</label><input type="number" id="m-cost" placeholder="0" min="0" oninput="updateModalPreview()"></div>
+      <div class="form-group">
+        <label>Margen personalizado (×) — vacío = usar el de la categoría</label>
+        <input type="number" id="m-margin" placeholder="Ej: 2.7" step="0.1" min="1" oninput="updateModalPreview()">
+      </div>
+      <div class="form-group"><label>Stock disponible</label><input type="number" id="m-stock" placeholder="0" min="0"></div>
+      <div class="form-group"><label>Stock mínimo (alerta)</label><input type="number" id="m-minstock" placeholder="2" min="0"></div>
+      <div class="form-group"><label>Notas</label><input type="text" id="m-notes" placeholder="Calidad, proveedor, etc."></div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px">
+        <div style="font-size:.75rem;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:6px">PRECIO DE VENTA CALCULADO</div>
+        <div style="font-size:1.5rem;font-weight:800;font-family:'Syne',sans-serif;color:var(--accent)" id="mpPrice">$0</div>
+        <div style="font-size:.78rem;color:var(--muted);margin-top:4px" id="mpInfo">—</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button class="btn btn-accent" style="flex:1" onclick="saveItem()">💾 Guardar</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+
+
+            </div>
+
         </main>
     </div>
 
@@ -458,6 +1012,7 @@
     <script src="/js/clientes.js"></script>
     <script src="/js/equipos.js"></script>
     <script src="/js/app.js"></script>
+    <script src="/js/cotizacion-app.js"></script>
 </body>
 
 </html>
