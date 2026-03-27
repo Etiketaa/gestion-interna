@@ -968,3 +968,48 @@
     font-size: .9rem;
     letter-spacing: 1px;
 }
+
+/* MOBILE RESPONSIVE QUOTATION TAB */
+@media(max-width:800px) {
+    .tab-nav {
+        padding: 16px 16px 0;
+    }
+
+    .content {
+        padding: 20px 16px 60px;
+    }
+
+    .form-grid,
+    .form-grid.cols-3 {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group.span-2,
+    .form-group.span-3 {
+        grid-column: span 1;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .mg-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .quote-row {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    /* Specific adjustments for embedded SPA context */
+    .damage-map-wrapper {
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+    }
+
+    .damage-legend {
+        width: 100%;
+        min-width: unset;
+    }
+}
