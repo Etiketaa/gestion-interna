@@ -14,11 +14,6 @@
         ☰
     </button>
 
-    <!-- Botón de cambio de tema -->
-    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
-        🌙
-    </button>
-
     <!-- Overlay para cerrar menú en móvil -->
     <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
@@ -26,10 +21,9 @@
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="logo">
-                <div class="logo-icon">🏠</div>
+                <div class="logo-icon border-radius:10px;">📱</div>
                 <div class="logo-text">
-                    <h1>Bit House</h1>
-                    <p>Gestión de Reparaciones</p>
+                    <h1>Bit House<span>Pro</span></h1>
                 </div>
             </div>
 
@@ -93,8 +87,9 @@
             <!-- Dashboard Page -->
             <div id="page-dashboard" class="page active">
                 <div class="page-header">
-                    <h2 class="page-title">Dashboard</h2>
-                    <p class="page-subtitle">Resumen general del taller</p>
+                    <span class="page-badge">// resumen general</span>
+                    <h2 class="page-title">Dashboard del Taller</h2>
+                    <p class="page-subtitle">Indicadores y métricas en tiempo real</p>
                 </div>
 
                 <!-- Stats Cards -->
@@ -135,8 +130,9 @@
             <!-- Clientes Page -->
             <div id="page-clientes" class="page">
                 <div class="page-header">
+                    <span class="page-badge">// base de datos</span>
                     <h2 class="page-title">Gestión de Clientes</h2>
-                    <p class="page-subtitle">Administrar base de datos de clientes</p>
+                    <p class="page-subtitle">Administrar agenda y perfiles</p>
                 </div>
 
                 <div class="card">
@@ -174,8 +170,9 @@
             <!-- Equipos Page -->
             <div id="page-equipos" class="page">
                 <div class="page-header">
+                    <span class="page-badge">// seguimiento de órdenes</span>
                     <h2 class="page-title">Gestión de Equipos</h2>
-                    <p class="page-subtitle">Seguimiento de reparaciones</p>
+                    <p class="page-subtitle">Monitorear estado de las reparaciones</p>
                 </div>
 
                 <div class="card">
@@ -228,8 +225,9 @@
             <!-- Presupuestos Page -->
             <div id="page-presupuestos" class="page">
                 <div class="page-header">
-                    <h2 class="page-title">Presupuestos</h2>
-                    <p class="page-subtitle">Gestión de presupuestos pendientes</p>
+                    <span class="page-badge">// pagos y cobros</span>
+                    <h2 class="page-title">Presupuestos pendientes</h2>
+                    <p class="page-subtitle">Gestión de presupuestos</p>
                 </div>
 
                 <div class="card">
@@ -263,6 +261,7 @@
             <!-- Retiros/Entregas Page -->
             <div id="page-retiros-entregas" class="page">
                 <div class="page-header">
+                    <span class="page-badge">// logística</span>
                     <h2 class="page-title">Retiros y Entregas</h2>
                     <p class="page-subtitle">Servicio a domicilio sin cargo</p>
                 </div>
