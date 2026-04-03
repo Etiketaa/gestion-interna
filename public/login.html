@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión - Bit House Pro</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0a0a0f">
+    <link rel="apple-touch-icon" href="/icon.svg">
     <link
         href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap"
         rel="stylesheet">
@@ -424,7 +427,14 @@
                 document.getElementById('login-form').requestSubmit();
             }
         });
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => console.log('✅ ServiceWorker registrado exitosamente'))
+                    .catch(err => console.error('❌ Error al registrar ServiceWorker:', err));
+            });
+        }
     </script>
 </body>
-
 </html>

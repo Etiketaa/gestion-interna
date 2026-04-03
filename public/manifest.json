@@ -1,0 +1,18 @@
+{
+  "name": "Bit House Gestión",
+  "short_name": "Bit House",
+  "description": "Sistema de gestión interna y cotizaciones de Bit House",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#0a0a0f",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "48x48 72x72 96x96 128x128 256x256 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
