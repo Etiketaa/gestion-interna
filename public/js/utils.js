@@ -3,8 +3,8 @@
 // ============================================
 
 // Detectar automáticamente si estamos en producción o desarrollo
-const API_URL = window.location.hostname === 'localhost'
-    ? 'http://localhost:3001/api'
+const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.'))
+    ? `http://${window.location.hostname}:3001/api`
     : (window.API_BASE_URL || `${window.location.origin}/api`);
 
 /**

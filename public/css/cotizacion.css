@@ -1088,3 +1088,44 @@
         min-width: unset;
     }
 }
+
+/* Responsive Data Tables / Cards para Móviles */
+@media (max-width: 768px) {
+    /* Esconder encabezado de tabla */
+    .inv-table thead, .data-table thead, table thead {
+        display: none;
+    }
+    
+    /* Convertir Tabla a Flex/Block Cards */
+    .inv-table tbody tr, .data-table tbody tr, table tbody tr {
+        display: block;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        margin-bottom: 15px;
+        padding: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .inv-table tbody td, .data-table tbody td, table tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        padding: 10px 0;
+        text-align: right !important;
+    }
+    
+    .inv-table tbody td:last-child, .data-table tbody td:last-child, table tbody td:last-child {
+        border-bottom: none;
+        justify-content: center;
+        padding-bottom: 0;
+    }
+
+    /* Ocultar celdas vacías */
+    .inv-table tbody td:empty, .data-table tbody td:empty, table tbody td:empty {
+        display: none;
+    }
+
+    /* Identificadores generados por JS no están en TH en móvil, añadirlos aquí si es necesario (Opcional si se meten como span nativamente o si la UI se explica sola) */
+}
