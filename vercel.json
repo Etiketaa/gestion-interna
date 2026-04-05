@@ -4,11 +4,11 @@
     "rewrites": [
         {
             "source": "/api/(.*)",
-            "destination": "https://gestion-interna-production.up.railway.app/api/$1"
+            "destination": "https://gestion-interna-api-production.up.railway.app/api/$1"
         },
         {
             "source": "/uploads/(.*)",
-            "destination": "https://gestion-interna-production.up.railway.app/uploads/$1"
+            "destination": "https://gestion-interna-api-production.up.railway.app/uploads/$1"
         },
         {
             "source": "/(.*)",
