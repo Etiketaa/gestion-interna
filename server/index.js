@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const helmet = require('helmet');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
@@ -28,6 +29,11 @@ const PORT = process.env.PORT || 3001;
 // MIDDLEWARE
 // ============================================
 
+// Seguridad: Proteger cabeceras HTTP
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" } // Permite cargar recursos necesarios en el frontend
+}));
+
 // CORS - Permitir requests desde el frontend (incluyendo Vercel)
 const allowedOrigins = process.env.FRONTEND_URL
     ? [process.env.FRONTEND_URL, 'http://localhost:3001', 'http://localhost:5500', 'http://127.0.0.1:5500']
@@ -45,9 +51,9 @@ app.use(cors({
     credentials: true
 }));
 
-// Body parser - Parsear JSON
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+// Body parser - Parsear JSON con límite de tamaño (100kb para mitigar Payload injections)
+app.use(express.json({ limit: '100kb' }));
+app.use(express.urlencoded({ limit: '100kb', extended: true }));
 
 // Servir archivos estáticos solo en desarrollo (cuando el frontend no está en Vercel)
 if (!process.env.FRONTEND_URL) {

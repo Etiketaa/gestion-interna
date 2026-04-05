@@ -9,11 +9,20 @@ const ADMIN_USER = process.env.ADMIN_USER || 'admin';
 // Hash de la contraseña por defecto 'admin123' - cambiar en producción
 const DEFAULT_PASSWORD_HASH = bcrypt.hashSync(process.env.ADMIN_PASSWORD || 'admin123', 10);
 
+const rateLimit = require('express-rate-limit');
+
+// Rate limiting para evitar ataques de fuerza bruta
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    max: 5, // Límite de 5 intentos por IP
+    message: { error: 'Demasiados intentos de inicio de sesión desde esta IP. Por favor intente de nuevo en 15 minutos.' }
+});
+
 // ============================================
 // POST /api/auth/login
 // Iniciar sesión
 // ============================================
-router.post('/login', async (req, res) => {
+router.post('/login', loginLimiter, async (req, res) => {
     try {
         const { username, password } = req.body;
 
