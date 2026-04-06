@@ -241,6 +241,20 @@ async function deleteInvItem(id) {
 }
 
 // ── Compatibilidad: alias para cotizacion-app.js ──
+// ── Eliminar Todo (Reset) ──
+async function resetInventory() {
+  if (!confirm('🚨 ¿VACIAR TODO EL INVENTARIO?\nEsta acción eliminará todos los repuestos y no se puede deshacer.')) return;
+  try {
+    const res = await apiRequest('/cotizacion/inventario/reset', { method: 'DELETE' });
+    showToast('🗑 Inventario vaciado correctamente', 'info');
+    await loadInventory();
+    renderInv();
+    renderInvStats();
+  } catch (e) {
+    showToast('Error: ' + e.message, 'error');
+  }
+}
+
 function delItem(id) { deleteInvItem(id); }
 function editItem(id) { editInvItem(id); }
 function closeModal() { closeInvModal(); }

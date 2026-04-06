@@ -113,6 +113,17 @@ router.delete('/inventario/:id', async (req, res) => {
     }
 });
 
+// ── Reset Inventory (Clear All) ──
+router.delete('/reset', async (req, res) => {
+    try {
+        await db.run('DELETE FROM cot_inventario');
+        res.json({ message: 'Inventario vaciado con éxito' });
+    } catch (err) {
+        console.error('Error RESET inventario:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // ════════════ MÁRGENES ════════════
 
 // GET /api/cotizacion/margenes

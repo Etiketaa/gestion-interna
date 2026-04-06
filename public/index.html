@@ -802,7 +802,10 @@
   <div class="card" style="padding-bottom:8px">
     <div class="card-title" style="justify-content:space-between">
       <div style="display:flex;align-items:center;gap:8px"><div class="card-title-icon">📦</div>Repuestos y Servicios</div>
-      <button class="btn btn-accent btn-sm" onclick="openModal()">+ Agregar repuesto</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost btn-sm" onclick="resetInventory()" style="color:var(--warn)">🗑 Vaciar Todo</button>
+        <button class="btn btn-accent btn-sm" onclick="openModal()">+ Agregar repuesto</button>
+      </div>
     </div>
     <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
       <input type="text" id="invFilter" placeholder="🔍 Filtrar..." oninput="renderInv()" style="flex:1;min-width:180px">
