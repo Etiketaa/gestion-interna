@@ -65,35 +65,76 @@ function renderInv() {
     return mt && (!cf || i.cat === cf);
   });
   const tbody = document.getElementById('invBody');
-  if (!list.length) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:28px">Sin resultados.</td></tr>'; return; }
-  tbody.innerHTML = list.map(item => {
-    const sp = getSP(item); const m = getM(item);
-    const gain = sp - item.cost; const pct = item.cost > 0 ? ((gain/item.cost)*100).toFixed(0) : 0;
-    const cls = m >= 2.5 ? 'mh' : m >= 1.8 ? 'mm' : 'ml';
-    const custom = item.margin ? '✏️ ' : '';
-    let stockEl = item.stock === 0
-      ? `<span class="stock-out">⛔ Agotado</span>`
-      : item.stock <= item.min
-        ? `<span class="stock-low">⚠️ ${item.stock}</span>`
-        : `<span class="stock-ok">✅ ${item.stock}</span>`;
-    const barW = Math.min(100, Math.round((pct/300)*100));
-    return `<tr>
-      <td><strong style="color:var(--text)">${item.name}</strong>${item.notes ? `<div style="font-size:.72rem;color:var(--muted)">${item.notes}</div>` : ''}</td>
-      <td><span class="category-tag">${item.cat}</span></td>
-      <td style="color:var(--muted);font-size:.8rem">${item.brand||'—'}</td>
-      <td style="text-align:right;font-family:'DM Mono',monospace;color:var(--warn)">${fmt(item.cost)}</td>
-      <td style="text-align:right"><span class="margin-pill ${cls}">${custom}×${m.toFixed(1)}</span></td>
-      <td style="text-align:right;font-family:'DM Mono',monospace;color:var(--accent);font-weight:700">${fmt(sp)}</td>
-      <td style="text-align:center">${stockEl}</td>
-      <td><div style="display:flex;align-items:center;gap:6px">
-        <div class="profit-bar-wrap"><div class="profit-bar" style="width:${barW}%"></div></div>
-        <span style="font-family:'DM Mono',monospace;font-size:.74rem;color:var(--accent2)">${pct}%</span>
-      </div></td>
-      <td><div style="display:flex;gap:4px">
-        <button class="btn btn-ghost btn-sm" onclick="editInvItem(${item.id})" title="Editar">✏️</button>
-        <button class="btn btn-ghost btn-sm" onclick="deleteInvItem(${item.id})" style="color:var(--warn)" title="Eliminar">🗑</button>
-      </div></td></tr>`;
-  }).join('');
+  const cards = document.getElementById('invCards');
+  
+  if (!list.length) { 
+    const emptyMsg = '<div style="text-align:center;color:var(--muted);padding:28px">Sin resultados.</div>';
+    if(tbody) tbody.innerHTML = `<tr><td colspan="9">${emptyMsg}</td></tr>`; 
+    if(cards) cards.innerHTML = emptyMsg;
+    return; 
+  }
+
+  // 1. Render Table Rows (Desktop)
+  if(tbody) {
+    tbody.innerHTML = list.map(item => {
+      const sp = getSP(item); const m = getM(item);
+      const gain = sp - item.cost; const pct = item.cost > 0 ? ((gain/item.cost)*100).toFixed(0) : 0;
+      const cls = m >= 2.5 ? 'mh' : m >= 1.8 ? 'mm' : 'ml';
+      const custom = item.margin ? '✏️ ' : '';
+      let stockEl = item.stock === 0
+        ? `<span class="stock-out">⛔ Agotado</span>`
+        : item.stock <= item.min
+          ? `<span class="stock-low">⚠️ ${item.stock}</span>`
+          : `<span class="stock-ok">✅ ${item.stock}</span>`;
+      const barW = Math.min(100, Math.round((pct/300)*100));
+      return `<tr>
+        <td><strong style="color:var(--text)">${item.name}</strong>${item.notes ? `<div style="font-size:.72rem;color:var(--muted)">${item.notes}</div>` : ''}</td>
+        <td><span class="category-tag">${item.cat}</span></td>
+        <td style="color:var(--muted);font-size:.8rem">${item.brand||'—'}</td>
+        <td style="text-align:right;font-family:'DM Mono',monospace;color:var(--warn)">${fmt(item.cost)}</td>
+        <td style="text-align:right"><span class="margin-pill ${cls}">${custom}×${m.toFixed(1)}</span></td>
+        <td style="text-align:right;font-family:'DM Mono',monospace;color:var(--accent);font-weight:700">${fmt(sp)}</td>
+        <td style="text-align:center">${stockEl}</td>
+        <td><div style="display:flex;align-items:center;gap:6px">
+          <div class="profit-bar-wrap"><div class="profit-bar" style="width:${barW}%"></div></div>
+          <span style="font-family:'DM Mono',monospace;font-size:.74rem;color:var(--accent2)">${pct}%</span>
+        </div></td>
+        <td><div style="display:flex;gap:4px">
+          <button class="btn btn-ghost btn-sm" onclick="editInvItem(${item.id})" title="Editar">✏️</button>
+          <button class="btn btn-ghost btn-sm" onclick="deleteInvItem(${item.id})" style="color:var(--warn)" title="Eliminar">🗑</button>
+        </div></td></tr>`;
+    }).join('');
+  }
+
+  // 2. Render Cards (Mobile)
+  if(cards) {
+    cards.innerHTML = list.map(item => {
+      const sp = getSP(item); const m = getM(item);
+      const pct = item.cost > 0 ? (((sp-item.cost)/item.cost)*100).toFixed(0) : 0;
+      let stockEl = item.stock === 0 ? '⛔' : item.stock <= item.min ? '⚠️' : '✅';
+      return `
+        <div class="inv-card">
+          <span class="inv-card-cat">${item.cat}</span>
+          <div class="inv-card-header">
+            <div class="inv-card-title">${item.name}</div>
+            <div style="font-size:1rem">${stockEl}</div>
+          </div>
+          <div class="inv-card-body">
+            <div><div class="inv-card-label">Costo</div><div class="inv-card-value" style="color:var(--warn)">${fmt(item.cost)}</div></div>
+            <div><div class="inv-card-label">PV Sugerido</div><div class="inv-card-value" style="color:var(--accent)">${fmt(sp)}</div></div>
+            <div><div class="inv-card-label">Stock</div><div class="inv-card-value">${item.stock} / min: ${item.min}</div></div>
+            <div><div class="inv-card-label">Margen</div><div class="inv-card-value">×${m.toFixed(1)} (${pct}%)</div></div>
+          </div>
+          <div class="inv-card-footer">
+            <div style="font-size:0.75rem; color:var(--muted)">${item.brand||'Marca no esp.'}</div>
+            <div class="inv-card-actions">
+              <button class="btn btn-ghost btn-sm" onclick="editInvItem(${item.id})">✏️ Editar</button>
+              <button class="btn btn-ghost btn-sm" onclick="deleteInvItem(${item.id})" style="color:var(--warn)">🗑</button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
 }
 
 // ── Abrir modal para agregar ──

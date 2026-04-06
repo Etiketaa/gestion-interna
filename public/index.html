@@ -270,9 +270,15 @@
           display: none;
           position: fixed; top: 0; left: 0; width: 100%; height: 100%;
           background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
-          z-index: 800; opacity: 0; transition: opacity 0.3s ease;
+          z-index: 800; opacity: 0; 
+          transition: opacity 0.3s ease;
+          pointer-events: none; /* Crucial: no captura clics cuando está cerrado */
       }
-      .drawer-overlay.open { display: block; opacity: 1; }
+      .drawer-overlay.open { 
+          display: block !important; 
+          opacity: 1; 
+          pointer-events: auto; /* Solo captura clics cuando está abierto */
+      }
 
       .tab-nav {
           flex-direction: column;
@@ -328,28 +334,55 @@
       }
 
       /* Responsividad para el Hero Header */
+      .hero-header {
+          padding: 10px 16px !important; /* Valor ultra compacto */
+      }
       .hero-logo {
-          font-size: 1.1rem !important; /* Más pequeño aún */
+          font-size: 1.1rem !important;
           gap: 6px !important;
       }
       .hero-logo .logo-icon {
           font-size: 1rem !important;
           padding: 4px !important;
-          width: 30px !important;
-          height: 30px !important;
+          width: 28px !important;
+          height: 28px !important;
+          min-width: 28px !important;
       }
       .hero-subtitle {
-          display: none !important; /* Totalmente oculto en móvil inicial */
+          display: none !important;
       }
       .mobile-menu-btn svg {
-          width: 22px;
-          height: 22px;
+          width: 20px;
+          height: 20px;
       }
+
+      /* Inventario responsivo: Ocultar tabla y mostrar tarjetas */
+      .inv-table-wrap { display: none; }
+      .inv-cards-wrap { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 10px; }
+      .inv-card {
+          background: var(--card-bg);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          padding: 16px;
+          position: relative;
+          transition: transform 0.2s;
+      }
+      .inv-card:active { transform: scale(0.98); }
+      .inv-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+      .inv-card-title { font-weight: 700; color: var(--text); font-size: 1rem; line-height: 1.2; flex: 1; }
+      .inv-card-cat { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; display: block; }
+      .inv-card-body { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.85rem; margin-bottom: 15px; }
+      .inv-card-label { color: var(--muted); font-size: 0.75rem; margin-bottom: 2px; }
+      .inv-card-value { color: var(--text); font-family: 'DM Mono', monospace; font-weight: 500; }
+      .inv-card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 12px; }
+      .inv-card-actions { display: flex; gap: 8px; }
   }
 
   @media (min-width: 769px) {
+      .inv-cards-wrap { display: none; }
+      .inv-table-wrap { display: block; }
       .drawer-scroll-area {
-          display: contents; /* Makes inner buttons act like direct children of tab-nav */
+          display: contents; 
       }
   }
 
@@ -372,7 +405,6 @@
       justify-content: space-between;
       align-items: center;
       max-width: 1200px;
-      width: 100%;
       margin: 0 auto;
   }
 
@@ -778,20 +810,26 @@
         <option value="">Todas las categorías</option>
       </select>
     </div>
-    <div style="overflow-x:auto">
+    <div class="inv-table-wrap">
       <table class="inv-table">
-        <thead><tr>
-          <th>Nombre del repuesto</th><th>Categoría</th><th>Marca / Modelo</th>
-          <th style="text-align:right">Precio costo</th>
-          <th style="text-align:right">Margen</th>
-          <th style="text-align:right">Precio venta</th>
-          <th style="text-align:center">Stock</th>
-          <th style="text-align:center">Ganancia %</th>
-          <th></th>
-        </tr></thead>
+        <thead>
+          <tr>
+            <th>Nombre del repuesto</th>
+            <th>Categoría</th>
+            <th>Marca / Modelo</th>
+            <th style="text-align:right">Costo</th>
+            <th style="text-align:right">Margen</th>
+            <th style="text-align:right">PV Sugerido</th>
+            <th style="text-align:center">Stock</th>
+            <th>Ganancia %</th>
+            <th></th>
+          </tr>
+        </thead>
         <tbody id="invBody"></tbody>
       </table>
     </div>
+    <!-- Contenedor móvil para tarjetas -->
+    <div class="inv-cards-wrap" id="invCards"></div>
   </div>
 </div>
 
