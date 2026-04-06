@@ -345,7 +345,7 @@
       padding: 30px 24px;
       position: sticky;
       top: 0;
-      z-index: 200;
+      z-index: 950; /* Aumentado para que el contenido no pase por encima */
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: 0 4px 20px rgba(0,0,0,0.3);
       border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -425,18 +425,17 @@
       <div class="logo-icon">📱</div>BIT <span>HOUSE</span>
     </div>
     
-    <!-- Mobile Hamburger Trigger -->
-    <div class="mobile-menu-btn mobile-only" onclick="toggleMobileMenu()">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-    </div>
-    
     <div class="header-actions desktop-only">
       <button class="btn btn-ghost" onclick="clearForm()">🗑 Limpiar</button>
       <button class="btn btn-accent2" onclick="saveQuote()">💾 Guardar</button>
       <button class="btn btn-accent" onclick="printQuote()">🖨 Imprimir</button>
     </div>
+
+    <!-- Mobile Hamburger Trigger (ahora después de las acciones para asegurar orden a la derecha) -->
+    <div class="mobile-menu-btn mobile-only" onclick="toggleMobileMenu()">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </div>
   </div>
-  <p class="hero-subtitle">Sistema Interactivo de Recepciones</p>
 </header>
 
 <div class="drawer-overlay no-print mobile-only" id="drawerOverlay" onclick="toggleMobileMenu()"></div>
