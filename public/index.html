@@ -245,6 +245,147 @@
   /* Adjust the original TechFix header to not double stick */
   header { top: 56px !important; }
 
+  /* ==== Hero Header & Mobile Visibility Utilities ==== */
+  .desktop-only { display: flex !important; }
+  .mobile-only { display: none !important; }
+
+  @media (max-width: 768px) {
+      .desktop-only { display: none !important; }
+      .mobile-only { display: flex !important; flex-direction: column; }
+      
+      .mobile-actions-panel {
+          padding: 16px;
+          background: var(--surface);
+          border-bottom: 1px solid var(--border);
+      }
+      
+      .mobile-menu-btn {
+          display: flex; /* Show only on mobile */
+          background: var(--surface2);
+          color: var(--white);
+          padding: 16px 24px;
+          font-family: 'Syne', sans-serif;
+          font-weight: 700;
+          font-size: 1.1rem;
+          cursor: pointer;
+          border-bottom: 1px solid var(--border);
+          justify-content: space-between;
+          align-items: center;
+      }
+
+      .tab-nav {
+          display: none; /* Hide by default on mobile */
+          flex-direction: column;
+          padding: 0 !important;
+          background: var(--surface);
+          border: 1px solid var(--border);
+          position: absolute;
+          width: 100%;
+          z-index: 500;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      }
+      
+      .tab-nav.open {
+          display: flex !important;
+      }
+      
+      .tab-btn {
+          width: 100%;
+          justify-content: flex-start;
+          padding: 16px 24px !important;
+          border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+          background: var(--surface2) !important;
+      }
+      
+      .tab-btn:hover {
+          background: rgba(255,255,255,0.05) !important;
+      }
+      
+      .tab-btn.active {
+          border-bottom: none !important;
+          border-left: 4px solid var(--accent);
+          background: rgba(255, 255, 255, 0.05) !important;
+      }
+  }
+
+  .mobile-menu-btn { display: none; } /* Hidden on desktop */
+
+  /* Hero Header Base */
+  .hero-header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+      padding: 30px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .hero-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+  }
+
+  .hero-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: 'Syne', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.5px;
+      transition: all 0.3s ease;
+  }
+
+  .hero-logo span {
+      color: var(--accent);
+  }
+
+  .hero-logo .logo-icon {
+      font-size: 2rem;
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 8px;
+      transition: all 0.3s ease;
+  }
+
+  .hero-subtitle {
+      text-align: center;
+      color: rgba(255,255,255,0.7);
+      margin-top: 15px;
+      font-size: 1.1rem;
+      font-weight: 300;
+      transition: all 0.3s ease;
+      max-height: 50px;
+      overflow: hidden;
+  }
+
+  /* Scrolled State */
+  .hero-header.scrolled {
+      padding: 10px 24px;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(10px);
+  }
+
+  .hero-header.scrolled .hero-logo {
+      font-size: 1.4rem;
+  }
+
+  .hero-header.scrolled .hero-logo .logo-icon {
+      font-size: 1.2rem;
+      padding: 5px;
+  }
+
+  .hero-header.scrolled .hero-subtitle {
+      opacity: 0;
+      max-height: 0;
+      margin-top: 0;
+  }
 </style>
 </head>
 <body>
@@ -628,10 +769,10 @@
   <div class="stats-grid" id="provStats"></div>
 
   <!-- TABS internas -->
-  <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px;">
-    <button class="tab-btn active" id="ptab-provs" onclick="switchProvTab('provs',this)" style="padding:8px 18px;font-size:.82rem">🏪 Mis proveedores</button>
-    <button class="tab-btn" id="ptab-cmp" onclick="switchProvTab('cmp',this)" style="padding:8px 18px;font-size:.82rem">📊 Comparador por repuesto</button>
-    <button class="tab-btn" id="ptab-best" onclick="switchProvTab('best',this)" style="padding:8px 18px;font-size:.82rem">🏆 Mejor precio global</button>
+  <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px; overflow-x:auto; white-space:nowrap; -webkit-overflow-scrolling: touch;">
+    <button class="tab-btn active" id="ptab-provs" onclick="switchProvTab('provs',this)" style="padding:8px 18px;font-size:.82rem;flex-shrink:0;">🏪 Mis proveedores</button>
+    <button class="tab-btn" id="ptab-cmp" onclick="switchProvTab('cmp',this)" style="padding:8px 18px;font-size:.82rem;flex-shrink:0;">📊 Comparador por repuesto</button>
+    <button class="tab-btn" id="ptab-best" onclick="switchProvTab('best',this)" style="padding:8px 18px;font-size:.82rem;flex-shrink:0;">🏆 Mejor precio global</button>
   </div>
 
   <!-- SUB-PANEL: lista proveedores -->
@@ -663,17 +804,19 @@
   <div id="ppanel-best" style="display:none">
     <div class="alert alert-info">🏆 <span>Para cada repuesto del inventario, se muestra el proveedor con el <strong>menor precio</strong> y el ahorro potencial versus el más caro.</span></div>
     <div class="card" style="padding:0">
-      <table class="prov-table">
-        <thead><tr>
-          <th>Repuesto</th><th>Categoría</th>
-          <th style="text-align:right">Mejor precio</th>
-          <th>Proveedor ganador</th>
-          <th style="text-align:right">Precio más alto</th>
-          <th style="text-align:right">Ahorro</th>
-          <th style="text-align:center">Oferta de proveedores</th>
-        </tr></thead>
-        <tbody id="bestPriceBody"></tbody>
-      </table>
+      <div style="overflow-x:auto;">
+        <table class="prov-table">
+          <thead><tr>
+            <th>Repuesto</th><th>Categoría</th>
+            <th style="text-align:right">Mejor precio</th>
+            <th>Proveedor ganador</th>
+            <th style="text-align:right">Precio más alto</th>
+            <th style="text-align:right">Ahorro</th>
+            <th style="text-align:center">Oferta de proveedores</th>
+          </tr></thead>
+          <tbody id="bestPriceBody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
