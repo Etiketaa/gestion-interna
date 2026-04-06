@@ -10,10 +10,8 @@
   *{margin:0;padding:0;box-sizing:border-box;}
   body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
   body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,160,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,160,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
-  header{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:64px;}
-  .logo{display:flex;align-items:center;gap:10px;font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;color:var(--white);}
-  .logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:grid;place-items:center;font-size:1rem;}
-  .logo span{color:var(--accent);}
+  .hero-logo { display: flex; align-items: center; gap: 10px; font-family: 'Syne', sans-serif; font-weight: 800; }
+  .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 10px; display: grid; place-items: center; font-size: 1rem; }
   .header-actions{display:flex;gap:8px;}
   .btn{font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;border:none;border-radius:var(--radius-sm);cursor:pointer;padding:8px 16px;transition:all .2s;display:inline-flex;align-items:center;gap:6px;}
   .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border);}
@@ -195,7 +193,7 @@
   .stars{color:#ffc107;font-size:.9rem;letter-spacing:1px;}
 
   @media(max-width:640px){
-    header{padding:0 16px;}.tab-nav{padding:16px 16px 0;}.content{padding:20px 16px 60px;}
+    .content{padding:20px 16px 60px;}
     .form-grid,.form-grid.cols-3{grid-template-columns:1fr;}
     .form-group.span-2,.form-group.span-3{grid-column:span 1;}
     .stats-grid{grid-template-columns:1fr 1fr;}.mg-grid{grid-template-columns:1fr;}
@@ -242,8 +240,7 @@
   .cot-back-btn:hover {
     background: rgba(255,255,255,.2);
   }
-  /* Adjust the original TechFix header to not double stick */
-  header { top: 56px !important; }
+  /* Reset header overrides */
 
   /* ==== Hero Header & Mobile Visibility Utilities ==== */
   .desktop-only { display: flex !important; }
