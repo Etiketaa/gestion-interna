@@ -261,32 +261,59 @@
       
       .mobile-menu-btn {
           display: flex; /* Show only on mobile */
-          background: var(--surface2);
+          background: rgba(255,255,255,0.1);
           color: var(--white);
-          padding: 16px 24px;
-          font-family: 'Syne', sans-serif;
-          font-weight: 700;
-          font-size: 1.1rem;
+          padding: 8px 12px;
+          border-radius: 8px;
           cursor: pointer;
-          border-bottom: 1px solid var(--border);
-          justify-content: space-between;
           align-items: center;
       }
 
+      .drawer-overlay {
+          display: none;
+          position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+          background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+          z-index: 800; opacity: 0; transition: opacity 0.3s ease;
+      }
+      .drawer-overlay.open { display: block; opacity: 1; }
+
       .tab-nav {
-          display: none; /* Hide by default on mobile */
           flex-direction: column;
           padding: 0 !important;
           background: var(--surface);
-          border: 1px solid var(--border);
-          position: absolute;
-          width: 100%;
-          z-index: 500;
-          box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+          border-right: 1px solid var(--border);
+          position: fixed;
+          top: 0; left: 0;
+          width: 280px;
+          height: 100vh;
+          z-index: 1000;
+          box-shadow: 10px 0 25px rgba(0,0,0,0.5);
+          transform: translateX(-100%);
+          transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          display: flex !important;
       }
       
       .tab-nav.open {
-          display: flex !important;
+          transform: translateX(0);
+      }
+      
+      .drawer-scroll-area {
+          flex: 1;
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          padding-bottom: 20px;
+      }
+      
+      .mobile-actions-panel {
+          padding: 16px; background: var(--surface2);
+          border-top: 1px solid var(--border);
+          margin-top: auto;
+      }
+      
+      .drawer-header {
+          display: flex; justify-content: space-between; align-items: center;
+          padding: 20px 24px; border-bottom: 1px solid var(--border);
       }
       
       .tab-btn {
@@ -294,17 +321,19 @@
           justify-content: flex-start;
           padding: 16px 24px !important;
           border-bottom: 1px solid rgba(255,255,255,0.05) !important;
-          background: var(--surface2) !important;
-      }
-      
-      .tab-btn:hover {
-          background: rgba(255,255,255,0.05) !important;
+          background: transparent !important;
       }
       
       .tab-btn.active {
-          border-bottom: none !important;
+          border-bottom: 1px solid rgba(255,255,255,0.05) !important;
           border-left: 4px solid var(--accent);
           background: rgba(255, 255, 255, 0.05) !important;
+      }
+  }
+
+  @media (min-width: 769px) {
+      .drawer-scroll-area {
+          display: contents; /* Makes inner buttons act like direct children of tab-nav */
       }
   }
 
@@ -395,6 +424,12 @@
     <div class="hero-logo">
       <div class="logo-icon">📱</div>BIT <span>HOUSE</span>
     </div>
+    
+    <!-- Mobile Hamburger Trigger -->
+    <div class="mobile-menu-btn mobile-only" onclick="toggleMobileMenu()">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </div>
+    
     <div class="header-actions desktop-only">
       <button class="btn btn-ghost" onclick="clearForm()">🗑 Limpiar</button>
       <button class="btn btn-accent2" onclick="saveQuote()">💾 Guardar</button>
@@ -404,18 +439,15 @@
   <p class="hero-subtitle">Sistema Interactivo de Recepciones</p>
 </header>
 
-<div class="mobile-menu-wrapper no-print" id="mobileMenuWrapper">
-  <div class="mobile-menu-btn" onclick="toggleMobileMenu()" id="mobileMenuBtn">
-    ☰ Menú (1. Recepción)
+<div class="drawer-overlay no-print mobile-only" id="drawerOverlay" onclick="toggleMobileMenu()"></div>
+
+<nav class="tab-nav no-print" id="mainTabNav">
+  <div class="drawer-header mobile-only">
+    <div class="hero-logo" style="font-size:1.5rem"><div class="logo-icon" style="font-size:1.2rem;padding:6px">📱</div>BIT <span>HOUSE</span></div>
+    <button class="btn btn-ghost" style="padding:4px 8px; border:none; font-size:1.4rem" onclick="toggleMobileMenu()">✕</button>
   </div>
-  <nav class="tab-nav" id="mainTabNav">
-    <div class="mobile-actions-panel mobile-only">
-      <div style="display:flex; gap:8px; width: 100%;">
-        <button class="btn btn-ghost" onclick="clearForm()" style="flex:1; justify-content:center; padding:10px;">🗑 Limpiar</button>
-        <button class="btn btn-accent2" onclick="saveQuote()" style="flex:1; justify-content:center; padding:10px;">💾 Guardar</button>
-        <button class="btn btn-accent" onclick="printQuote()" style="flex:1; justify-content:center; padding:10px;">🖨 Imprimir</button>
-      </div>
-    </div>
+  
+  <div class="drawer-scroll-area">
     <button class="tab-btn active" onclick="switchTab('recepcion',this)"><div class="tab-dot"></div>1. Recepción</button>
     <button class="tab-btn" onclick="switchTab('cotizacion',this)"><div class="tab-dot"></div>2. Cotización</button>
     <button class="tab-btn" onclick="switchTab('terminos',this)"><div class="tab-dot"></div>3. Términos</button>
@@ -425,8 +457,16 @@
     <button class="tab-btn" onclick="switchTab('margenes',this)"><div class="tab-dot"></div>⚙️ Márgenes</button>
     <button class="tab-btn" onclick="switchTab('historial',this)"><div class="tab-dot"></div>Historial</button>
     <button class="tab-btn" onclick="switchTab('preview',this)"><div class="tab-dot"></div>Vista previa</button>
-  </nav>
-</div>
+  </div>
+
+  <div class="mobile-actions-panel mobile-only">
+    <div style="display:flex; gap:8px; width: 100%;">
+      <button class="btn btn-ghost" onclick="clearForm()" style="flex:1; justify-content:center; padding:10px;">🗑 Limpiar</button>
+      <button class="btn btn-accent2" onclick="saveQuote()" style="flex:1; justify-content:center; padding:10px;">💾 Guardar</button>
+      <button class="btn btn-accent" onclick="printQuote()" style="flex:1; justify-content:center; padding:10px;">🖨 Imprimir</button>
+    </div>
+  </div>
+</nav>
 
 <div class="content">
 
@@ -1042,6 +1082,8 @@ const getSP=item=>Math.round(item.cost*getM(item));
 // ════════════ TABS ════════════
 function toggleMobileMenu() {
   document.getElementById('mainTabNav').classList.toggle('open');
+  const overlay = document.getElementById('drawerOverlay');
+  if(overlay) overlay.classList.toggle('open');
 }
 
 function switchTab(name, btn) {
@@ -1050,13 +1092,11 @@ function switchTab(name, btn) {
   document.getElementById('tab-'+name).classList.add('active');
   btn.classList.add('active');
   
-  // Update mobile menu text and close it automatically
-  const menuBtn = document.getElementById('mobileMenuBtn');
+  // Update mobile menu state: Close it automatically when a tab is selected
   const mainNav = document.getElementById('mainTabNav');
-  if(menuBtn && mainNav) {
-    menuBtn.textContent = '☰ Menú (' + btn.textContent.trim() + ')';
-    mainNav.classList.remove('open');
-  }
+  const overlay = document.getElementById('drawerOverlay');
+  if(mainNav) mainNav.classList.remove('open');
+  if(overlay) overlay.classList.remove('open');
 
   if(name==='preview')genPreview();
   if(name==='historial')renderHist();
