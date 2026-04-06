@@ -1129,3 +1129,65 @@
 
     /* Identificadores generados por JS no están en TH en móvil, añadirlos aquí si es necesario (Opcional si se meten como span nativamente o si la UI se explica sola) */
 }
+
+/* ==== Mobile Accordion Tab Nav ==== */
+.mobile-menu-wrapper {
+    position: relative;
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+.mobile-menu-btn {
+    display: none;
+    background: var(--surface2);
+    color: var(--white);
+    padding: 16px 24px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    justify-content: space-between;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .mobile-menu-btn {
+        display: flex; /* Show only on mobile */
+    }
+    
+    .tab-nav {
+        display: none; /* Hide by default on mobile */
+        flex-direction: column;
+        padding: 0 !important;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        position: absolute;
+        width: 100%;
+        z-index: 500;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+    
+    .tab-nav.open {
+        display: flex !important;
+    }
+    
+    .tab-btn {
+        width: 100%;
+        justify-content: flex-start;
+        padding: 16px 24px !important;
+        border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+        background: var(--surface2) !important;
+    }
+    
+    .tab-btn:hover {
+        background: rgba(255,255,255,0.05) !important;
+    }
+    
+    .tab-btn.active {
+        border-bottom: none !important;
+        border-left: 4px solid var(--accent);
+        background: rgba(255, 255, 255, 0.05) !important;
+    }
+}
+
