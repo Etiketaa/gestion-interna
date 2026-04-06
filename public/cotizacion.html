@@ -249,28 +249,34 @@
 </head>
 <body>
 
-<div class="cot-topbar">
-  <div class="cot-topbar-left">
-    <a href="/" class="cot-back-btn">⬅ Volver al Inicio</a>
-    <span style="color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;letter-spacing:0.5px">Bit House</span>
+<header id="mainHeroHeader" class="hero-header no-print">
+  <div class="hero-top-row">
+    <a href="/" class="cot-back-btn desktop-only">⬅ Volver al Inicio</a>
+    <div class="hero-logo">
+      <div class="logo-icon">📱</div>BIT <span>HOUSE</span>
+    </div>
+    <div class="header-actions desktop-only">
+      <button class="btn btn-ghost" onclick="clearForm()">🗑 Limpiar</button>
+      <button class="btn btn-accent2" onclick="saveQuote()">💾 Guardar</button>
+      <button class="btn btn-accent" onclick="printQuote()">🖨 Imprimir</button>
+    </div>
   </div>
-</div>
-
-
-<header>
-  <div class="logo"><div class="logo-icon">📱</div>TechFix<span>Pro</span></div>
-  <div class="header-actions">
-    <button class="btn btn-ghost" onclick="clearForm()">🗑 Limpiar</button>
-    <button class="btn btn-accent2" onclick="saveQuote()">💾 Guardar</button>
-    <button class="btn btn-accent" onclick="printQuote()">🖨 Imprimir</button>
-  </div>
+  <p class="hero-subtitle">Sistema Interactivo de Recepciones</p>
 </header>
 
-<div class="mobile-menu-wrapper no-print">
+<div class="mobile-menu-wrapper no-print" id="mobileMenuWrapper">
   <div class="mobile-menu-btn" onclick="toggleMobileMenu()" id="mobileMenuBtn">
     ☰ Menú (1. Recepción)
   </div>
   <nav class="tab-nav" id="mainTabNav">
+    <div class="mobile-actions-panel mobile-only">
+      <a href="/" class="btn btn-ghost" style="width:100%; justify-content:center; margin-bottom: 8px;">⬅ Volver al Inicio</a>
+      <div style="display:flex; gap:8px; width: 100%;">
+        <button class="btn btn-ghost" onclick="clearForm()" style="flex:1; justify-content:center; padding:10px;">🗑 Limpiar</button>
+        <button class="btn btn-accent2" onclick="saveQuote()" style="flex:1; justify-content:center; padding:10px;">💾 Guardar</button>
+        <button class="btn btn-accent" onclick="printQuote()" style="flex:1; justify-content:center; padding:10px;">🖨 Imprimir</button>
+      </div>
+    </div>
     <button class="tab-btn active" onclick="switchTab('recepcion',this)"><div class="tab-dot"></div>1. Recepción</button>
     <button class="tab-btn" onclick="switchTab('cotizacion',this)"><div class="tab-dot"></div>2. Cotización</button>
     <button class="tab-btn" onclick="switchTab('terminos',this)"><div class="tab-dot"></div>3. Términos</button>
@@ -1786,7 +1792,20 @@ function delProvPrice(supplierId, itemId) {
 const now=new Date(),pad=n=>String(n).padStart(2,'0');
 document.getElementById('fecha-ingreso').value=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
 renderMargins();
-  initApp();
+
+// ════════════ INIT & SCROLL ════════════
+window.addEventListener('scroll', () => {
+  const hero = document.getElementById('mainHeroHeader');
+  if(hero) {
+    if(window.scrollY > 30) {
+      hero.classList.add('scrolled');
+    } else {
+      hero.classList.remove('scrolled');
+    }
+  }
+});
+
+initApp();
 </script>
 </body>
 </html>

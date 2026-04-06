@@ -1191,3 +1191,95 @@
     }
 }
 
+
+/* ==== Hero Header & Mobile Visibility Utilities ==== */
+.desktop-only { display: flex !important; }
+.mobile-only { display: none !important; }
+
+@media (max-width: 768px) {
+    .desktop-only { display: none !important; }
+    .mobile-only { display: flex !important; flex-direction: column; }
+    
+    .mobile-actions-panel {
+        padding: 16px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+    }
+}
+
+/* Hero Header Base */
+.hero-header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+    padding: 30px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.hero-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.hero-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Syne', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+    transition: all 0.3s ease;
+}
+
+.hero-logo span {
+    color: var(--accent);
+}
+
+.hero-logo .logo-icon {
+    font-size: 2rem;
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 8px;
+    transition: all 0.3s ease;
+}
+
+.hero-subtitle {
+    text-align: center;
+    color: rgba(255,255,255,0.7);
+    margin-top: 15px;
+    font-size: 1.1rem;
+    font-weight: 300;
+    transition: all 0.3s ease;
+    max-height: 50px;
+    overflow: hidden;
+}
+
+/* Scrolled State */
+.hero-header.scrolled {
+    padding: 10px 24px;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(10px);
+}
+
+.hero-header.scrolled .hero-logo {
+    font-size: 1.4rem;
+}
+
+.hero-header.scrolled .hero-logo .logo-icon {
+    font-size: 1.2rem;
+    padding: 5px;
+}
+
+.hero-header.scrolled .hero-subtitle {
+    opacity: 0;
+    max-height: 0;
+    margin-top: 0;
+}
