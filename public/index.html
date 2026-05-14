@@ -240,6 +240,43 @@
   .cot-back-btn:hover {
     background: rgba(255,255,255,.2);
   }
+  
+  /* Floating Action Button (FAB) */
+  .fab-camera {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      width: 64px;
+      height: 64px;
+      background: var(--accent2);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 32px rgba(124, 111, 255, 0.4);
+      z-index: 1000;
+      cursor: pointer;
+      border: 2px solid rgba(255,255,255,0.2);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .fab-camera:active { transform: scale(0.9); }
+  
+  .img-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: var(--accent);
+      color: black;
+      font-weight: 800;
+      font-size: 0.7rem;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+  }
   /* Reset header overrides */
 
   /* ==== Hero Header & Mobile Visibility Utilities ==== */
@@ -586,6 +623,18 @@
       <label class="check-label"><input type="checkbox"><div class="check-text">Auriculares</div></label>
     </div>
     <div style="margin-top:14px"><label>Otros accesorios</label><input type="text" placeholder="Descripción..."></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="card-title-icon">📷</div>Evidencia de Ingreso</div>
+    <div style="display:flex;gap:12px;align-items:center">
+      <input type="file" id="crear-fotos" accept="image/*" multiple capture="camera" style="display:none" onchange="previewCrearFotos()">
+      <button class="btn btn-ghost" onclick="document.getElementById('crear-fotos').click()" style="width:100%;border:1px dashed var(--border);padding:20px;display:flex;flex-direction:column;align-items:center;gap:8px">
+        <span style="font-size:1.5rem">📸</span>
+        <span>Capturar fotos del equipo</span>
+      </button>
+    </div>
+    <div id="crearFotosPreview" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px"></div>
   </div>
 
   <div class="card">
@@ -2076,7 +2125,55 @@ window.addEventListener('scroll', () => {
     progBar.style.width = scrolled + "%";
   }
 });
+</script>
 
+<!-- Modal: Gestión de Tracking y Fotos -->
+<div id="trackingModal" class="modal">
+  <div class="modal-content" style="max-width:500px">
+    <div class="modal-title">
+      <span id="tModalTitle">📍 Seguimiento de Orden</span>
+      <button class="modal-close" onclick="closeTrackingModal()">✕</button>
+    </div>
+    <div class="form-grid cols-1" style="gap:16px">
+      <input type="hidden" id="tmQuoteId">
+      <div class="form-group">
+        <label>Actualizar Estado</label>
+        <select id="tmStatus">
+          <option value="ingresado">Recibido / Ingresado</option>
+          <option value="en_diagnóstico">En Diagnóstico</option>
+          <option value="en_reparación">En Reparación</option>
+          <option value="listo">Listo para retirar</option>
+          <option value="entregado">Entregado</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Nota / Observación (opcional)</label>
+        <textarea id="tmNotes" rows="2" placeholder="Ej: Equipo desarmado, esperando repuesto..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>📸 Subir Fotos de Evidencia</label>
+        <div style="display:flex;gap:10px;align-items:center">
+          <input type="file" id="tmFile" accept="image/*" multiple style="display:none" onchange="previewTrackingFiles()">
+          <button class="btn btn-ghost" onclick="document.getElementById('tmFile').click()" style="width:100%;border:1px dashed var(--border);padding:20px">
+            📷 Seleccionar fotos
+          </button>
+        </div>
+        <div id="tmPreview" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px"></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:10px">
+        <button class="btn btn-ghost" onclick="closeTrackingModal()" style="flex:1">Cancelar</button>
+        <button class="btn btn-accent" onclick="saveTrackingUpdate()" style="flex:2">💾 Guardar actualización</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Botón Flotante de Cámara Rápida -->
+<div class="fab-camera no-print" onclick="openQuickCamera()" title="Foto Rápida (Última Orden)">
+  <span style="font-size:1.8rem">📸</span>
+</div>
+
+<script>
 initApp();
 </script>
 </body>

@@ -261,26 +261,36 @@ document.addEventListener('click', e => { if (!e.target.closest('.autocomplete-w
 // ════════════ QUOTATION ROWS ════════════
 let rowId = 0;
 function addRow(name, cat, cost, margin, salePrice, invId = null) {
-  const empRow = document.getElementById('empty-row'); if (empRow) empRow.remove();
   rowId++; const id = rowId;
   services.push({ id, name, cat, cost, margin, price: salePrice, qty: 1, invId });
+  renderServices();
+}
+function renderServices() {
   const tbody = document.getElementById('serviceTableBody');
-  const isFixed = ['Servicio', 'Mano de obra', 'Diagnóstico'].includes(cat);
-  const mgLabel = isFixed
-    ? '<span style="color:var(--muted);font-size:.73rem;font-family:\'DM Mono\',monospace">manual</span>'
-    : `<span style="color:var(--accent2);font-family:'DM Mono',monospace;font-size:.78rem">×${margin.toFixed(1)}</span>`;
-  const tr = document.createElement('tr'); tr.id = 'row-' + id;
-  tr.innerHTML = `
-    <td style="color:var(--muted);font-family:'DM Mono',monospace;font-size:.7rem">${rowId}</td>
-    <td><input type="text" value="${name}" style="width:100%;min-width:140px" onchange="updRow(${id},'name',this.value)"></td>
-    <td><span class="category-tag" style="font-size:.68rem">${cat}</span></td>
-    <td style="text-align:center"><input type="number" value="1" min="1" style="width:48px;text-align:center" onchange="updRow(${id},'qty',this.value)"></td>
-    <td style="text-align:right;font-family:'DM Mono',monospace;font-size:.78rem;color:var(--warn)">${cost > 0 ? fmt(cost) : '—'}</td>
-    <td style="text-align:right">${mgLabel}</td>
-    <td><input type="number" value="${salePrice}" style="width:100px;text-align:right;font-family:'DM Mono',monospace" onchange="updRow(${id},'price',this.value)"></td>
-    <td style="text-align:right;font-family:'DM Mono',monospace;color:var(--accent);font-weight:700" id="sub-${id}">${fmt(salePrice)}</td>
-    <td><button class="remove-btn" onclick="remRow(${id})">✕</button></td>`;
-  tbody.appendChild(tr); recalc();
+  tbody.innerHTML = '';
+  if (!services.length) {
+    tbody.innerHTML = '<tr id="empty-row"><td colspan="9" style="text-align:center;color:var(--muted);font-style:italic;padding:24px">Busque en el inventario o agregue servicios de mano de obra</td></tr>';
+    return;
+  }
+  services.forEach((s, idx) => {
+    const isFixed = ['Servicio', 'Mano de obra', 'Diagnóstico'].includes(s.cat);
+    const mgLabel = isFixed
+      ? '<span style="color:var(--muted);font-size:.73rem;font-family:\'DM Mono\',monospace">manual</span>'
+      : `<span style="color:var(--accent2);font-family:'DM Mono',monospace;font-size:.78rem">×${(s.margin || 1).toFixed(1)}</span>`;
+    const tr = document.createElement('tr'); tr.id = 'row-' + s.id;
+    tr.innerHTML = `
+      <td style="color:var(--muted);font-family:'DM Mono',monospace;font-size:.7rem">${idx + 1}</td>
+      <td><input type="text" value="${s.name}" style="width:100%;min-width:140px" onchange="updRow(${s.id},'name',this.value)"></td>
+      <td><span class="category-tag" style="font-size:.68rem">${s.cat}</span></td>
+      <td style="text-align:center"><input type="number" value="${s.qty}" min="1" style="width:48px;text-align:center" onchange="updRow(${s.id},'qty',this.value)"></td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-size:.78rem;color:var(--warn)">${(s.cost || 0) > 0 ? fmt(s.cost) : '—'}</td>
+      <td style="text-align:right">${mgLabel}</td>
+      <td><input type="number" value="${s.price}" style="width:100px;text-align:right;font-family:'DM Mono',monospace" onchange="updRow(${s.id},'price',this.value)"></td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;color:var(--accent);font-weight:700" id="sub-${s.id}">${fmt(s.qty * s.price)}</td>
+      <td><button class="remove-btn" onclick="remRow(${s.id})">✕</button></td>`;
+    tbody.appendChild(tr);
+  });
+  recalc();
 }
 function addQuick(name, price, cat) { addRow(name, cat, 0, 1, price); }
 function addEmptyRow() { addRow('Servicio / Repuesto', 'Otro', 0, 1, 0); }
@@ -295,9 +305,7 @@ function updRow(id, field, val) {
 }
 function remRow(id) {
   services = services.filter(s => s.id !== id);
-  const el = document.getElementById('row-' + id); if (el) el.remove();
-  if (!services.length) document.getElementById('serviceTableBody').innerHTML = '<tr id="empty-row"><td colspan="9" style="text-align:center;color:var(--muted);font-style:italic;padding:24px">Busque en el inventario o agregue servicios de mano de obra</td></tr>';
-  recalc();
+  renderServices();
 }
 function recalc() {
   const sub = services.reduce((a, s) => a + s.qty * s.price, 0);
@@ -353,24 +361,118 @@ function clearSigTec() { const c = document.getElementById('sigCanvasTec'); c.ge
 initCanvas('sigCanvas'); initCanvas('sigCanvasTec');
 
 // ════════════ SAVE / CLEAR ════════════
-function saveQuote() {
-  orderCounter++; localStorage.setItem('orderCounter', orderCounter);
-  const q = {
-    id: 'ORD-' + orderCounter, fecha: new Date().toLocaleDateString('es-CL'),
-    cliente: document.getElementById('cli-nombre').value || '(Sin nombre)',
-    equipo: [document.getElementById('eq-marca').value, document.getElementById('eq-modelo').value].filter(Boolean).join(' ') || '(Sin equipo)',
-    total: document.getElementById('t-total').textContent, estado: 'Pendiente'
-  };
-  savedQuotes.unshift(q); localStorage.setItem('savedQuotes', JSON.stringify(savedQuotes));
-  document.getElementById('eq-orden').value = 'ORD-' + (orderCounter + 1);
-  alert('✅ Cotización guardada como ' + q.id);
+async function saveQuote() {
+  try {
+    showLoading();
+    
+    // 1. Recopilar Accesorios seleccionados
+    const accesoriosSelected = [];
+    document.querySelectorAll('#tab-recepcion .check-label input[type="checkbox"]').forEach(chk => {
+       if(chk.checked) accesoriosSelected.push(chk.parentElement.textContent.trim());
+    });
+
+    // 2. Preparar el objeto de la orden
+    const totalRaw = document.getElementById('t-total').textContent;
+    const totalNum = parseFloat(totalRaw.replace(/[^0-9.-]+/g, "")) || 0;
+
+    const qData = {
+      orden: document.getElementById('eq-orden').value,
+      cliente_nombre: document.getElementById('cli-nombre').value || '(Sin nombre)',
+      equipo_desc: [document.getElementById('eq-marca').value, document.getElementById('eq-modelo').value].filter(Boolean).join(' ') || '(Sin equipo)',
+      servicios: services,
+      total: totalNum,
+      estado: 'Pendiente',
+      telefono: document.getElementById('cli-tel').value,
+      whatsapp: document.getElementById('cli-wa').value,
+      email: document.getElementById('cli-email').value,
+      rut: document.getElementById('cli-rut').value,
+      marca: document.getElementById('eq-marca').value,
+      imei: document.getElementById('eq-imei').value,
+      color: document.getElementById('eq-color').value,
+      motivo_cliente: document.getElementById('motivo-cliente').value,
+      motivo_tecnico: document.getElementById('motivo-tecnico').value,
+      observaciones: document.getElementById('obs-cotizacion').value,
+      garantia_periodo: document.getElementById('garantia-periodo').value,
+      garantia_observaciones: document.getElementById('garantia-obs').value,
+      accesorios: accesoriosSelected
+    };
+
+    let result;
+    if (currentEditId) {
+      // ACTUALIZAR
+      result = await apiRequest(`/cotizacion/cotizaciones/${currentEditId}`, 'PUT', qData);
+      alert('✅ Cotización ' + qData.orden + ' actualizada.');
+    } else {
+      // CREAR NUEVO
+      result = await apiRequest('/cotizacion/cotizaciones', 'POST', qData);
+      alert('✅ Cotización guardada como ' + qData.orden);
+    }
+
+    const internalId = result.id || currentEditId;
+
+    // 3. Subir Fotos de Ingreso si hay
+    const fileInput = document.getElementById('crear-fotos');
+    if (fileInput && fileInput.files.length > 0) {
+      console.log('Subiendo fotos de ingreso...');
+      for (const file of fileInput.files) {
+        const formData = new FormData();
+        formData.append('foto', file);
+        formData.append('equipoId', internalId);
+        formData.append('tipo', 'ingreso');
+        formData.append('descripcion', 'Foto de ingreso');
+        
+        await fetch('/api/fotos/upload', { method: 'POST', body: formData });
+      }
+    }
+
+    // 4. Limpiar y refrescar
+    clearForm(); // Esto reseteará currentEditId
+    if (typeof loadQuotes === 'function') await loadQuotes(); // Asumimos que existe para recargar del server
+    else location.reload(); // Fallback
+    
+  } catch (e) {
+    console.error(e);
+    alert('❌ Error al guardar: ' + e.message);
+  } finally {
+    hideLoading();
+  }
 }
 function clearForm() {
   if (!confirm('¿Limpiar todo el formulario?')) return;
-  ['cli-nombre', 'cli-rut', 'cli-tel', 'cli-wa', 'cli-email', 'eq-modelo', 'eq-imei', 'eq-color', 'tecnico', 'motivo-cliente', 'motivo-tecnico', 'obs-cotizacion', 'garantia-obs'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  
+  // Resetear estados
+  currentEditId = null;
+  const saveBtn = document.querySelector('button[onclick="saveQuote()"]');
+  if (saveBtn) {
+    saveBtn.innerHTML = '💾 Guardar Orden';
+    saveBtn.classList.remove('pulse-animation');
+  }
+
+  // Limpiar inputs de texto y select
+  ['cli-nombre', 'cli-rut', 'cli-tel', 'cli-wa', 'cli-email', 'eq-modelo', 'eq-imei', 'eq-color', 'tecnico', 'motivo-cliente', 'motivo-tecnico', 'obs-cotizacion', 'garantia-obs'].forEach(id => { 
+    const el = document.getElementById(id); 
+    if (el) el.value = ''; 
+  });
+  
+  // Limpiar servicios
   services = [];
-  document.getElementById('serviceTableBody').innerHTML = '<tr id="empty-row"><td colspan="9" style="text-align:center;color:var(--muted);font-style:italic;padding:24px">Busque en el inventario o agregue servicios de mano de obra</td></tr>';
-  recalc(); clearDamages(); clearSig(); clearSigTec();
+  renderServices();
+  
+  // Limpiar firma y daños
+  clearDamages(); 
+  clearSig(); 
+  clearSigTec();
+
+  // Limpiar fotos de ingreso
+  const fotosInp = document.getElementById('crear-fotos');
+  if(fotosInp) fotosInp.value = '';
+  const fotosPrv = document.getElementById('crearFotosPreview');
+  if(fotosPrv) fotosPrv.innerHTML = '';
+
+  // Desmarcar todos los checkboxes
+  document.querySelectorAll('input[type="checkbox"]').forEach(chk => chk.checked = false);
+
+  alert('✨ Formulario listo para nueva orden.');
 }
 function renderHist() {
   const el = document.getElementById('historialContent');
@@ -379,9 +481,15 @@ function renderHist() {
     <div class="quote-row">
       <span class="quote-id">${q.id}</span><span>${q.cliente}</span>
       <span style="color:var(--muted)">${q.equipo}</span>
-      <span style="color:var(--muted);font-family:'DM Mono',monospace;font-size:.78rem">${q.fecha}</span>
-      <span style="color:var(--accent);font-family:'DM Mono',monospace">${q.total}</span>
-      <span><span class="badge badge-pending">${q.estado}</span></span>
+      <span style="color:var(--muted);font-family:'DM Mono',monospace;font-size:.78rem">${new Date(q.fecha).toLocaleDateString()}</span>
+      <span style="color:var(--accent);font-family:'DM Mono',monospace">${fmt(q.total)}</span>
+      <span style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+        <span class="badge ${q.estado.toLowerCase().includes('listo') ? 'badge-ok' : 'badge-pending'}">${q.estado}</span>
+        <div style="display:flex;gap:4px">
+          <button class="btn btn-ghost btn-sm" onclick="editQuote(${q.id})" title="Editar Cotización">✏️</button>
+          <button class="btn btn-ghost btn-sm" onclick="openTrackingModal(${q.id})" title="Gestionar Seguimiento">📍</button>
+        </div>
+      </span>
     </div>`).join('');
 }
 
@@ -951,4 +1059,210 @@ function descargarPDF() {
   // Ocultamos elementos temporalmente (no-print equivalent)
   const btnOriginal = element.innerHTML;
   html2pdf().set(opt).from(element).save();
+}
+
+// ════════════ SEGUIMIENTO / TRACKING ════════════
+function openTrackingModal(id) {
+  const q = savedQuotes.find(x => x.id === id);
+  if (!q) return;
+  document.getElementById('tmQuoteId').value = id;
+  const statusSelect = document.getElementById('tmStatus');
+  const currentStatus = q.estado.toLowerCase().replace(/ /g, '_');
+  if ([...statusSelect.options].some(o => o.value === currentStatus)) {
+    statusSelect.value = currentStatus;
+  }
+  document.getElementById('tmNotes').value = '';
+  document.getElementById('tmPreview').innerHTML = '';
+  document.getElementById('tmFile').value = '';
+  document.getElementById('tModalTitle').textContent = `📍 Seguimiento: Orden ${q.orden || id}`;
+  document.getElementById('trackingModal').classList.add('open');
+}
+
+function closeTrackingModal() {
+  document.getElementById('trackingModal').classList.remove('open');
+}
+
+function previewTrackingFiles() {
+  const preview = document.getElementById('tmPreview');
+  const files = document.getElementById('tmFile').files;
+  preview.innerHTML = '';
+  Array.from(files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const div = document.createElement('div');
+      div.style.background = `url(${e.target.result}) center/cover`;
+      div.style.borderRadius = '8px';
+      div.style.aspectRatio = '1';
+      div.style.border = '1px solid var(--border)';
+      preview.appendChild(div);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function saveTrackingUpdate() {
+  const id = document.getElementById('tmQuoteId').value;
+  const estado = document.getElementById('tmStatus').value;
+  const observaciones = document.getElementById('tmNotes').value;
+  const files = document.getElementById('tmFile').files;
+
+  try {
+    showLoading();
+    
+    // 1. Actualizar estado
+    await apiRequest(`/cotizacion/cotizaciones/${id}/estado`, 'PUT', { estado, observaciones });
+
+    // 2. Subir fotos si hay
+    if (files.length > 0) {
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append('foto', file);
+        formData.append('equipoId', id); // Usamos el ID de la cotización como equipo_id
+        formData.append('tipo', 'seguimiento');
+        formData.append('descripcion', observaciones || 'Foto de seguimiento');
+
+        const res = await fetch('/api/fotos/upload', {
+          method: 'POST',
+          body: formData
+        });
+        if(!res.ok) console.error('Error subiendo foto:', file.name);
+      }
+    }
+
+    // Actualizar UI local
+    const idx = savedQuotes.findIndex(x => x.id == id);
+    if(idx > -1) savedQuotes[idx].estado = estado;
+    
+    closeTrackingModal();
+    renderHist();
+    alert('✅ Seguimiento actualizado correctamente');
+  } finally {
+    hideLoading();
+  }
+}
+
+// ════════════ MEJORAS DE RAPIDEZ (CÁMARA RÁPIDA) ════════════
+function openQuickCamera() {
+  if (savedQuotes && savedQuotes.length > 0) {
+    // Tomar la orden más reciente
+    const latest = savedQuotes[0]; 
+    openTrackingModal(latest.id);
+    // Disparar click en el input de archivo para abrir la cámara de inmediato
+    setTimeout(() => {
+      document.getElementById('tmFile').click();
+    }, 300);
+  } else {
+    alert('No hay órdenes recientes para subir fotos.');
+  }
+}
+
+let currentEditId = null;
+
+async function editQuote(id) {
+  try {
+    showLoading();
+    // 1. Buscar la orden en el estado local (o pedir al server si es necesario)
+    const q = savedQuotes.find(x => x.id == id);
+    if (!q) throw new Error('Cita no encontrada');
+
+    currentEditId = id;
+    
+    // 2. Llenar campos Cliente
+    document.getElementById('cli-nombre').value = q.cliente || '';
+    document.getElementById('cli-tel').value = q.telefono || '';
+    document.getElementById('cli-wa').value = q.whatsapp || '';
+    document.getElementById('cli-email').value = q.email || '';
+    document.getElementById('cli-rut').value = q.rut || '';
+    
+    // 3. Llenar campos Equipo
+    document.getElementById('eq-marca').value = q.marca || '';
+    document.getElementById('eq-modelo').value = q.equipo || q.modelo || '';
+    document.getElementById('eq-imei').value = q.imei || '';
+    document.getElementById('eq-color').value = q.color || '';
+    document.getElementById('eq-orden').value = q.orden || q.id;
+    
+    // 4. Notas y Observaciones
+    document.getElementById('motivo-cliente').value = q.motivo_cliente || '';
+    document.getElementById('motivo-tecnico').value = q.motivo_tecnico || '';
+    document.getElementById('obs-cotizacion').value = q.observaciones || '';
+    
+    // 5. Garantía
+    const gPeriodo = document.getElementById('garantia-periodo');
+    if(gPeriodo && q.garantia_periodo) gPeriodo.value = q.garantia_periodo;
+    
+    const gObs = document.getElementById('garantia-obs');
+    if(gObs) gObs.value = q.garantia_observaciones || '';
+
+    // 6. Servicios e Items
+    if (q.servicios) {
+       try {
+           services = typeof q.servicios === 'string' ? JSON.parse(q.servicios) : q.servicios;
+           renderServices(); // Asumimos que esta es la función que regenera la tabla
+           recalc();
+       } catch(e) { console.error('Error parseando servicios', e); }
+    }
+
+    // 7. Accesorios (Checkbox Logic)
+    // Buscamos todos los checkboxes en tab-recepcion
+    const checks = document.querySelectorAll('#tab-recepcion .check-label input[type="checkbox"]');
+    if (q.accesorios && Array.isArray(q.accesorios)) {
+        checks.forEach((chk, i) => {
+            chk.checked = q.accesorios.includes(chk.parentElement.textContent.trim());
+        });
+    }
+
+    // 8. Cambiar UI a modo Edición
+    switchTab('recepcion', document.querySelectorAll('.tab-btn')[0]);
+    
+    const saveBtn = document.querySelector('button[onclick="saveQuote()"]');
+    if (saveBtn) {
+        saveBtn.innerHTML = '💾 Actualizar Cambios';
+        saveBtn.classList.add('pulse-animation'); // Una clase visual opcional
+    }
+    
+    // Scroll arriba para empezar a editar
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    alert('✏️ Editando Orden ' + (q.orden || q.id));
+  } catch(e) {
+    console.error(e);
+    alert('❌ Error al cargar la orden: ' + e.message);
+  } finally {
+    hideLoading();
+  }
+}
+
+// ════════════ INICIALIZACIÓN Y CARGA DESDE EL SERVIDOR ════════════
+async function loadQuotes() {
+  try {
+    const quotes = await apiRequest('/cotizacion/cotizaciones');
+    if (Array.isArray(quotes)) {
+      savedQuotes = quotes;
+      renderHist();
+    }
+  } catch (e) {
+    console.error('Error cargando historial:', e);
+  }
+}
+
+async function syncCounter() {
+  try {
+    const res = await apiRequest('/cotizacion/cotizaciones/counter');
+    if (res && typeof res.counter === 'number') {
+      orderCounter = res.counter;
+      document.getElementById('eq-orden').value = 'ORD-' + (orderCounter + 1);
+    }
+  } catch (e) {
+    console.error('Error sincronizando contador:', e);
+  }
+}
+
+async function initApp() {
+  showLoading();
+  await Promise.all([
+    loadQuotes(),
+    syncCounter()
+  ]);
+  hideLoading();
+  console.log('🚀 Bit House App Inicializada');
 }

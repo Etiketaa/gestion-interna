@@ -9,62 +9,67 @@ const db = require('../config/database');
 router.get('/:numeroOrden', async (req, res) => {
     try {
         const { numeroOrden } = req.params;
+        const ordenUpper = numeroOrden.toUpperCase();
 
-        // Buscar equipo por número de orden
-        const equipo = await db.get(`
-            SELECT 
-                e.numero_orden,
-                e.marca,
-                e.modelo,
-                e.sistema_operativo,
-                e.estado_actual,
-                e.fecha_ingreso,
-                e.fecha_entrega,
-                c.nombre as cliente_nombre
-            FROM equipos e
-            INNER JOIN clientes c ON e.cliente_id = c.id
-            WHERE e.numero_orden = ?
-        `, [numeroOrden.toUpperCase()]);
+        // 1. Buscar en New System (cot_cotizaciones)
+        let quote = await db.get(`SELECT * FROM cot_cotizaciones WHERE orden = ?`, [ordenUpper]);
+        
+        let result = {};
+        let internalId = null;
 
-        if (!equipo) {
-            return res.status(404).json({
-                error: 'Número de orden no encontrado',
-                message: 'Verifique que el número de orden sea correcto'
-            });
+        if (quote) {
+            internalId = quote.id;
+            result.equipo = {
+                numero_orden: quote.orden,
+                cliente_nombre: quote.cliente_nombre,
+                marca_modelo: quote.equipo_desc,
+                estado_actual: quote.estado.toLowerCase().replace(/ /g, '_'),
+                fecha_ingreso: quote.fecha,
+                total: quote.total,
+                servicios: quote.servicios ? JSON.parse(quote.servicios) : []
+            };
+        } else {
+            // 2. Fallback to Old System (equipos)
+            const equipo = await db.get(`
+                SELECT e.*, c.nombre as cliente_nombre 
+                FROM equipos e 
+                INNER JOIN clientes c ON e.cliente_id = c.id 
+                WHERE e.numero_orden = ?`, [ordenUpper]);
+            
+            if (!equipo) {
+                return res.status(404).json({ error: 'Orden no encontrada' });
+            }
+            internalId = equipo.id;
+            result.equipo = {
+                numero_orden: equipo.numero_orden,
+                cliente_nombre: equipo.cliente_nombre,
+                marca_modelo: `${equipo.marca} ${equipo.modelo}`,
+                estado_actual: equipo.estado_actual,
+                fecha_ingreso: equipo.fecha_ingreso,
+                total: 0 // Old system had separate budget table
+            };
         }
 
-        // Obtener historial de estados
-        const historial = await db.all(`
-            SELECT 
-                estado_nuevo,
-                observaciones,
-                fecha_cambio
-            FROM estados_historial
-            WHERE equipo_id = (SELECT id FROM equipos WHERE numero_orden = ?)
-            ORDER BY fecha_cambio ASC
-        `, [numeroOrden.toUpperCase()]);
+        // 3. Obtener Historial (de estados_historial)
+        // Buscamos por el ID interno (sea de cot_cotizaciones o de equipos)
+        // NOTA: Para el nuevo sistema, guardaremos el historial usando el ID de cot_cotizaciones
+        result.historial = await db.all(`
+            SELECT estado_nuevo, observaciones, fecha_cambio 
+            FROM estados_historial 
+            WHERE equipo_id = ? 
+            ORDER BY fecha_cambio ASC`, [internalId]);
 
-        // Obtener presupuesto si existe
-        const presupuesto = await db.get(`
-            SELECT 
-                total,
-                estado,
-                fecha_creacion
-            FROM presupuestos
-            WHERE equipo_id = (SELECT id FROM equipos WHERE numero_orden = ?)
-            AND estado != 'rechazado'
-            ORDER BY fecha_creacion DESC
-            LIMIT 1
-        `, [numeroOrden.toUpperCase()]);
+        // 4. Obtener Fotos
+        result.fotos = await db.all(`
+            SELECT id, tipo, ruta_archivo as url, descripcion, fecha_subida 
+            FROM fotos 
+            WHERE equipo_id = ? 
+            ORDER BY fecha_subida ASC`, [internalId]);
 
-        res.json({
-            equipo,
-            historial,
-            presupuesto
-        });
+        res.json(result);
     } catch (error) {
-        console.error('Error en tracking:', error);
-        res.status(500).json({ error: 'Error al consultar el estado' });
+        console.error('Error en tracking unificado:', error);
+        res.status(500).json({ error: 'Error al consultar el servicio' });
     }
 });
 

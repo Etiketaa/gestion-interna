@@ -31,13 +31,28 @@ router.get('/counter', async (req, res) => {
 // POST /api/cotizacion/cotizaciones
 router.post('/', async (req, res) => {
     try {
-        const { orden, cliente, equipo, servicios, total, estado } = req.body;
+        const { 
+            orden, cliente_nombre, equipo_desc, servicios, total, estado,
+            telefono, whatsapp, email, rut, marca, imei, color,
+            motivo_cliente, motivo_tecnico, observaciones,
+            garantia_periodo, garantia_observaciones, accesorios
+        } = req.body;
+        
         if (!orden) return res.status(400).json({ error: 'Número de orden es obligatorio' });
 
-        await db.run(
-            'INSERT INTO cot_cotizaciones (orden, cliente_nombre, equipo_desc, servicios, total, estado) VALUES (?,?,?,?,?,?)',
-            [orden, cliente || '', equipo || '', JSON.stringify(servicios || []), total || 0, estado || 'Pendiente']
-        );
+        const result = await db.run(`
+            INSERT INTO cot_cotizaciones (
+                orden, cliente_nombre, equipo_desc, servicios, total, estado,
+                telefono, whatsapp, email, rut, marca, imei, color,
+                motivo_cliente, motivo_tecnico, observaciones,
+                garantia_periodo, garantia_observaciones, accesorios
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        `, [
+            orden, cliente_nombre || '', equipo_desc || '', JSON.stringify(servicios || []), total || 0, estado || 'Pendiente',
+            telefono || '', whatsapp || '', email || '', rut || '', marca || '', imei || '', color || '',
+            motivo_cliente || '', motivo_tecnico || '', observaciones || '',
+            garantia_periodo || '', garantia_observaciones || '', JSON.stringify(accesorios || [])
+        ]);
 
         // Increment counter
         const current = await db.get("SELECT value FROM cot_config WHERE key='orderCounter'");
@@ -47,20 +62,70 @@ router.post('/', async (req, res) => {
             [String(newCount)]
         );
 
-        res.json({ message: 'Cotización guardada', orden });
+        res.json({ message: 'Cotización guardada', id: result.lastID, orden });
     } catch (err) {
         console.error('Error POST cotización:', err);
         res.status(500).json({ error: err.message });
     }
 });
 
-// PUT /api/cotizacion/cotizaciones/:id/estado
+// PUT /api/cotizacion/cotizaciones/:id
+router.put('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { 
+            cliente_nombre, equipo_desc, servicios, total, estado,
+            telefono, whatsapp, email, rut, marca, imei, color,
+            motivo_cliente, motivo_tecnico, observaciones,
+            garantia_periodo, garantia_observaciones, accesorios
+        } = req.body;
+
+        await db.run(`
+            UPDATE cot_cotizaciones SET 
+                cliente_nombre=?, equipo_desc=?, servicios=?, total=?, estado=?,
+                telefono=?, whatsapp=?, email=?, rut=?, marca=?, imei=?, color=?,
+                motivo_cliente=?, motivo_tecnico=?, observaciones=?,
+                garantia_periodo=?, garantia_observaciones=?, accesorios=?
+            WHERE id=?
+        `, [
+            cliente_nombre, equipo_desc, JSON.stringify(servicios || []), total, estado,
+            telefono, whatsapp, email, rut, marca, imei, color,
+            motivo_cliente, motivo_tecnico, observaciones,
+            garantia_periodo, garantia_observaciones, JSON.stringify(accesorios || []),
+            id
+        ]);
+
+        res.json({ message: 'Cotización actualizada', id });
+    } catch (err) {
+        console.error('Error PUT cotización:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// PUT /api/cotizacion/cotizaciones/:id/estado (Mantener para cambios rápidos)
 router.put('/:id/estado', async (req, res) => {
     try {
-        const { estado } = req.body;
-        await db.run('UPDATE cot_cotizaciones SET estado=? WHERE id=?', [estado, req.params.id]);
-        res.json({ message: 'Estado actualizado' });
+        const { estado, observaciones } = req.body;
+        const quoteId = req.params.id;
+
+        // 1. Obtener estado anterior
+        const old = await db.get('SELECT estado, orden FROM cot_cotizaciones WHERE id=?', [quoteId]);
+        
+        // 2. Actualizar estado principal
+        await db.run('UPDATE cot_cotizaciones SET estado=? WHERE id=?', [estado, quoteId]);
+
+        // 3. Registrar en historial (para el tracking)
+        await db.run(`
+            INSERT INTO estados_historial (equipo_id, estado_anterior, estado_nuevo, observaciones, usuario)
+            VALUES (?, ?, ?, ?, ?)
+        `, [quoteId, old ? old.estado : null, estado, observaciones || 'Actualización de sistema', 'Admin']);
+
+        // 4. Hook de notificación (simulado)
+        console.log(`[NOTIFICACIÓN] Enviando aviso a cliente de Orden ${old?.orden}: Nuevo estado -> ${estado}`);
+
+        res.json({ message: 'Estado actualizado e historial registrado' });
     } catch (err) {
+        console.error('Error PUT estado cotización:', err);
         res.status(500).json({ error: err.message });
     }
 });
