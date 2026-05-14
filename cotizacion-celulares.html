@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TechFix Pro — Sistema de Cotizaciones</title>
+<title>Bit House — Sistema de Cotizaciones</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{--bg:#0a0a0f;--surface:#111118;--surface2:#1a1a24;--border:#2a2a3a;--accent:#00e5a0;--accent2:#7c6fff;--warn:#ff6b35;--text:#e8e8f0;--muted:#6b6b85;--white:#ffffff;--card-bg:#13131e;--input-bg:#0d0d16;--radius:12px;--radius-sm:8px;}
@@ -205,29 +208,65 @@
     body{background:#fff;color:#000;}header,.tab-nav,.no-print{display:none!important;}
     .tab-panel{display:none!important;}#tab-preview{display:block!important;}
   }
+  /* ── QR / TRACKING ── */
+  .qr-section{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-top:16px;}
+  .qr-section .card-title{margin-bottom:12px;}
+  #qr-container{display:inline-block;padding:10px;background:#fff;border-radius:8px;margin:12px 0;}
+  #qr-container img{display:block;}
+  .qr-url-box{background:var(--input-bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;font-family:'DM Mono',monospace;font-size:.72rem;color:var(--accent);word-break:break-all;margin:8px 0;}
+  /* ── TRACKING PAGE ── */
+  #pagina-tracking{display:none;min-height:100vh;background:#0a0a1a;color:#e8e8f0;font-family:'DM Sans',sans-serif;}
+  .tk-hero{background:linear-gradient(135deg,#0a0a1a,#111128);padding:32px 20px 24px;border-bottom:1px solid #2a2a3a;text-align:center;}
+  .tk-logo{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:#fff;margin-bottom:4px;}
+  .tk-logo span{color:#00e5a0;}
+  .tk-order{font-family:'DM Mono',monospace;font-size:.9rem;color:#7c6fff;margin-top:4px;}
+  .tk-body{max-width:480px;margin:0 auto;padding:24px 20px;}
+  .tk-card{background:#111118;border:1px solid #2a2a3a;border-radius:12px;padding:20px;margin-bottom:16px;}
+  .tk-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:#6b6b85;margin-bottom:4px;}
+  .tk-value{font-size:.95rem;font-weight:500;}
+  .tk-badge{display:inline-block;border-radius:8px;padding:10px 18px;font-weight:700;font-size:.9rem;margin:12px 0;}
+  .tk-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .tk-contact a{color:#00e5a0;text-decoration:none;}
+  /* ── ETIQUETA ── */
+  #etiqueta-print{display:none;width:62mm;height:29mm;padding:2mm;background:#fff;color:#000;font-family:Arial,sans-serif;align-items:center;gap:2mm;box-sizing:border-box;}
+  .et-info{flex:1;overflow:hidden;}
+  .et-logo{display:flex;align-items:center;gap:2mm;margin-bottom:1mm;}
+  .et-circle{width:7mm;height:7mm;background:#00e5a0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:5pt;color:#0a0a1a;flex-shrink:0;}
+  .et-brand{font-size:7pt;font-weight:700;color:#0a0a1a;}
+  #et-orden{font-size:10pt;font-weight:700;font-family:'Courier New',monospace;color:#0a0a1a;line-height:1.1;}
+  #et-cliente{font-size:8pt;color:#333;}
+  #et-equipo{font-size:7pt;color:#555;}
+  #et-fecha{font-size:6pt;color:#888;margin-top:.5mm;}
+  #qr-etiqueta img{display:block;}
+  @media print{
+    body>*:not(#etiqueta-print){display:none!important;}
+    #etiqueta-print{display:flex!important;}
+    @page{size:62mm 29mm;margin:0;}
+  }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo"><div class="logo-icon">📱</div>TechFix<span>Pro</span></div>
+  <div class="logo"><div class="logo-icon">🔧</div>BIT<span> HOUSE</span></div>
   <div class="header-actions">
     <button class="btn btn-ghost" onclick="clearForm()">🗑 Limpiar</button>
     <button class="btn btn-accent2" onclick="saveQuote()">💾 Guardar</button>
-    <button class="btn btn-accent" onclick="printQuote()">🖨 Imprimir</button>
+    <button class="btn btn-ghost" onclick="previewPDF()" style="color:var(--accent2);border-color:var(--accent2)">👁 Ver PDF</button>
+    <button class="btn btn-accent" onclick="generatePDF()">📄 Generar PDF</button>
   </div>
 </header>
 
 <nav class="tab-nav">
-  <button class="tab-btn active" onclick="switchTab('recepcion',this)"><div class="tab-dot"></div>1. Recepción</button>
-  <button class="tab-btn" onclick="switchTab('cotizacion',this)"><div class="tab-dot"></div>2. Cotización</button>
-  <button class="tab-btn" onclick="switchTab('terminos',this)"><div class="tab-dot"></div>3. Términos</button>
-  <button class="tab-btn" onclick="switchTab('garantia',this)"><div class="tab-dot"></div>4. Garantía</button>
-  <button class="tab-btn" onclick="switchTab('inventario',this)"><div class="tab-dot"></div>📦 Inventario</button>
-  <button class="tab-btn" onclick="switchTab('proveedores',this)"><div class="tab-dot"></div>🏪 Proveedores</button>
-  <button class="tab-btn" onclick="switchTab('margenes',this)"><div class="tab-dot"></div>⚙️ Márgenes</button>
-  <button class="tab-btn" onclick="switchTab('historial',this)"><div class="tab-dot"></div>Historial</button>
-  <button class="tab-btn" onclick="switchTab('preview',this)"><div class="tab-dot"></div>Vista previa</button>
+  <button class="tab-btn active" data-tab="recepcion" onclick="switchTab('recepcion',this)"><div class="tab-dot"></div>1. Recepción</button>
+  <button class="tab-btn" data-tab="cotizacion" onclick="switchTab('cotizacion',this)"><div class="tab-dot"></div>2. Cotización</button>
+  <button class="tab-btn" data-tab="terminos" onclick="switchTab('terminos',this)"><div class="tab-dot"></div>3. Términos</button>
+  <button class="tab-btn" data-tab="garantia" onclick="switchTab('garantia',this)"><div class="tab-dot"></div>4. Garantía</button>
+  <button class="tab-btn" data-tab="inventario" onclick="switchTab('inventario',this)"><div class="tab-dot"></div>📦 Inventario</button>
+  <button class="tab-btn" data-tab="proveedores" onclick="switchTab('proveedores',this)"><div class="tab-dot"></div>🏪 Proveedores</button>
+  <button class="tab-btn" data-tab="margenes" onclick="switchTab('margenes',this)"><div class="tab-dot"></div>⚙️ Márgenes</button>
+  <button class="tab-btn" data-tab="historial" onclick="switchTab('historial',this)"><div class="tab-dot"></div>Historial</button>
+  <button class="tab-tab btn" data-tab="preview" onclick="switchTab('preview',this)"><div class="tab-dot"></div>Vista previa</button>
 </nav>
 
 <div class="content">
@@ -331,11 +370,11 @@
       <div class="form-group"><label>Diagnóstico inicial del técnico</label><textarea id="motivo-tecnico" rows="3" placeholder="Diagnóstico preliminar..."></textarea></div>
       <div class="form-group"><label>Técnico responsable</label><input type="text" id="tecnico" placeholder="Nombre del técnico"></div>
       <div class="form-group"><label>Fecha de ingreso</label><input type="datetime-local" id="fecha-ingreso"></div>
-      <div class="form-group"><label>Fecha estimada de entrega</label><input type="datetime-local"></div>
+      <div class="form-group"><label>Fecha estimada de entrega</label><input type="date" id="fecha-entrega-estimada"></div>
     </div>
   </div>
   <div class="alert alert-warn">⚠️ <span>Recuerde tomar fotografías del equipo antes de iniciar cualquier trabajo.</span></div>
-  <button class="btn btn-accent" onclick="switchTab('cotizacion',document.querySelectorAll('.tab-btn')[1])">Siguiente → Cotización</button>
+  <button class="btn btn-accent" onclick="iniciarCotizacion()">Siguiente → Cotización</button>
 </div>
 
 <!-- ═══ 2: COTIZACIÓN ═══ -->
@@ -420,38 +459,39 @@
     </div>
   </div>
   <div style="display:flex;gap:12px;flex-wrap:wrap">
-    <button class="btn btn-ghost" onclick="switchTab('recepcion',document.querySelectorAll('.tab-btn')[0])">← Volver</button>
-    <button class="btn btn-accent" onclick="switchTab('terminos',document.querySelectorAll('.tab-btn')[2])">Siguiente → Términos</button>
+    <button class="btn btn-ghost" onclick="switchTab('recepcion',document.querySelector('[data-tab=recepcion]'))">← Volver</button>
+    <button class="btn btn-accent" onclick="switchTab('terminos',document.querySelector('[data-tab=terminos]'))">Siguiente → Términos</button>
   </div>
 </div>
 
 <!-- ═══ 3: TÉRMINOS ═══ -->
 <div class="tab-panel" id="tab-terminos">
-  <div class="section-header"><div class="section-badge">// términos legales</div><div class="section-title">Términos y Condiciones</div></div>
-  <div class="terms-block"><h4>📄 1. Autorización de Trabajo</h4><p>Al entregar el equipo, el cliente autoriza expresamente su apertura, inspección y diagnóstico. Cualquier trabajo adicional requerirá aprobación previa.</p></div>
-  <div class="terms-block"><h4>💰 2. Diagnóstico y Cobro</h4><p>El diagnóstico tiene costo de <strong>$5.000</strong>. Si el cliente NO aprueba la reparación, debe abonar el diagnóstico antes de retirar el equipo. Los precios son estimados y pueden variar si se detectan daños adicionales.</p></div>
-  <div class="terms-block"><h4>⚠️ 3. Riesgos y Responsabilidad</h4><p>El taller NO se responsabiliza por pérdida de datos. <strong>Se recomienda realizar un respaldo (backup) antes de entregar el equipo.</strong> En equipos con daño por agua o golpes severos pueden surgir complicaciones adicionales.</p></div>
-  <div class="terms-block"><h4>⏳ 4. Plazo de Reparación</h4><p>Los plazos son estimativos y pueden variar por demoras en repuestos o complejidad técnica. El cliente será notificado.</p></div>
-  <div class="terms-block"><h4>📦 5. Retiro del Equipo</h4><p>El cliente tiene <strong>30 días</strong> para retirar el equipo listo. Pasados <strong>90 días</strong> sin respuesta, el equipo puede considerarse abandonado.</p></div>
-  <div class="terms-block"><h4>🔒 6. Privacidad</h4><p>Los datos personales son tratados con estricta confidencialidad y usados únicamente para gestión del servicio.</p></div>
-  <div class="terms-block"><h4>🔄 7. Repuestos</h4><p>Salvo indicación, se usan repuestos genéricos compatibles. Si se solicitan originales, el precio puede variar. Los repuestos cambiados pueden ser devueltos si se solicita.</p></div>
+  <div class="section-header"><div class="section-badge">// términos legales</div><div class="section-title">Condiciones de Servicio</div></div>
+  <div class="terms-block"><h4>📄 Art. 1 — Aceptación</h4><p>La autorización del presupuesto implica la aceptación de estas condiciones. Bit House puede modificar el presupuesto ante daños no visibles durante el diagnóstico, notificando al cliente antes de proceder.</p></div>
+  <div class="terms-block"><h4>🛡 Art. 2 — Garantía</h4><p>30 días en reparaciones con repuestos originales (OEM) por defectos del repuesto, falla de táctil, imagen o mala instalación. Repuestos Incell/Aftermarket informados al cliente <strong>NO tienen garantía</strong>. Excluye golpes, humedad, apertura por terceros o uso inadecuado posterior.</p></div>
+  <div class="terms-block"><h4>🔒 Art. 3 — Retención por falta de pago</h4><p>El equipo no será entregado hasta cancelar la totalidad del importe (art. 2587–2594 CCyCN).</p></div>
+  <div class="terms-block"><h4>📦 Art. 4 — Abandono</h4><p>Transcurridos <strong>90 días</strong> desde la notificación de finalización sin retiro ni pago, el equipo se considera abandonado. Bit House podrá disponer del mismo para cubrir el importe adeudado y gastos de almacenamiento. Notificación por WhatsApp, llamada, email o SMS.</p></div>
+  <div class="terms-block"><h4>⚠️ Art. 5 — Daños preexistentes</h4><p>No nos responsabilizamos por daños no declarados al ingreso ni por pérdida de datos. Se recomienda respaldar información antes de entregar el equipo.</p></div>
+  <div class="terms-block"><h4>💰 Art. 6 — Diagnóstico sin reparación</h4><p>Si el cliente no autoriza la reparación, puede cobrarse arancel de diagnóstico según lo informado al ingreso.</p></div>
+  <div class="terms-block"><h4>⚖️ Art. 7 — Jurisdicción</h4><p>Ley argentina (CCyCN y Ley 24.240). Tribunales ordinarios de Bahía Blanca, Buenos Aires.</p></div>
   <hr class="sep">
   <div class="card">
     <div class="card-title"><div class="card-title-icon">✅</div>Aceptación del Cliente</div>
-    <div class="check-group" style="margin-bottom:20px">
-      <label class="check-label"><input type="checkbox"><div class="check-text">He leído y acepto los términos y condiciones.</div></label>
-      <label class="check-label"><input type="checkbox"><div class="check-text">Declaro haber realizado respaldo de datos o eximo al taller de responsabilidad por pérdida de información.</div></label>
-      <label class="check-label"><input type="checkbox"><div class="check-text">Apruebo la cotización y autorizo el inicio del trabajo.</div></label>
-      <label class="check-label"><input type="checkbox"><div class="check-text">Entiendo los riesgos inherentes a la reparación.</div></label>
+    <div class="check-group" style="margin-bottom:20px" id="terminos-checks">
+      <label class="check-label"><input type="checkbox" id="chk-t1"><div class="check-text">Acepto las condiciones de servicio de Bit House</div></label>
+      <label class="check-label"><input type="checkbox" id="chk-t2"><div class="check-text">Fui informado/a sobre el tipo de repuesto a utilizar y sus implicancias de garantía</div></label>
+      <label class="check-label"><input type="checkbox" id="chk-t3"><div class="check-text">Realicé o decido no realizar respaldo de mis datos. Bit House no se responsabiliza por pérdida de información</div></label>
+      <label class="check-label"><input type="checkbox" id="chk-t4"><div class="check-text">Entiendo que el equipo no será entregado hasta abonar la totalidad del presupuesto</div></label>
     </div>
     <div class="form-grid">
       <div class="form-group"><label>Firma cliente</label><canvas class="sig-canvas" id="sigCanvas" width="400" height="100"></canvas><button class="btn btn-ghost btn-sm" onclick="clearSig()" style="margin-top:8px">✕ Borrar</button></div>
       <div class="form-group"><label>Firma técnico</label><canvas class="sig-canvas" id="sigCanvasTec" width="400" height="100"></canvas><button class="btn btn-ghost btn-sm" onclick="clearSigTec()" style="margin-top:8px">✕ Borrar</button></div>
     </div>
   </div>
-  <div style="display:flex;gap:12px;flex-wrap:wrap">
-    <button class="btn btn-ghost" onclick="switchTab('cotizacion',document.querySelectorAll('.tab-btn')[1])">← Volver</button>
-    <button class="btn btn-accent" onclick="switchTab('garantia',document.querySelectorAll('.tab-btn')[3])">Siguiente → Garantía</button>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+    <button class="btn btn-ghost" onclick="switchTab('cotizacion',document.querySelector('[data-tab=cotizacion]'))">← Volver</button>
+    <button class="btn btn-accent" onclick="avanzarAGarantia()">Siguiente → Garantía</button>
+    <span id="terminos-warn" style="color:var(--warn);font-size:.82rem;display:none">⚠️ Debe tildar todos los casilleros para continuar</span>
   </div>
 </div>
 
@@ -459,27 +499,59 @@
 <div class="tab-panel" id="tab-garantia">
   <div class="section-header"><div class="section-badge">// política de garantía</div><div class="section-title">Garantía del Servicio</div></div>
   <div class="card">
-    <div class="card-title"><div class="card-title-icon">🛡</div>Configurar Garantía</div>
+    <div class="card-title"><div class="card-title-icon">🛡</div>Tipo de Repuesto</div>
     <div class="form-grid">
-      <div class="form-group"><label>Período</label>
-        <select id="garantia-periodo"><option>Sin garantía</option><option>15 días</option><option selected>30 días</option><option>60 días</option><option>90 días</option><option>6 meses</option><option>1 año</option></select>
+      <div class="form-group"><label>Tipo de repuesto utilizado *</label>
+        <select id="tipo-repuesto" onchange="actualizarGarantia()">
+          <option value="oem">✅ Original / OEM — con garantía 30 días</option>
+          <option value="incell">⚠️ Incell / Aftermarket — SIN garantía</option>
+        </select>
       </div>
       <div class="form-group"><label>Aplica a</label>
         <select id="garantia-aplica"><option>Mano de obra solamente</option><option selected>Mano de obra + repuesto</option><option>Solo repuesto</option></select>
       </div>
     </div>
+    <input type="hidden" id="garantia-periodo" value="30 días">
   </div>
-  <div class="terms-block"><h4>✅ ¿Qué cubre?</h4><p>Defectos del repuesto instalado y/o errores en la mano de obra. Si el mismo problema reaparece, se corrige sin costo.</p></div>
-  <div class="terms-block"><h4>❌ ¿Qué NO cubre?</h4><p>• Golpes, caídas o líquidos posteriores a la reparación.<br>• Apertura por terceros no autorizados.<br>• Uso inadecuado.<br>• Daños eléctricos por cargadores no originales.<br>• Desgaste natural del repuesto.</p></div>
-  <div class="terms-block"><h4>⚡ Garantía según repuesto</h4><p><strong>Original/OEM:</strong> 6 meses – 1 año. <strong>Compatible alta calidad:</strong> 30–90 días. <strong>Genérico:</strong> 15 días. <strong>Mano de obra:</strong> 30 días.</p></div>
+
+  <!-- Panel OEM -->
+  <div id="panel-oem">
+    <div class="terms-block"><h4>✅ Garantía OEM — 30 días</h4><p>Cubre defectos del repuesto instalado y/o errores en la mano de obra. Si el mismo problema reaparece dentro del período, se corrige sin costo.</p></div>
+    <div class="terms-block"><h4>❌ ¿Qué NO cubre?</h4><p>• Golpes, caídas o líquidos posteriores.<br>• Apertura por terceros no autorizados.<br>• Uso inadecuado.<br>• Daños eléctricos por cargadores no originales.<br>• Desgaste natural.</p></div>
+  </div>
+
+  <!-- Panel Incell -->
+  <div id="panel-incell" style="display:none">
+    <div class="alert alert-warn" style="margin-bottom:16px">⚠️ <span><strong>Repuesto Incell / Aftermarket:</strong> Este tipo de repuesto <strong>NO tiene garantía</strong>. El cliente debe ser informado y firmar conformidad.</span></div>
+    <div class="card" style="border-color:var(--warn)">
+      <div class="card-title" style="color:var(--warn)"><div class="card-title-icon" style="background:rgba(255,107,53,.1);border-color:rgba(255,107,53,.3)">⚠️</div>Conformidad sin garantía</div>
+      <label class="check-label"><input type="checkbox" id="chk-incell"><div class="check-text">Declaro haber sido informado/a que el repuesto no es original (Incell/Aftermarket) y <strong>no tiene garantía</strong>. Acepto continuar bajo estas condiciones.</div></label>
+    </div>
+  </div>
+
   <div class="card">
-    <div class="card-title"><div class="card-title-icon">📝</div>Condiciones específicas</div>
+    <div class="card-title"><div class="card-title-icon">📝</div>Observaciones adicionales</div>
     <div class="form-group"><label>Observaciones de garantía</label><textarea id="garantia-obs" rows="3" placeholder="Ej: Garantía solo sobre cambio de pantalla..."></textarea></div>
-    <div class="alert alert-info" style="margin-top:12px">💡 <span>La garantía se activa desde la entrega al cliente.</span></div>
+    <div class="alert alert-info" style="margin-top:12px">💡 <span>La garantía se activa desde la fecha de entrega al cliente.</span></div>
   </div>
-  <div style="display:flex;gap:12px;flex-wrap:wrap">
-    <button class="btn btn-ghost" onclick="switchTab('terminos',document.querySelectorAll('.tab-btn')[2])">← Volver</button>
-    <button class="btn btn-accent" onclick="switchTab('preview',document.querySelectorAll('.tab-btn')[7])">Ver Vista Previa →</button>
+
+  <!-- QR de tracking -->
+  <div class="qr-section">
+    <div class="card-title"><div class="card-title-icon">📱</div>QR de Tracking para el Cliente</div>
+    <p style="font-size:.84rem;color:var(--muted);margin-bottom:4px">El cliente escanea este código para ver el estado de su reparación en tiempo real.</p>
+    <div id="qr-container"></div>
+    <div class="qr-url-box" id="tracking-url-display" style="font-size:.68rem">Generando...</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+      <button class="btn btn-ghost btn-sm" onclick="copiarURLTracking()">📋 Copiar URL</button>
+      <button class="btn btn-ghost btn-sm" onclick="abrirTracking()">👁 Ver como cliente ↗</button>
+      <button class="btn btn-ghost btn-sm" onclick="imprimirEtiqueta()">🏷 Imprimir etiqueta 62×29mm</button>
+      <button class="btn btn-ghost btn-sm" onclick="descargarEtiquetaPNG()">📥 Descargar PNG</button>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px">
+    <button class="btn btn-ghost" onclick="switchTab('terminos',document.querySelector('[data-tab=terminos]'))">← Volver</button>
+    <button class="btn btn-accent" onclick="switchTab('preview',document.querySelector('[data-tab=preview]'))">Ver Vista Previa →</button>
   </div>
 </div>
 
@@ -555,7 +627,7 @@
 <div class="tab-panel" id="tab-historial">
   <div class="section-header"><div class="section-badge">// registro de órdenes</div><div class="section-title">Historial de Cotizaciones</div></div>
   <div class="card" style="padding:0">
-    <div class="quote-row header"><span>Orden</span><span>Cliente</span><span>Equipo</span><span>Fecha</span><span>Total</span><span>Estado</span></div>
+    <div class="quote-row header"><span>Orden</span><span>Cliente</span><span>Equipo</span><span>Fecha</span><span>Total</span><span>Estado / QR</span></div>
     <div id="historialContent"><div style="padding:32px;text-align:center;color:var(--muted)">No hay órdenes guardadas aún.</div></div>
   </div>
 </div>
@@ -761,6 +833,11 @@
 </div>
 
 <script>
+// ════════════ CONSTANTES LEGALES ════════════
+const CONDICIONES_CORTAS = `\u2022 Garant\u00eda 30 d\u00edas con repuestos OEM. Incell/Aftermarket sin garant\u00eda.\n\u2022 Equipo retenido hasta pago total (art. 2587-2594 CCyCN).\n\u2022 Equipos no retirados en 90 d\u00edas desde notificaci\u00f3n se consideran abandonados.\n\u2022 Sin responsabilidad por da\u00f1os preexistentes ni p\u00e9rdida de datos.\n\u2022 Al firmar, el cliente acepta estas condiciones.`;
+const ABANDONO_DIAS = 90;
+const GARANTIA_DIAS = 30;
+
 // ════════════ STATE ════════════
 let services=[], damages=[], editId=null, acIdx=-1;
 let orderCounter=parseInt(localStorage.getItem('orderCounter')||'1000');
@@ -817,6 +894,7 @@ function switchTab(name, btn) {
   btn.classList.add('active');
   if(name==='preview')genPreview();
   if(name==='historial')renderHist();
+  if(name==='garantia'&&trackingURLActual)generarQR(trackingURLActual);
   if(name==='inventario'){renderInvStats();renderInv();}
   if(name==='margenes')renderMargins();
   if(name==='proveedores'){renderProvStats();renderProvList();}
@@ -1116,45 +1194,260 @@ function clearSigTec(){const c=document.getElementById('sigCanvasTec');c.getCont
 initCanvas('sigCanvas');initCanvas('sigCanvasTec');
 
 // ════════════ SAVE / CLEAR ════════════
+// ════════ NÚMERO DE ORDEN GLOBAL ════════
+let nroOrdenActual = null;
+
+function generarNroOrden(){
+  const d=new Date();
+  return `ORD-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${String(Math.floor(Math.random()*999)+1).padStart(3,'0')}`;
+}
+
+// ════════ TRACKING ════════
+const TALLER_TEL  = '+54 9 291 000-0000';
+const TALLER_WA   = '5492910000000';
+const TALLER_DIR  = 'Bahía Blanca, Buenos Aires';
+
+let trackingURLActual = '';
+
+function _buildTrackingURL(orden){
+  const marca  = document.getElementById('eq-marca')?.value  || '';
+  const modelo = document.getElementById('eq-modelo')?.value || '';
+  const fe     = document.getElementById('fecha-entrega-estimada')?.value || '';
+  const data   = {
+    orden, marca, modelo,
+    estado:'ingresado',
+    fechaIngreso: new Date().toLocaleDateString('es-AR'),
+    fechaEntrega: fe,
+    notas:'',
+    taller:'Bit House',
+    tel: TALLER_TEL,
+    whatsapp: TALLER_WA,
+    direccion: TALLER_DIR
+  };
+  const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  return { url:`${location.origin}${location.pathname}#tracking=${b64}`, data };
+}
+
+function generarQR(url){
+  if(!url)return;
+  const c=document.getElementById('qr-container');
+  if(!c)return;
+  c.innerHTML='';
+  if(typeof QRCode==='undefined')return;
+  new QRCode(c,{text:url,width:140,height:140,colorDark:'#0a0a1a',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
+  const disp=document.getElementById('tracking-url-display');
+  if(disp)disp.textContent=url;
+}
+
+function copiarURLTracking(){
+  if(!trackingURLActual)return;
+  navigator.clipboard?.writeText(trackingURLActual).then(()=>alert('✅ URL copiada al portapapeles')).catch(()=>{prompt('Copiá esta URL:',trackingURLActual);});
+}
+
+function abrirTracking(){
+  if(!trackingURLActual)return;
+  window.open(trackingURLActual,'_blank');
+}
+
+// ════════ HASH DETECTOR ════════
+window.addEventListener('DOMContentLoaded',()=>{
+  const hash=location.hash;
+  if(hash.startsWith('#tracking=')){
+    const b64=hash.slice(10);
+    try{
+      const data=JSON.parse(decodeURIComponent(escape(atob(b64))));
+      mostrarPaginaTracking(data);
+    }catch(e){ mostrarErrorTracking(); }
+  }
+});
+
+const ESTADOS_TK={
+  ingresado:        {bg:'#1a2a1a',color:'#00e5a0',label:'✓ Ingresado'},
+  diagnostico:      {bg:'#1a1a2a',color:'#7c6fff',label:'Diagnóstico en proceso'},
+  esperando_repuesto:{bg:'#2a2210',color:'#f0a030',label:'Esperando repuesto'},
+  en_reparacion:    {bg:'#1a1a2a',color:'#7c6fff',label:'En reparación'},
+  listo:            {bg:'#0a2a1a',color:'#00e5a0',label:'¡Listo para retirar! 🎉'},
+  entregado:        {bg:'#1a1a1a',color:'#9090b0',label:'Entregado'},
+};
+
+function mostrarPaginaTracking(data){
+  document.querySelectorAll('body>*:not(#pagina-tracking):not(#etiqueta-print)').forEach(el=>el.style.display='none');
+  const pg=document.getElementById('pagina-tracking');
+  if(!pg)return;
+  pg.style.display='block';
+  document.getElementById('tk-order-num').textContent=data.orden||'—';
+  document.getElementById('tk-equipo').textContent=[data.marca,data.modelo].filter(Boolean).join(' ')||'—';
+  document.getElementById('tk-ingreso').textContent=data.fechaIngreso||'—';
+  document.getElementById('tk-entrega').textContent=data.fechaEntrega||'—';
+  document.getElementById('tk-taller').textContent=data.taller||'Bit House';
+  document.getElementById('tk-direccion').textContent='📍 '+(data.direccion||TALLER_DIR);
+  const wa=document.getElementById('tk-wa-link');
+  if(wa)wa.href='https://wa.me/'+(data.whatsapp||TALLER_WA)+'?text='+encodeURIComponent('Hola! Consulto por mi equipo '+data.orden);
+  const tel=document.getElementById('tk-tel-link');
+  if(tel)tel.href='tel:'+(data.tel||TALLER_TEL);
+  const st=ESTADOS_TK[data.estado]||{bg:'#1a1a2a',color:'#e8e8f0',label:data.estado};
+  const badge=document.getElementById('tk-badge-estado');
+  badge.textContent=st.label;
+  badge.style.background=st.bg;
+  badge.style.color=st.color;
+  if(data.notas){
+    const nota=document.getElementById('tk-nota');
+    nota.textContent='💬 '+data.notas;
+    nota.style.display='block';
+  }
+}
+
+function mostrarErrorTracking(){
+  document.querySelectorAll('body>*:not(#pagina-tracking):not(#etiqueta-print)').forEach(el=>el.style.display='none');
+  const pg=document.getElementById('pagina-tracking');
+  if(pg){pg.style.display='block';pg.innerHTML='<div style="text-align:center;padding:60px 20px"><div style="font-size:3rem">⚠️</div><h2 style="color:#ff6b35;margin:12px 0">QR inválido</h2><p style="color:#6b6b85">Este código QR no es válido o expiró.</p></div>';}
+}
+
+function iniciarCotizacion(){
+  if(!nroOrdenActual) nroOrdenActual=generarNroOrden();
+  document.getElementById('eq-orden').value=nroOrdenActual;
+  const fe=document.getElementById('fecha-entrega-estimada');
+  if(fe&&!fe.value){
+    const d=new Date(); let added=0;
+    while(added<3){d.setDate(d.getDate()+1);if(d.getDay()!==0&&d.getDay()!==6)added++;}
+    fe.value=d.toISOString().split('T')[0];
+  }
+  const {url}=_buildTrackingURL(nroOrdenActual);
+  trackingURLActual=url;
+  switchTab('cotizacion',document.querySelector('[data-tab=cotizacion]'));
+}
+
 function saveQuote(){
-  orderCounter++;localStorage.setItem('orderCounter',orderCounter);
-  const q={id:'ORD-'+orderCounter,fecha:new Date().toLocaleDateString('es-CL'),
+  if(!nroOrdenActual)nroOrdenActual=generarNroOrden();
+  const cSig=document.getElementById('sigCanvas');
+  const tSig=document.getElementById('sigCanvasTec');
+  const q={
+    id:nroOrdenActual,
+    fecha:new Date().toLocaleDateString('es-AR'),
     cliente:document.getElementById('cli-nombre').value||'(Sin nombre)',
     equipo:[document.getElementById('eq-marca').value,document.getElementById('eq-modelo').value].filter(Boolean).join(' ')||'(Sin equipo)',
-    total:document.getElementById('t-total').textContent,estado:'Pendiente'};
-  savedQuotes.unshift(q);localStorage.setItem('savedQuotes',JSON.stringify(savedQuotes));
-  document.getElementById('eq-orden').value='ORD-'+(orderCounter+1);
+    total:document.getElementById('t-total').textContent,
+    estado:'ingresado',
+    firmaCliente:cSig&&!isBlankCanvas(cSig)?cSig.toDataURL('image/png'):null,
+    firmaTecnico:tSig&&!isBlankCanvas(tSig)?tSig.toDataURL('image/png'):null
+  };
+  // build tracking
+  const {url:tUrl,data:tData}=_buildTrackingURL(nroOrdenActual);
+  trackingURLActual=tUrl;
+  q.trackingURL=tUrl;
+  q.trackingData=tData;
+  generarQR(tUrl);
+  savedQuotes=savedQuotes.filter(x=>x.id!==q.id);
+  savedQuotes.unshift(q);
+  localStorage.setItem('savedQuotes',JSON.stringify(savedQuotes));
   alert('✅ Cotización guardada como '+q.id);
 }
+
+function _diasHabiles(n){
+  const d=new Date(); let added=0;
+  while(added<n){d.setDate(d.getDate()+1);if(d.getDay()!==0&&d.getDay()!==6)added++;}
+  return d;
+}
+
 function clearForm(){
   if(!confirm('¿Limpiar todo el formulario?'))return;
-  ['cli-nombre','cli-rut','cli-tel','cli-wa','cli-email','eq-modelo','eq-imei','eq-color','tecnico','motivo-cliente','motivo-tecnico','obs-cotizacion','garantia-obs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  // campos de texto
+  ['cli-nombre','cli-rut','cli-tel','cli-wa','cli-email','eq-modelo','eq-imei','eq-color',
+   'tecnico','motivo-cliente','motivo-tecnico','obs-cotizacion','garantia-obs'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value='';
+  });
+  // marca
+  const mk=document.getElementById('eq-marca');if(mk)mk.value='';
+  // servicios
   services=[];
   document.getElementById('serviceTableBody').innerHTML='<tr id="empty-row"><td colspan="9" style="text-align:center;color:var(--muted);font-style:italic;padding:24px">Busque en el inventario o agregue servicios de mano de obra</td></tr>';
+  // checkboxes términos
+  ['chk-t1','chk-t2','chk-t3','chk-t4','chk-incell'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.checked=false;
+  });
+  // outline de términos
+  ['chk-t1','chk-t2','chk-t3','chk-t4'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.closest('.check-label').style.outline='';
+  });
+  const warn=document.getElementById('terminos-warn');if(warn)warn.style.display='none';
+  // garantía
+  const tr=document.getElementById('tipo-repuesto');if(tr){tr.value='oem';actualizarGarantia();}
+  const gp=document.getElementById('garantia-periodo');if(gp)gp.value='30 días';
+  // número de orden
+  nroOrdenActual=null;
+  document.getElementById('eq-orden').value='';
+  // fecha entrega
+  const fe=document.getElementById('fecha-entrega-estimada');
+  if(fe){const d=_diasHabiles(3);fe.value=d.toISOString().split('T')[0];}
+  // IVA
+  const iva=document.getElementById('ivaToggle');if(iva)iva.checked=false;
   recalc();clearDamages();clearSig();clearSigTec();
 }
+
 function renderHist(){
   const el=document.getElementById('historialContent');
   if(!savedQuotes.length){el.innerHTML='<div style="padding:32px;text-align:center;color:var(--muted)">No hay órdenes guardadas.</div>';return;}
-  el.innerHTML=savedQuotes.map(q=>`
-    <div class="quote-row">
-      <span class="quote-id">${q.id}</span><span>${q.cliente}</span>
-      <span style="color:var(--muted)">${q.equipo}</span>
-      <span style="color:var(--muted);font-family:'DM Mono',monospace;font-size:.78rem">${q.fecha}</span>
-      <span style="color:var(--accent);font-family:'DM Mono',monospace">${q.total}</span>
-      <span><span class="badge badge-pending">${q.estado}</span></span>
-    </div>`).join('');
+  el.innerHTML=savedQuotes.map((q,qi)=>{
+    const tUrl=q.trackingURL||'';
+    const estOpts=['ingresado','diagnostico','esperando_repuesto','en_reparacion','listo','entregado'];
+    return `<div class="quote-row" style="flex-direction:column;align-items:flex-start;gap:8px;padding:16px">
+      <div style="display:flex;gap:12px;flex-wrap:wrap;width:100%;align-items:center">
+        <span class="quote-id">${q.id}</span><span>${q.cliente}</span>
+        <span style="color:var(--muted)">${q.equipo}</span>
+        <span style="color:var(--muted);font-family:'DM Mono',monospace;font-size:.78rem">${q.fecha}</span>
+        <span style="color:var(--accent);font-family:'DM Mono',monospace">${q.total}</span>
+        ${q.firmaCliente?'<span style="font-size:.68rem;color:var(--accent)">✍️ firmado</span>':''}
+        ${tUrl?`<button class="btn btn-ghost btn-sm" onclick="window.open('${tUrl}','_blank')">👁 Ver tracking</button>`:''}
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;width:100%">
+        <select style="background:var(--input-bg);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:.8rem" id="est-${qi}" onchange="">
+          ${estOpts.map(e=>`<option value="${e}" ${q.estado===e?'selected':''}>${ESTADOS_TK[e]?.label||e}</option>`).join('')}
+        </select>
+        <input type="text" id="nota-${qi}" value="${q.trackingData?.notas||''}" placeholder="Nota pública para el cliente..." style="background:var(--input-bg);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:.8rem;flex:1;min-width:180px">
+        <button class="btn btn-accent btn-sm" onclick="actualizarEstadoOrden(${qi})">Actualizar + QR</button>
+        <span id="copy-hist-${qi}" style="display:none"><button class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText(savedQuotes[${qi}].trackingURL||'');alert('URL copiada!')">📋 Copiar link</button></span>
+      </div>
+    </div>`;
+  }).join('');
 }
 
-// ════════════ PREVIEW ════════════
+// ════════════ PREVIEW HELPERS ════════════
+function _fechaEntregaEstimada(){
+  const v=document.getElementById('fecha-entrega-estimada')?.value;
+  if(v){const d=new Date(v+'T00:00:00');return d;}
+  return _diasHabiles(3);
+}
+
+function _vencGarantia(){
+  const base=_fechaEntregaEstimada();
+  base.setDate(base.getDate()+GARANTIA_DIAS);
+  return base;
+}
+
+function _fmtDateES(d){
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+}
+
 function genPreview(){
   const g=id=>document.getElementById(id)?.value||'—';
   const nombre=g('cli-nombre'),tel=g('cli-tel'),email=g('cli-email'),rut=g('cli-rut');
-  const marca=g('eq-marca'),modelo=g('eq-modelo'),imei=g('eq-imei'),orden=g('eq-orden');
+  const marca=g('eq-marca'),modelo=g('eq-modelo'),imei=g('eq-imei');
+  const orden=nroOrdenActual||g('eq-orden');
   const total=document.getElementById('t-total').textContent;
-  const ganancia=document.getElementById('t-ganancia').textContent;
-  const fecha=new Date().toLocaleDateString('es-CL',{day:'2-digit',month:'long',year:'numeric'});
-  const garantia=g('garantia-periodo'),tiempo=g('tiempo-rep'),motivo=g('motivo-cliente'),obs=g('obs-cotizacion');
+  const fecha=new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'});
+  const tiempo=g('tiempo-rep'),motivo=g('motivo-cliente'),obs=g('obs-cotizacion');
+  const tipoRep=document.getElementById('tipo-repuesto')?.value||'oem';
+  const esIncell=tipoRep==='incell';
+  const venc=_fmtDateES(_vencGarantia());
+  const garantiaHTML=esIncell
+    ?`<div style="background:#fff0eb;border-left:4px solid #ff6b35;border-radius:6px;padding:12px 14px;margin-bottom:14px;font-size:.82rem">
+        <span style="background:#ff6b35;color:#fff;border-radius:4px;padding:2px 8px;font-size:.7rem;font-weight:700;margin-right:8px">SIN GARANTÍA</span>
+        Reparación con repuesto Incell / Aftermarket &mdash; sin garantía.
+       </div>`
+    :`<div style="background:#e8f5e9;border-left:4px solid #00c87a;border-radius:6px;padding:12px 14px;margin-bottom:14px;font-size:.82rem">
+        🛡 <strong>Garantía OEM: 30 días</strong> &mdash; Vence: <strong>${venc}</strong>
+       </div>`;
   const rows=services.map((s,i)=>`<tr>
     <td style="padding:8px;border-bottom:1px solid #eee;color:#999;font-size:.78rem">${i+1}</td>
     <td style="padding:8px;border-bottom:1px solid #eee">${s.name}</td>
@@ -1166,11 +1459,11 @@ function genPreview(){
   document.getElementById('previewContent').innerHTML=`
     <div style="max-width:700px;margin:0 auto;font-family:'DM Sans',sans-serif;color:#111">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:16px;border-bottom:2px solid #111;margin-bottom:24px">
-        <div><div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800">📱 TechFix<span style="color:#00c87a">Pro</span></div>
-          <div style="color:#666;font-size:.82rem;margin-top:3px">Servicio Técnico de Teléfonos Celulares</div>
-          <div style="color:#999;font-size:.76rem">📍 Dirección · 📞 Teléfono · ✉️ email@techfix.cl</div></div>
+        <div><div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800">🔧 BIT<span style="color:#00e5a0"> HOUSE</span></div>
+          <div style="color:#666;font-size:.82rem;margin-top:3px">Taller de Reparación &amp; Tecnología</div>
+          <div style="color:#999;font-size:.76rem">📍 Bahía Blanca, Buenos Aires &middot; ✉️ bithouse@email.com</div></div>
         <div style="text-align:right">
-          <div style="font-family:monospace;font-size:1.1rem;font-weight:700;color:#00c87a">${orden}</div>
+          <div style="font-family:monospace;font-size:1.1rem;font-weight:700;color:#00e5a0">${orden}</div>
           <div style="color:#666;font-size:.8rem">${fecha}</div>
           <div style="display:inline-block;background:#fff3cd;color:#856404;border:1px solid #ffc107;border-radius:999px;padding:2px 10px;font-size:.7rem;margin-top:4px">PENDIENTE</div>
         </div>
@@ -1178,7 +1471,7 @@ function genPreview(){
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
         <div style="background:#f8f9fa;border-radius:8px;padding:14px">
           <div style="font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:#555;margin-bottom:8px">Cliente</div>
-          <div style="font-size:.86rem;line-height:1.8"><strong>${nombre}</strong><br>RUT: ${rut}<br>📞 ${tel}<br>✉️ ${email}</div>
+          <div style="font-size:.86rem;line-height:1.8"><strong>${nombre}</strong><br>DNI: ${rut}<br>📞 ${tel}<br>✉️ ${email}</div>
         </div>
         <div style="background:#f8f9fa;border-radius:8px;padding:14px">
           <div style="font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:#555;margin-bottom:8px">Equipo</div>
@@ -1203,9 +1496,9 @@ function genPreview(){
         <div style="font-size:1.3rem;font-weight:800;font-family:'Syne',sans-serif">TOTAL: <span style="color:#00c87a;font-family:monospace">${total}</span></div>
       </div>
       ${obs!=='—'?`<div style="background:#e8f5e9;border-left:3px solid #00c87a;padding:10px 14px;border-radius:6px;font-size:.82rem;margin-bottom:14px;color:#2d6a4f"><strong>Observaciones:</strong> ${obs}</div>`:''}
-      <div style="background:#e3f2fd;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:.82rem">🛡 <strong>Garantía:</strong> ${garantia} | Desde la fecha de entrega al cliente.</div>
-      <div style="font-size:.74rem;color:#888;border-top:1px solid #ddd;padding-top:14px;line-height:1.7;margin-bottom:22px">
-        <strong>Términos:</strong> Al entregar el equipo el cliente acepta los términos y condiciones. Diagnóstico con costo si no se aprueba reparación. Datos del equipo son responsabilidad del cliente. Garantía no aplica por caídas, agua o apertura por terceros.
+      ${garantiaHTML}
+      <div style="font-size:.72rem;color:#888;border-top:1px solid #ddd;padding-top:12px;line-height:1.7;margin-bottom:22px">
+        <strong>Condiciones:</strong> ${CONDICIONES_CORTAS.split('\n').join(' ')}
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;padding-top:16px;border-top:1px solid #ddd">
         <div style="text-align:center"><div style="height:50px;border-bottom:1px solid #ccc;margin-bottom:6px"></div><div style="font-size:.74rem;color:#666">Firma del cliente</div></div>
@@ -1214,6 +1507,428 @@ function genPreview(){
     </div>`;
 }
 function printQuote(){genPreview();setTimeout(()=>window.print(),200);}
+
+// ════════════ TÉRMINOS Y GARANTÍA ════════════
+function avanzarAGarantia(){
+  const ids=['chk-t1','chk-t2','chk-t3','chk-t4'];
+  const allChecked=ids.every(id=>document.getElementById(id)?.checked);
+  const warn=document.getElementById('terminos-warn');
+  if(!allChecked){
+    if(warn)warn.style.display='inline';
+    ids.forEach(id=>{
+      const el=document.getElementById(id);
+      if(el)el.closest('.check-label').style.outline=el.checked?'':'1px solid var(--warn)';
+    });
+    return;
+  }
+  if(warn)warn.style.display='none';
+  switchTab('garantia',document.querySelector('[data-tab=garantia]'));
+}
+
+function actualizarGarantia(){
+  const val=document.getElementById('tipo-repuesto')?.value||'oem';
+  const esIncell=val==='incell';
+  const panelOem=document.getElementById('panel-oem');
+  const panelIncell=document.getElementById('panel-incell');
+  const hidPeriodo=document.getElementById('garantia-periodo');
+  if(panelOem)panelOem.style.display=esIncell?'none':'';
+  if(panelIncell)panelIncell.style.display=esIncell?'':'none';
+  if(hidPeriodo)hidPeriodo.value=esIncell?'Sin garantía':'30 días';
+}
+
+// ══ LOGO B64 ══
+const BITHOUSE_LOGO_B64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAYAAACtWK6eAAAsSElEQVR42u2deXxU1d3/P99z7p3JnhAIi6CCsiiurXsfHwl1KRatS5vgVp9q1dZqW7tYH+2STG1/rdZdK0WtWqRokz6KiisqIIgoIsi+iSBbQiDrzGRm7jnn+/vj3hsGiorKOpy3r7wSJzfh3sn5nO85ArgXADMmKjgmAi2AEcAOwD+ACaDTgJiAECJiAFABRASBwBgJiJUCAGYmZAAOgBiJiJmBUACJiAmJiJiJUAABiJiJmKhiAhEREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREJuT/ACIx6yxBJKGSAAAAAElFkJggg==";
+
+function _fmtARS(n){
+  if(!n&&n!==0)return'$0';
+  return '$'+Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+}
+
+function _buildDoc(){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a4',orientation:'portrait'});
+  const W=210,PL=17;
+
+  // ── datos del formulario ──
+  const g=id=>document.getElementById(id)?.value||'';
+  const nombre=g('cli-nombre')||'—';
+  const rut=g('cli-rut')||'—';
+  const tel=g('cli-tel')||'—';
+  const email=g('cli-email')||'—';
+  const marca=g('eq-marca')||'';
+  const modelo=g('eq-modelo')||'';
+  const imei=g('eq-imei')||'—';
+  const color=g('eq-color')||'—';
+  const motivo=g('motivo-cliente')||'—';
+  const garantiaPer=g('garantia-periodo')||'30 días';
+  const garantiaApl=g('garantia-aplica')||'';
+  const garantiaObs=g('garantia-obs')||'';
+  const obs=g('obs-cotizacion')||'';
+  const ordenVal=g('eq-orden');
+
+  // ── número de orden ──
+  if(!nroOrdenActual)nroOrdenActual=generarNroOrden();
+  const nroOrden=nroOrdenActual;
+
+  const fechaHoy=new Date();
+  const pad2=n=>String(n).padStart(2,'0');
+  const fmtDate=d=>`${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()}`;
+  const valid=new Date(fechaHoy);valid.setDate(valid.getDate()+7);
+  // vencimiento de garantía desde fecha-entrega-estimada
+  const vencGar=_vencGarantia();
+
+  // ── totales ──
+  const sub=services.reduce((a,s)=>a+s.qty*s.price,0);
+  const disc=services.filter(s=>s.price<0).reduce((a,s)=>a+s.qty*s.price,0);
+  const ivaOn=document.getElementById('ivaToggle')?.checked;
+  const ivaAmt=ivaOn?Math.max(0,sub*0.21):0;
+  const total=sub+ivaAmt;
+
+  // ══ HEADER ══
+  doc.setFillColor(10,10,26);
+  doc.rect(0,0,W,38,'F');
+
+  try{doc.addImage(BITHOUSE_LOGO_B64,'PNG',8,5,24,24);}catch(e){}
+
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(17);
+  doc.setTextColor(255,255,255);
+  doc.text('BIT HOUSE',36,14);
+
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(8);
+  doc.setTextColor(0,229,160);
+  doc.text('Taller de Reparación & Tecnología',36,20);
+
+  doc.setFontSize(6.5);
+  doc.setTextColor(144,144,176);
+  doc.text('Bahía Blanca, Buenos Aires',36,25);
+
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(9);
+  doc.setTextColor(255,255,255);
+  doc.text('PRESUPUESTO',200,10,{align:'right'});
+
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(8);
+  doc.setTextColor(0,229,160);
+  doc.text(nroOrden,200,16,{align:'right'});
+
+  doc.setFontSize(7);
+  doc.setTextColor(144,144,176);
+  doc.text('Fecha: '+fmtDate(fechaHoy),200,22,{align:'right'});
+  doc.text('Válido: '+fmtDate(valid)+' (+7 días)',200,27,{align:'right'});
+
+  doc.setDrawColor(124,111,255);
+  doc.setLineWidth(0.5);
+  doc.line(0,38,W,38);
+
+  // ══ DATOS CLIENTE + EQUIPO ══
+  let y=44;
+  const bh=28;
+
+  // bloque cliente
+  doc.setDrawColor(0,229,160);
+  doc.setLineWidth(2);
+  doc.line(10,y,10,y+bh);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(7);
+  doc.setTextColor(124,111,255);
+  doc.text('DATOS DEL CLIENTE',13,y+4);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(8);
+  doc.setTextColor(26,26,46);
+  doc.text(nombre,13,y+9);
+  doc.text('DNI: '+rut,13,y+14);
+  doc.text('Tel: '+tel,13,y+19);
+  doc.text('Email: '+email.substring(0,28),13,y+24);
+
+  // bloque equipo
+  doc.setDrawColor(0,229,160);
+  doc.line(110,y,110,y+bh);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(7);
+  doc.setTextColor(124,111,255);
+  doc.text('DATOS DEL EQUIPO',113,y+4);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(8);
+  doc.setTextColor(26,26,46);
+  doc.text((marca+' '+modelo).trim()||'—',113,y+9);
+  doc.text('IMEI: '+imei,113,y+14);
+  doc.text('Color: '+color,113,y+19);
+  const prob=motivo.substring(0,55)+(motivo.length>55?'…':'');
+  doc.text('Falla: '+prob,113,y+24);
+
+  // ══ TABLA ÍTEMS ══
+  y=80;
+  const colX=[PL,25,93,121,133,163];
+  const colW=[8,68,28,12,30,30];
+  const heads=['#','Descripción','Categoría','Cant','P.Unit','Subtotal'];
+
+  function drawTableHeader(yy){
+    doc.setFillColor(10,10,26);
+    doc.rect(PL,yy,176,7,'F');
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(8);
+    doc.setTextColor(255,255,255);
+    heads.forEach((h,i)=>{
+      const align=i>=3?'right':'left';
+      const tx=align==='right'?colX[i]+colW[i]-1:colX[i]+1;
+      doc.text(h,tx,yy+5,{align});
+    });
+    return yy+7;
+  }
+
+  y=drawTableHeader(y);
+
+  const rowH=7;
+  services.forEach((s,idx)=>{
+    if(y+rowH>272){
+      doc.addPage();
+      y=20;
+      y=drawTableHeader(y);
+    }
+    const even=idx%2===0;
+    doc.setFillColor(even?255:244,even?255:244,even?255:251);
+    doc.rect(PL,y,176,rowH,'F');
+    doc.setDrawColor(224,224,224);
+    doc.setLineWidth(0.2);
+    doc.line(PL,y+rowH,PL+176,y+rowH);
+
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(8);
+    doc.setTextColor(26,26,46);
+
+    const vals=[String(idx+1),s.name.substring(0,36),s.cat.substring(0,16),String(s.qty||1),_fmtARS(s.price),_fmtARS((s.qty||1)*s.price)];
+    vals.forEach((v,i)=>{
+      const align=i>=3?'right':'left';
+      const tx=align==='right'?colX[i]+colW[i]-1:colX[i]+1;
+      doc.text(v,tx,y+5,{align});
+    });
+    y+=rowH;
+  });
+
+  // ══ TOTALES ══
+  y+=6;
+  if(y>240){doc.addPage();y=20;}
+
+  const bx=130,bw=72;
+  const addTotalRow=(label,val,bold,color,bg)=>{
+    if(bg){doc.setFillColor(...bg);doc.rect(bx,y,bw,9,'F');}
+    doc.setFont('helvetica',bold?'bold':'normal');
+    doc.setFontSize(bold?12:8);
+    if(color)doc.setTextColor(...color);else doc.setTextColor(100,100,120);
+    doc.text(label,bx+3,y+6);
+    if(color)doc.setTextColor(...color);else doc.setTextColor(26,26,46);
+    doc.text(val,bx+bw-3,y+6,{align:'right'});
+    y+=9;
+  };
+
+  addTotalRow('Subtotal',_fmtARS(sub),false);
+  if(disc<0)addTotalRow('Descuento',_fmtARS(disc),false,[224,64,64]);
+  if(ivaOn)addTotalRow('IVA 21%',_fmtARS(ivaAmt),false);
+
+  doc.setDrawColor(124,111,255);doc.setLineWidth(0.5);
+  doc.line(bx,y,bx+bw,y);y+=2;
+
+  addTotalRow('TOTAL',_fmtARS(total),true,[10,10,26],[0,229,160]);
+
+  // ══ GARANTÍA CONDICIONAL ══
+  y+=8;
+  if(y>255){doc.addPage();y=20;}
+  const tipoRep=document.getElementById('tipo-repuesto')?.value||'oem';
+  const esIncell=tipoRep==='incell';
+  if(esIncell){
+    doc.setFillColor(255,240,235);
+    doc.rect(PL,y,176,14,'F');
+    doc.setDrawColor(255,107,53);doc.setLineWidth(0.8);
+    doc.rect(PL,y,176,14,'S');
+    doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(200,60,30);
+    doc.text('⚠ REPUESTO INCELL / AFTERMARKET — SIN GARANTÍA',PL+3,y+6);
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(150,60,30);
+    doc.text('El cliente fue informado y acepta que este repuesto no cuenta con garantía.',PL+3,y+11);
+    y+=20;
+  } else {
+    const vencG=new Date();vencG.setDate(vencG.getDate()+GARANTIA_DIAS);
+    const pad2g=n=>String(n).padStart(2,'0');
+    const fmtG=d=>`${pad2g(d.getDate())}/${pad2g(d.getMonth()+1)}/${d.getFullYear()}`;
+    doc.setFillColor(235,255,247);
+    doc.rect(PL,y,176,14,'F');
+    doc.setDrawColor(0,229,160);doc.setLineWidth(0.8);
+    doc.rect(PL,y,176,14,'S');
+    doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(0,140,90);
+    doc.text('✓ GARANTÍA OEM — 30 DÍAS',PL+3,y+6);
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(0,100,70);
+    doc.text(`Vence: ${fmtG(vencGar)} | Aplica a: ${document.getElementById('garantia-aplica')?.value||'Mano de obra + repuesto'}`,PL+3,y+11);
+    y+=20;
+  }
+
+  if(garantiaObs){
+    doc.setFont('helvetica','italic');doc.setFontSize(7);doc.setTextColor(96,96,128);
+    const goLines=doc.splitTextToSize('Obs: '+garantiaObs,176);
+    doc.text(goLines,PL,y);y+=goLines.length*4+2;
+  }
+
+  if(obs){
+    const oLines=doc.splitTextToSize('Observaciones: '+obs,176);
+    doc.setFont('helvetica','italic');doc.setFontSize(7);doc.setTextColor(96,96,128);
+    doc.text(oLines,PL,y);
+    y+=oLines.length*4+3;
+  }
+
+  // ══ CONDICIONES CORTAS ══
+  y+=4;
+  if(y+30>272){doc.addPage();y=20;}
+  doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(124,111,255);
+  doc.text('CONDICIONES DE SERVICIO',PL,y);y+=5;
+  doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(80,80,100);
+  const condLineas=CONDICIONES_CORTAS.split('\n');
+  condLineas.forEach((linea,i)=>{
+    const wrapped=doc.splitTextToSize(linea,176);
+    doc.text(wrapped,PL,y);y+=wrapped.length*3.5;
+  });
+  y+=4;
+
+  // ══ FIRMAS ══
+  const cSig=document.getElementById('sigCanvas');
+  const tSig=document.getElementById('sigCanvasTec');
+  const hasCSig=cSig&&!isBlankCanvas(cSig);
+  const hasTSig=tSig&&!isBlankCanvas(tSig);
+  if(y+38>272){doc.addPage();y=20;}
+  // líneas de firma siempre presentes
+  y+=6;
+  if(hasCSig){
+    try{doc.addImage(cSig.toDataURL('image/png'),'PNG',PL,y,65,22);}catch(e){}
+  }
+  if(hasTSig){
+    try{doc.addImage(tSig.toDataURL('image/png'),'PNG',120,y,65,22);}catch(e){}
+  }
+  doc.setFontSize(7);doc.setTextColor(144,144,176);doc.setFont('helvetica','normal');
+  doc.setDrawColor(180,180,200);doc.setLineWidth(0.3);
+  doc.line(PL,y+23,PL+65,y+23);
+  doc.text('Firma del cliente',PL,y+27);
+  doc.line(120,y+23,185,y+23);
+  doc.text('Firma del técnico',120,y+27);
+  y+=32;
+  doc.setFontSize(6);doc.setTextColor(100,100,120);doc.setFont('helvetica','italic');
+  doc.text('Al firmar este documento, el cliente declara haber leído y aceptado las presentes condiciones.',PL,y,{maxWidth:176});
+
+  // ══ FOOTER ══
+  const pages=doc.internal.getNumberOfPages();
+  for(let p=1;p<=pages;p++){
+    doc.setPage(p);
+    doc.setDrawColor(124,111,255);doc.setLineWidth(0.3);
+    doc.line(0,285,W,285);
+    doc.setFontSize(6);doc.setTextColor(144,144,176);doc.setFont('helvetica','normal');
+    doc.text('Bit House © 2025 — Bahía Blanca, Argentina',W/2,289,{align:'center'});
+    doc.text('Al firmar, el cliente acepta las condiciones de servicio.',W/2,293,{align:'center'});
+  }
+
+  // ══ QR EN PDF ══
+  const qrCanv=document.querySelector('#qr-container canvas');
+  if(qrCanv&&trackingURLActual){
+    try{
+      const qrDataURL=qrCanv.toDataURL('image/png');
+      const qrY=y-20; // al lado del total
+      doc.addImage(qrDataURL,'PNG',155,qrY<20?20:qrY,28,28);
+      doc.setFontSize(6);doc.setTextColor(144,144,176);doc.setFont('helvetica','normal');
+      doc.text('Escane\u00e1 para ver el estado',155+14,qrY+31,{align:'center'});
+    }catch(e){}
+  }
+
+  return{doc,nroOrden};
+}
+
+
+// ════════ ACTUALIZAR ESTADO DESDE HISTORIAL ════════
+function actualizarEstadoOrden(qi){
+  const q=savedQuotes[qi];
+  if(!q)return;
+  const nuevoEstado=document.getElementById('est-'+qi)?.value||q.estado;
+  const nuevaNota=document.getElementById('nota-'+qi)?.value||'';
+  q.estado=nuevoEstado;
+  if(!q.trackingData)q.trackingData={};
+  q.trackingData.estado=nuevoEstado;
+  q.trackingData.notas=nuevaNota;
+  const b64=btoa(unescape(encodeURIComponent(JSON.stringify(q.trackingData))));
+  q.trackingURL=`${location.origin}${location.pathname}#tracking=${b64}`;
+  savedQuotes[qi]=q;
+  localStorage.setItem('savedQuotes',JSON.stringify(savedQuotes));
+  // mostrar botón copiar
+  const cpBtn=document.getElementById('copy-hist-'+qi);
+  if(cpBtn)cpBtn.style.display='inline';
+  alert(`✅ Estado actualizado: ${ESTADOS_TK[nuevoEstado]?.label||nuevoEstado}\nLink actualizado listo para compartir.`);
+  renderHist();
+}
+
+// ════════ ETIQUETA IMPRIMIBLE ════════
+function imprimirEtiqueta(){
+  if(!nroOrdenActual&&!trackingURLActual){alert('Generá la orden primero.');return;}
+  const url=trackingURLActual||location.href;
+  // poblar datos
+  document.getElementById('et-orden').textContent=nroOrdenActual||'—';
+  const nombre=(document.getElementById('cli-nombre')?.value||'').split(' ').slice(0,2).join(' ')||'—';
+  document.getElementById('et-cliente').textContent=nombre;
+  const marca=document.getElementById('eq-marca')?.value||'';
+  const modelo=document.getElementById('eq-modelo')?.value||'';
+  document.getElementById('et-equipo').textContent=[marca,modelo].filter(Boolean).join(' ')||'—';
+  document.getElementById('et-fecha').textContent='Ingreso: '+new Date().toLocaleDateString('es-AR');
+  // QR de etiqueta
+  const qrDiv=document.getElementById('qr-etiqueta');
+  qrDiv.innerHTML='';
+  qrDiv.style.width='56px';qrDiv.style.height='56px';
+  if(typeof QRCode!=='undefined')new QRCode(qrDiv,{text:url,width:56,height:56,colorDark:'#000000',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
+  document.getElementById('etiqueta-print').style.display='flex';
+  setTimeout(()=>{window.print();setTimeout(()=>{document.getElementById('etiqueta-print').style.display='none';},500);},300);
+}
+
+function descargarEtiquetaPNG(){
+  if(!nroOrdenActual){alert('Generá la orden primero.');return;}
+  imprimirEtiqueta(); // pobla y muestra la etiqueta
+  const el=document.getElementById('etiqueta-print');
+  setTimeout(()=>{
+    if(typeof html2canvas==='undefined'){alert('html2canvas no disponible.');el.style.display='none';return;}
+    html2canvas(el,{scale:4,backgroundColor:'#ffffff'}).then(canvas=>{
+      const link=document.createElement('a');
+      link.download=`etiqueta-${nroOrdenActual}.png`;
+      link.href=canvas.toDataURL();
+      link.click();
+      el.style.display='none';
+    });
+  },500);
+}
+
+function isBlankCanvas(c){
+  const ctx=c.getContext('2d');
+  const d=ctx.getImageData(0,0,c.width,c.height).data;
+  for(let i=3;i<d.length;i+=4)if(d[i]>10)return false;
+  return true;
+}
+
+function _validarAntesDeGenerar(){
+  const tipoRep=document.getElementById('tipo-repuesto')?.value||'oem';
+  const incellConf=document.getElementById('chk-incell')?.checked;
+  if(tipoRep==='incell'&&!incellConf){
+    alert('Error: el cliente no confirmó haber sido informado sobre el repuesto Incell.\nCompletá el paso 4 antes de generar el PDF.');
+    const el=document.getElementById('chk-incell');
+    if(el){el.closest('.card').scrollIntoView({behavior:'smooth'});}
+    return false;
+  }
+  if(!window.jspdf){alert('jsPDF no cargado. Verificá tu conexión a internet.');return false;}
+  return true;
+}
+
+function generatePDF(){
+  if(!_validarAntesDeGenerar())return;
+  const{doc,nroOrden}=_buildDoc();
+  doc.save(`Presupuesto-BitHouse-${nroOrden}.pdf`);
+}
+
+function previewPDF(){
+  if(!_validarAntesDeGenerar())return;
+  const{doc}=_buildDoc();
+  doc.output('dataurlnewwindow');
+}
 
 // ════════════ PROVEEDORES ════════════
 let suppliers = JSON.parse(localStorage.getItem('suppliers') || 'null');
@@ -1691,5 +2406,54 @@ const now=new Date(),pad=n=>String(n).padStart(2,'0');
 document.getElementById('fecha-ingreso').value=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
 renderMargins();
 </script>
+
+<!-- ═══ ETIQUETA IMPRIMIBLE 62×29mm ═══ -->
+<div id="etiqueta-print">
+  <div class="et-info">
+    <div class="et-logo">
+      <div class="et-circle">BH</div>
+      <span class="et-brand">BIT HOUSE</span>
+    </div>
+    <div id="et-orden">—</div>
+    <div id="et-cliente">—</div>
+    <div id="et-equipo">—</div>
+    <div id="et-fecha">—</div>
+  </div>
+  <div id="qr-etiqueta"></div>
+</div>
+
+<!-- ═══ PÁGINA DE TRACKING PARA EL CLIENTE ═══ -->
+<div id="pagina-tracking">
+  <div class="tk-hero">
+    <div class="tk-logo">🔧 BIT<span> HOUSE</span></div>
+    <div style="color:#6b6b85;font-size:.78rem;margin-top:2px">Taller de Reparación &amp; Tecnología</div>
+    <div class="tk-order" id="tk-order-num">Cargando...</div>
+  </div>
+  <div class="tk-body">
+    <div class="tk-card" style="text-align:center">
+      <div class="tk-label">Estado de tu equipo</div>
+      <div class="tk-badge" id="tk-badge-estado">—</div>
+      <div id="tk-nota" style="font-size:.84rem;color:#b0b0c8;margin-top:8px;display:none"></div>
+    </div>
+    <div class="tk-card">
+      <div class="tk-grid">
+        <div><div class="tk-label">Marca / Modelo</div><div class="tk-value" id="tk-equipo">—</div></div>
+        <div><div class="tk-label">Ingreso</div><div class="tk-value" id="tk-ingreso">—</div></div>
+        <div><div class="tk-label">Entrega estimada</div><div class="tk-value" id="tk-entrega">—</div></div>
+        <div><div class="tk-label">Taller</div><div class="tk-value" id="tk-taller">Bit House</div></div>
+      </div>
+    </div>
+    <div class="tk-card tk-contact">
+      <div class="tk-label" style="margin-bottom:10px">Contactar al taller</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a id="tk-wa-link" href="#" style="background:#25d366;color:#fff;border-radius:8px;padding:10px 16px;font-weight:600;font-size:.84rem;text-decoration:none">💬 WhatsApp</a>
+        <a id="tk-tel-link" href="#" style="background:var(--surface2,#1a1a24);color:#e8e8f0;border:1px solid #2a2a3a;border-radius:8px;padding:10px 16px;font-size:.84rem;text-decoration:none">📞 Llamar</a>
+      </div>
+      <div id="tk-direccion" style="font-size:.78rem;color:#6b6b85;margin-top:10px">📍 Bahía Blanca, Buenos Aires</div>
+    </div>
+    <div style="text-align:center;font-size:.7rem;color:#3a3a5a;margin-top:24px">Bit House © 2025 — Tecnología con garantía</div>
+  </div>
+</div>
+
 </body>
 </html>
